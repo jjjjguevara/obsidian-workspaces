@@ -1,0 +1,21 @@
+{
+  "name": "obsidian-workspaces",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Native working contexts and branch-aware workspace switching for Obsidian",
+  "license": "GPL-3.0-only",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "node --import tsx --test tests/**/*.test.ts",
+    "build": "node esbuild.config.mjs",
+    "check": "npm run typecheck && npm test && npm run build"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "esbuild": "^0.28.2",
+    "obsidian": "^1.14.4",
+    "prettier": "^3.10.1",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2"
+  }
+}

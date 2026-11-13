@@ -1,0 +1,41 @@
+{
+  "date": "2026-11-13",
+  "platform": "Linux desktop",
+  "obsidianVersion": "1.15.1",
+  "obsidianGitVersion": "2.43.0",
+  "status": "passed",
+  "bundleSha256": "84181921df9ef38a6b6536026446242f0e81c9d527cc45884c3fc3cf4d64d46b",
+  "runId": "b09cb0ec-5d0b-4c31-b361-ef26e685014a",
+  "fixture": "tests/obsidian/runtime-extras.cjs",
+  "checks": [
+    {
+      "viewType": "backlink",
+      "status": "passed",
+      "nativeFileFollowingObserved": true,
+      "targetBranch": "beta"
+    },
+    {
+      "viewType": "outgoing-link",
+      "status": "passed",
+      "nativeFileFollowingObserved": true,
+      "targetBranch": "beta"
+    },
+    {
+      "viewType": "outline",
+      "status": "passed",
+      "nativeFileFollowingObserved": true,
+      "targetBranch": "beta"
+    }
+  ],
+  "finishedAt": "2026-11-13T23:44:40.632Z",
+  "manualMenuCheck": {
+    "transition": "Alpha to Beta",
+    "actualBranch": "beta",
+    "visiblePinnedMainNote": "beta-exclusive.md",
+    "workspacesIndicator": "Beta \u00b7 beta",
+    "obsidianGitBranchIndicator": "beta",
+    "status": "passed",
+    "observation": "Native desktop screenshot after menu activation, with branch independently read through Git."
+  },
+  "scope": "Final bundle verified for native core-sidebar compatibility and manual menu/branch-indicator switching. The earlier full pin/dirty-buffer run is recorded separately in native-initial.json."
+}

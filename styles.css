@@ -1,0 +1,18 @@
+.workspaces-context-detail {
+  color: var(--text-muted);
+  font-size: var(--font-ui-smaller);
+}
+.workspaces-context-row {
+  display: flex;
+  gap: 0.6em;
+  align-items: center;
+}
+.workspaces-context-icon {
+  display: flex;
+}
+.workspaces-progress .modal-close-button {
+  display: none;
+}
+.workspaces-status {
+  cursor: pointer;
+}

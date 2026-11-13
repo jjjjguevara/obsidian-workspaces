@@ -1,0 +1,9 @@
+{
+  "id": "obsidian-workspaces",
+  "name": "Workspaces",
+  "version": "0.1.0",
+  "minAppVersion": "1.13.0",
+  "description": "Restore notes, pinned tabs, layouts and optional Git branches as one working context.",
+  "author": "jjjjguevara",
+  "isDesktopOnly": false
+}

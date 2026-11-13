@@ -14,6 +14,8 @@ Give one serialized controller ownership of activation. Every switch, history re
 
 The controller prepares source/target contexts, finishes applicable note saves, and captures the outgoing live layout before checkout. Save-on-switch policy determines whether that capture replaces the source's saved layout. The recovery journal retains the context necessary to identify an incomplete transition.
 
+Await supported text-backed editor saves and unload outgoing file views before checkout. Reject unsupported editable views with an instruction to close them. Recheck Git status after unloading, then require observed filesystem/index/cache readiness before restoring the target. A fixed delay cannot substitute for those checks.
+
 Suspend incidental layout captures and competing activation while the operation owns the transition. Validate branch/status, persist the journal, perform any required checkout, observe the target branch and vault files, restore the native layout, and persist the active identity only after successful restoration. Indicators follow committed state.
 
 A fixed elapsed timeout does not revoke ownership of a valid operation. Later requests are serialized or rejected explicitly. A failed checkout cannot fall through into target layout loading. If failure follows checkout, preserve the journal and report the actual branch and incomplete restoration. Report successful recovery only after verifying it.
