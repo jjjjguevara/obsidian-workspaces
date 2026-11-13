@@ -1,0 +1,25 @@
+# ADR 0003 — Git binding and backend
+
+**Status:** Accepted
+
+**Date:** 2026-11-13
+
+## Context
+
+A workspace can contain notes that exist only on a particular branch. Restoring that workspace requires the branch to be present before Obsidian opens those notes. Git operations can fail, and ordinary editor changes can make a checkout unsafe or impossible.
+
+## Decision
+
+Make branch binding optional and explicit. A bound context records an existing local branch and repository identity. Capture the observed branch when binding a saved context. Ordinary autosaves retain its binding; an external branch change requires explicit reconciliation instead of silently changing the association.
+
+Use the installed Obsidian Git plugin as the initial desktop backend. Target its inspected 2.43.0 capability surface through a narrow adapter. Validate availability, initialization, required operations, and repository identity before use. Put the complete Git-aware transition inside the backend's operation queue through `withRepository`; do not release that scope between status validation, checkout, and restoration. Await an unambiguous operation result instead of treating a command dispatch as checkout completion.
+
+A dirty working tree blocks a branch change. A layout switch on the already-active branch does not require checkout and can retain pending file edits. Missing branches and repository/backend mismatches produce a reported failure. Workspaces does not create branches, automatically stash, force checkout, commit, push, or check out a branch during startup. Saving a workspace records layout/context state and does not commit note content.
+
+An unbound activation changes the layout while leaving Git untouched. Initial mobile support is for unbound workspaces; bound activation is unavailable there. External Git changes are observed at operation boundaries, since the plugin cannot serialize an unrelated terminal process.
+
+## Consequences
+
+The integration adds no separate credential store or Git implementation. It depends on a tested compatibility boundary with Obsidian Git and must fail clearly when that boundary changes. Users handle pending file changes through explicit Git operations before switching branches.
+
+Git is a participant in the controller defined by [ADR 0004](0004-workspace-transitions-and-recovery.md); the adapter does not choose the active workspace.
