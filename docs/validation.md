@@ -6,17 +6,21 @@ Validated on 2026-11-13. This document distinguishes native application observat
 
 `npm run check` runs TypeScript checking, the Node test suite, and the shipping build. Tests use real temporary Git repositories for the installed-provider adapter, deterministic host doubles for transition failures, temporary filesystem stores, and the actual generated CommonJS bundle for desktop/mobile loading.
 
-The final local run passed **112 tests**, with no failures or skipped tests; type checking and the shipping build also passed.
+The implementation and independent review runs passed **118 tests**, with no failures or skipped tests; type checking and the shipping build also passed.
 
-Covered risks include dirty and conflicting worktrees, ignored-file collisions, unfinished Git operations, native runtime file tracking, branch identity, provider queues, rapid activation, source drift during saves, cancellation, stale confirmations, history identity, failed writes before and after atomic replacement, recovery across controller reconstruction, competing stores, symlink containment, import validation, cache readiness, and pin/leaf preservation. Mobile bundle tests forbid Node module loading.
+Covered risks include dirty and conflicting worktrees, ignored-file collisions, unfinished Git operations, native runtime file tracking, canonical repository identity through vault aliases, alias retargeting, provider queues, rapid activation, source drift during saves, cancellation, stale confirmations, history identity, failed writes before and after atomic replacement, recovery across controller reconstruction, competing stores, symlink containment, malformed import identities, cache readiness, and pin/leaf preservation. Mobile bundle tests forbid Node module loading.
 
 ## Native application verification
 
-The application run used **Obsidian 1.15.1** and **Obsidian Git 2.43.0** on Linux, with a disposable local vault and no Git remotes. The [machine-readable result](validation/native-initial.json) records the completed checks.
+The independent reviewer ran the complete native fixture using **Obsidian 1.15.1** and **Obsidian Git 2.43.0** on Linux, in a fresh disposable local vault with no Git remotes. All nine checks passed on source commit `bca767994231e1720c2eabc924bd3ba4b5f6453d`, after the import-identity and canonical-repository fixes. The complete [machine-readable result](validation/native-e2e-final.json) retains the branch, layout, pin, editor-content, and failure-path observations.
+
+The rebuilt and installed bundle matched SHA-256 `c5fb5829f892ffa818d7b7b9521ece22309e8ed08e48dc7df914ed207fd745fa`. The run completed on 2026-11-13 at 23:56:30 UTC. Native UI inspection and a separate Git command confirmed the final alpha branch, Alpha workspace indicator, and clean worktree.
+
+The [independent review](validation/independent-review.md) records the source, fixture, bundle, and raw-report hashes, complete observations, resolved findings, and remaining coverage limits.
 
 | Scenario                                    | Observed result                                                                                                                            |
 | ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
-| Load the development bundle                 | Loaded after correcting the CommonJS handling of lazy Node imports.                                                                        |
+| Load the development bundle                 | The final CommonJS bundle loaded in the native application.                                                                                |
 | Capture and import two bound native layouts | Import retained layouts and pins without activating either workspace.                                                                      |
 | Switch alpha → beta → alpha                 | Actual Git branch, committed workspace, and visible editor content agreed.                                                                 |
 | Branch-exclusive main and sidebar notes     | Each branch restored its own pinned main note and pinned notes in both sidebars. Inactive snapshots retained their absent file references. |
@@ -25,15 +29,14 @@ The application run used **Obsidian 1.15.1** and **Obsidian Git 2.43.0** on Linu
 | Dirty editor buffer                         | The buffer was saved, checkout was rejected, and source identity/journal state remained correct.                                           |
 | Dirty same-branch activation                | The new layout opened and the note edit remained intact without checkout.                                                                  |
 | Return to a clean fixture                   | Further clean branch switching succeeded.                                                                                                  |
-| Native status menu                          | Selecting Beta opened its branch-exclusive pinned note and updated the Workspaces indicator.                                               |
 
 The native run did not observe `shared.md` itself becoming deferred; its background editor content was verified. Deferred sidebar markdown leaves were observed separately.
 
-### Final bundle checks
+### Additional native checks
 
-Subsequent native checks exposed and corrected two integration issues: the read-only Backlinks, Outgoing links, and Outline panes were rejected by the unknown-editor guard, and Obsidian Git's own branch indicator needed its native refresh hooks after checkout. All three sidebar checks then passed, and a manual Alpha → Beta menu activation showed the pinned `beta-exclusive.md` note with both branch indicators displaying `beta`.
+Backlinks, Outgoing links, and Outline were also tested while following an active note; all three permitted branch switching. A manual Alpha → Beta menu activation showed the pinned `beta-exclusive.md` note with both branch indicators displaying `beta`.
 
-The [final native result](validation/native-final.json) records those checks and the SHA-256 of the built and installed `main.js`, whose bytes were verified to match. The earlier nine-check run in `native-initial.json` preceded these final sidebar/presentation fixes; the records deliberately identify their different coverage.
+The [sidebar and menu result](validation/native-final.json) records those checks against the earlier bundle identified by its own hash. The [initial scenario result](validation/native-initial.json) is retained separately. The independent full run linked above is the acceptance evidence for the final implementation.
 
 ## Reproduce the native run
 
