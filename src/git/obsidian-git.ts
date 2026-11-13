@@ -207,6 +207,7 @@ export class ObsidianGitBackend implements GitBackend {
             );
             try {
               assertConnected();
+              await repository.initialize();
               const value = await operation(repository);
               assertConnected();
               return { ok: true, value };
@@ -248,6 +249,7 @@ export class ObsidianGitBackend implements GitBackend {
 class QueuedRepository implements GitRepository {
   private active = true;
   private readonly expectedRoot: string;
+  private expectedCanonicalRoot: string | null = null;
 
   constructor(
     private readonly plugin: InstalledGitPlugin,
@@ -257,6 +259,26 @@ class QueuedRepository implements GitRepository {
     private readonly checkoutGuard?: ObsidianGitBackendOptions['checkoutGuard'],
   ) {
     this.expectedRoot = native.resolve(manager.absoluteRepoPath);
+  }
+
+  async initialize(): Promise<void> {
+    this.assertActive();
+    // Pin the physical repository before handing ownership to the callback.
+    // A vault alias is valid, but retargeting it cannot redefine this transaction.
+    this.expectedCanonicalRoot = await this.canonicalRoot(this.expectedRoot);
+    this.assertActive();
+  }
+
+  private async canonicalRoot(path: string): Promise<string> {
+    try {
+      return await this.native.realpath(path);
+    } catch (cause) {
+      throw new GitBackendError(
+        'repository-changed',
+        "Could not resolve Obsidian Git's repository root. Check that the vault path is available.",
+        { cause },
+      );
+    }
   }
 
   release(): void {
@@ -298,10 +320,13 @@ class QueuedRepository implements GitRepository {
   }
 
   async inspect(): Promise<GitStatus> {
-    const root = this.native.resolve(
-      withoutFinalNewline(await this.raw(['rev-parse', '--show-toplevel'])),
-    );
-    if (root !== this.expectedRoot) {
+    const reportedRoot = withoutFinalNewline(await this.raw(['rev-parse', '--show-toplevel']));
+    const [root, providerRoot] = await Promise.all([
+      this.canonicalRoot(this.native.resolve(reportedRoot)),
+      this.canonicalRoot(this.expectedRoot),
+    ]);
+    this.assertActive();
+    if (root !== this.expectedCanonicalRoot || providerRoot !== this.expectedCanonicalRoot) {
       throw new GitBackendError(
         'repository-changed',
         "Obsidian Git's current directory does not match its repository root.",

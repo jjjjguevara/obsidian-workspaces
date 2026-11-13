@@ -120,6 +120,77 @@ test('round trips branch-exclusive files through the installed provider', async 
   assert.deepEqual(f.checkouts, ['beta', 'alpha']);
 });
 
+test('a vault opened through a directory alias keeps canonical identity through checkout', async (t) => {
+  const f = await fixture(t);
+  const aliases = await mkdtemp(join(tmpdir(), 'obsidian-workspaces-alias-'));
+  t.after(() => rm(aliases, { recursive: true, force: true }));
+  const alias = join(aliases, 'vault');
+  await symlink(f.root, alias, process.platform === 'win32' ? 'junction' : 'dir');
+  f.manager.absoluteRepoPath = alias;
+  f.manager.git.raw = (args) => f.git(['-C', alias, ...args]);
+  f.manager.checkout = async (branch) => {
+    f.checkouts.push(branch);
+    await f.git(['-C', alias, 'checkout', branch]);
+  };
+  const adapter = new ObsidianGitBackend({
+    resolvePlugin: () => f.plugin,
+    isDesktop: () => true,
+    checkoutGuard: { vaultPath: alias, configDir: '.obsidian', pluginId: 'obsidian-workspaces' },
+  });
+  await adapter.withRepository(async (repository) => {
+    assert.deepEqual(await repository.inspect(), {
+      root: f.root,
+      branch: 'alpha',
+      dirty: false,
+      conflicted: false,
+    });
+    const target = await repository.checkout('beta');
+    assert.equal(target.root, f.root);
+    assert.equal(target.branch, 'beta');
+    assert.equal(await readFile(join(alias, 'b.md'), 'utf8'), 'Only on beta\n');
+    const source = await repository.checkout('alpha');
+    assert.equal(source.root, f.root);
+    assert.equal(source.branch, 'alpha');
+    assert.equal(await readFile(join(alias, 'a.md'), 'utf8'), 'Only on alpha\n');
+  });
+  assert.deepEqual(f.checkouts, ['beta', 'alpha']);
+});
+
+test('repository identity is pinned before the callback so an alias cannot retarget it', async (t) => {
+  const original = await fixture(t);
+  const replacement = await fixture(t);
+  const aliases = await mkdtemp(join(tmpdir(), 'obsidian-workspaces-retarget-'));
+  t.after(() => rm(aliases, { recursive: true, force: true }));
+  const alias = join(aliases, 'vault');
+  const kind = process.platform === 'win32' ? 'junction' : 'dir';
+  await symlink(original.root, alias, kind);
+  original.manager.absoluteRepoPath = alias;
+  original.manager.git.raw = (args) => original.git(['-C', alias, ...args]);
+  await original.adapter.withRepository(async (repository) => {
+    // Change the alias before the first inspect: identity must already be fixed.
+    await rm(alias);
+    await symlink(replacement.root, alias, kind);
+    await assert.rejects(repository.inspect(), hasCode('repository-changed'));
+    await assert.rejects(repository.checkout('beta'), hasCode('repository-changed'));
+  });
+  assert.deepEqual(original.checkouts, []);
+  assert.equal((await replacement.git(['branch', '--show-current'])).trim(), 'alpha');
+});
+
+test('an unresolved provider root rejects before the transaction callback can run', async (t) => {
+  const f = await fixture(t);
+  f.manager.absoluteRepoPath = join(f.root, 'missing-root');
+  let executed = false;
+  await assert.rejects(
+    f.adapter.withRepository(async () => {
+      executed = true;
+    }),
+    hasCode('repository-changed'),
+  );
+  assert.equal(executed, false);
+  assert.deepEqual(f.checkouts, []);
+});
+
 test('checkout awaits the provider branch label and refreshes its views after Git changes branch', async (t) => {
   const f = await fixture(t);
   const displayStarted = deferred();

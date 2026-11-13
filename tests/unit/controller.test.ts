@@ -198,6 +198,29 @@ function fixture(
   return { state, ids, store, host, git, controller };
 }
 
+test('a malformed imported workspace ID cannot mutate the catalog or disable saving', async () => {
+  const { controller, store, ids, host, git } = fixture([null]);
+  const original = controller.state;
+  for (const id of ['', '   ']) {
+    const incoming = structuredClone(original);
+    incoming.workspaces[id] = { ...incoming.workspaces[ids[0]!]!, id };
+    incoming.order.push(id);
+    incoming.activeId = id;
+    await assert.rejects(
+      controller.importJson(JSON.stringify(incoming)),
+      /Invalid workspace record/,
+    );
+    assert.deepEqual(controller.state, original);
+    assert.deepEqual(await store.load(), original);
+    assert.equal(store.writes.length, 0);
+    assert.equal(host.restored.length, 0);
+    assert.equal(git.entered, 0);
+  }
+  await controller.saveActive();
+  assert.equal(controller.state.activeId, ids[0]);
+  assert.equal(store.writes.length, 1);
+});
+
 test('same-branch layout switches retain dirty note edits without issuing checkout', async () => {
   const f = fixture(['alpha', 'alpha']);
   f.git.status.dirty = true;

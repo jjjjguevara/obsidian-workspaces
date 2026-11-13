@@ -103,6 +103,40 @@ test('future versions, invalid revisions and malformed own catalogs are refused'
   assert.deepEqual(migrateState(null), emptyState());
 });
 
+test('blank workspace IDs are refused on load and own-product import', () => {
+  for (const id of ['', '   ', '\t\n']) {
+    for (const activeId of [null, id]) {
+      const state = ownedState();
+      const originalId = state.order[0]!;
+      const record = state.workspaces[originalId]!;
+      delete state.workspaces[originalId];
+      record.id = id;
+      state.workspaces[id] = record;
+      state.order[0] = id;
+      state.activeId = activeId;
+      assert.throws(() => migrateState(state), /Invalid workspace record/);
+      assert.throws(() => importRecords(state), /Invalid workspace record/);
+    }
+  }
+});
+
+test('legacy blank IDs receive distinct usable identities while valid non-UUID IDs survive', () => {
+  const records = importRecords({
+    sessions: {
+      empty: { id: '', name: 'Empty ID', layout: native('empty.md') },
+      spaces: { id: '   ', name: 'Blank ID', layout: native('spaces.md') },
+      valid: { id: '0', name: 'Valid ID', layout: native('valid.md') },
+    },
+  });
+  assert.equal(new Set(records.map((record) => record.id)).size, 3);
+  assert.ok(records.every((record) => record.id.trim().length > 0));
+  assert.equal(records[2]!.id, '0');
+  const state = emptyState();
+  state.workspaces = Object.fromEntries(records.map((record) => [record.id, record]));
+  state.order = records.map((record) => record.id);
+  assert.deepEqual(migrateState(state), state);
+});
+
 test('valid recovery journals survive reload while corrupted recovery references are rejected', async (t) => {
   const state = ownedState();
   const sourceId = state.activeId!;

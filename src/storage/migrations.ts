@@ -7,6 +7,10 @@ import {
 
 const object = (value: unknown): value is Record<string, unknown> =>
   !!value && typeof value === 'object' && !Array.isArray(value);
+const validWorkspaceId = (value: unknown): value is string =>
+  typeof value === 'string' &&
+  value.trim().length > 0 &&
+  !['__proto__', 'prototype', 'constructor'].includes(value);
 function validateLayout(value: unknown): void {
   if (!object(value) || !object(value.main))
     throw new Error('Invalid workspace layout: missing main tree.');
@@ -84,7 +88,7 @@ export function migrateState(value: unknown): WorkspaceState {
     throw new Error('Invalid active workspace.');
   for (const [id, record] of Object.entries(value.workspaces)) {
     if (
-      ['__proto__', 'prototype', 'constructor'].includes(id) ||
+      !validWorkspaceId(id) ||
       !object(record) ||
       record.id !== id ||
       typeof record.name !== 'string' ||
@@ -183,13 +187,7 @@ export function importRecords(value: unknown): WorkspaceRecord[] {
     const groupNames = groupRecords
       .map((group) => group.name)
       .filter((name): name is string => typeof name === 'string');
-    const sourceId =
-      !native &&
-      typeof raw.id === 'string' &&
-      raw.id &&
-      !['__proto__', 'constructor', 'prototype'].includes(raw.id)
-        ? raw.id
-        : globalThis.crypto.randomUUID();
+    const sourceId = !native && validWorkspaceId(raw.id) ? raw.id : globalThis.crypto.randomUUID();
     const text = (value: unknown, fallback = ''): string =>
       typeof value === 'string' ? value : fallback;
     const record: WorkspaceRecord = {

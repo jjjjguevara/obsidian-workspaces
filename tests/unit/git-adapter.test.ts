@@ -11,7 +11,7 @@ function provider() {
     manifest: { id: 'obsidian-git', version: '2.43.0' },
     gitReady: true,
     gitManager: {
-      absoluteRepoPath: '/test-repository',
+      absoluteRepoPath: process.cwd(),
       git: { raw: async (_args: string[]): Promise<string> => '' },
       checkout: async (_branch: string): Promise<void> => {},
     },
