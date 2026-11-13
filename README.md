@@ -6,18 +6,18 @@ The first version uses Obsidian's native controls. A workspace switcher, command
 
 ## Initial scope
 
-| Capability | Scope |
-| --- | --- |
-| Named workspaces | Create, save, rename, duplicate, delete, and organize into groups. |
-| Native layouts | Restore the main editor area and both sidebars, including saved pin state. |
-| Save behavior | Explicit saves and optional save on switch. Saving a layout does not commit files to Git. |
-| Layout history | Keep saved snapshots and restore an earlier workspace context. |
-| Branch binding | On desktop, associate a workspace with the current local branch through the installed Obsidian Git plugin. |
-| Imports | Bring in core Workspaces layouts or Workspace++ session JSON. |
-| Transfer | Export and import workspace snapshots explicitly. |
-| Mobile | Use unbound workspaces and a separate mobile layout. Git-bound activation is desktop only. |
+| Capability       | Scope                                                                                                      |
+| ---------------- | ---------------------------------------------------------------------------------------------------------- |
+| Named workspaces | Create, save, rename, duplicate, delete, and assign a group, icon, color, and description.                 |
+| Native layouts   | Restore the main editor area and both sidebars, including saved pin state.                                 |
+| Save behavior    | Explicit saves and optional save on switch. Saving a layout does not commit files to Git.                  |
+| Layout history   | Keep up to 30 previous saved contexts per workspace and restore one through the normal switch flow.        |
+| Branch binding   | On desktop, associate a workspace with the current local branch through the installed Obsidian Git plugin. |
+| Imports          | Bring in core Workspaces layouts, Workspaces Plus presentation metadata, or Workspace++ session JSON.      |
+| Transfer         | Export and import workspace snapshots explicitly.                                                          |
+| Mobile           | Use unbound workspaces and a separate mobile layout. Git-bound activation is desktop only.                 |
 
-This is an initial development build. Compatibility checks target **Obsidian 1.13.0+** and the **Obsidian Git 2.43.0** integration surface. Automated checks cover the model and transition logic; desktop behavior, including branch-specific pinned notes, also requires the application checks described in [Development](docs/development.md).
+This is an initial development build targeting **Obsidian 1.13.0+**. Native validation passed on **Obsidian 1.15.1 with Obsidian Git 2.43.0 on Linux**, including branch-exclusive pinned notes in the main area and both sidebars. The Git adapter accepts **Obsidian Git 2.43.x** and targets the inspected **2.43.0** integration surface. See [Validation](docs/validation.md) for tested behavior and platform limits.
 
 ## Working with branches
 
@@ -29,11 +29,21 @@ A branch change requires a clean working tree. Switching layouts on the already-
 
 Changing the branch outside Workspaces can leave the displayed context and saved binding out of alignment. The plugin detects that mismatch before capturing or switching a bound context, so that notes from one branch do not silently replace another branch's saved layout.
 
+Before changing branches, Workspaces awaits saves for text-backed note views and unloads outgoing file views. Native media views and the built-in Backlinks, Outgoing links, and Outline panes are supported. Other editable view types with no supported save lifecycle must be closed first; the plugin reports the view that needs attention.
+
+Exclude Obsidian's live layout files, `.obsidian/workspace.json` and `.obsidian/workspace-mobile.json`, from Git tracking in both branches. The checkout preflight enforces this because those files change as the interface changes. Keep `community-plugins.json` and the Workspaces/Obsidian Git plugin files identical across branches, or untracked, so checkout cannot reload the integration. Use the actual configuration directory if different. The named core catalog, `workspaces.json`, is a different file used for import.
+
+## Importing existing workspaces
+
+Imports add records without replacing the current workspace or checking out Git. Workspaces Plus icons, colors, descriptions, and saved tracked-file references are converted from core Workspaces JSON. Workspace++ desktop/mobile layouts and included history are retained; multiple group memberships become one group label joined with `·`. Branch bindings are retained only when importing this product's own export.
+
+Modes, workspace-specific Obsidian configuration overrides, automatic sidebar propagation, and upstream synchronization settings are outside this version's scope. See the [import contract](docs/specification.md#persistence-and-transfer) for conversion details.
+
 ## Data and recovery
 
-On desktop, the workspace catalog, history, and transition journal live in `obsidian-workspaces/<vault-key>/state.json` beneath the operating system's application-data location, outside the vault and its Git working tree. The previous complete file is preserved as `state.json.backup`. The vault key uses a hash of its canonical path, separating each vault's data. Checking out another branch therefore cannot replace the catalog needed to complete the switch.
+On desktop, the workspace catalog, history, and transition journal live in `obsidian-workspaces/<vault-key>/state.json` beneath the operating system's application-data location. The vault key is the first 24 hexadecimal characters of SHA-256 over its canonical path. Binding verifies that this store is outside the Git working tree. The previous complete file is preserved as `state.json.backup`; writes use a lock and reject conflicting edits from another vault instance. [Architecture](docs/architecture.md#storage) documents the exact locations and interrupted-lock handling.
 
-Mobile uses Obsidian's plugin data storage. An external sync service may copy that file; this version does not reconcile concurrent edits across devices. Use explicit export/import to transfer contexts. Moving a desktop vault to another path also changes its storage key; export before moving it and import afterward. Imported branch bindings still identify their original repository location and may require explicit rebinding on another machine.
+Mobile uses Obsidian's plugin data storage. An external sync service may copy that file; this version does not reconcile concurrent edits across devices. Use explicit export/import to transfer contexts. Moving a desktop vault to another path also changes its storage key; export before moving it and import afterward. Imported branch bindings still identify their original repository location. Remove the old binding before activating such a record in another repository, then bind the current workspace explicitly.
 
 An interrupted transition leaves a recovery record. Startup reports it and preserves the saved contexts without checking out a branch automatically.
 
@@ -63,6 +73,7 @@ The current work concentrates on dependable workspace restoration, native presen
 - [Specification](docs/specification.md): behavior and acceptance cases.
 - [Architecture](docs/architecture.md): state, storage, and transition boundaries.
 - [Development](docs/development.md): build and validation workflow.
+- [Validation](docs/validation.md): automated checks, native application results, and remaining platform coverage.
 - [Architecture decisions](docs/adr/0001-workspace-authority-and-persistence.md): the four adopted foundations.
 
 ## Attribution and license

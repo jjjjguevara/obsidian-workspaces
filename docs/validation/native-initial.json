@@ -1,0 +1,49 @@
+{
+  "date": "2026-11-13",
+  "platform": "Linux desktop",
+  "obsidianVersion": "1.15.1",
+  "obsidianGitVersion": "2.43.0",
+  "status": "passed",
+  "checks": [
+    {
+      "name": "installed plugins and fixture readiness",
+      "status": "passed"
+    },
+    {
+      "name": "capture real native alpha and beta layouts",
+      "status": "passed"
+    },
+    {
+      "name": "import bound records without activating them",
+      "status": "passed"
+    },
+    {
+      "name": "activate alpha with branch-exclusive main/sidebar pins",
+      "status": "passed"
+    },
+    {
+      "name": "activate beta with branch-exclusive main/sidebar pins",
+      "status": "passed"
+    },
+    {
+      "name": "activate alpha with branch-exclusive main/sidebar pins",
+      "status": "passed"
+    },
+    {
+      "name": "flush a dirty native editor and block branch checkout",
+      "status": "passed"
+    },
+    {
+      "name": "same-branch layout activation retains dirty note edits",
+      "status": "passed"
+    },
+    {
+      "name": "restore fixture content and switch cleanly again",
+      "status": "passed"
+    }
+  ],
+  "deferredFilePaths": ["sidebar-alpha.md", "sidebar-beta.md"],
+  "sharedFileDeferredCoverage": "Background shared.md content was verified; this run did not observe a deferred shared.md leaf.",
+  "finishedAt": "2026-11-13T23:33:28.128Z",
+  "fixture": "tests/obsidian/runtime-probe.cjs"
+}

@@ -14,7 +14,7 @@ Maintain one authoritative catalog with stable workspace IDs. Names are presenta
 
 Version the persisted schema and implement explicit migrations. Duplication creates a new identity and copies supported metadata and layouts independently. Imports preserve valid product identities and allocate IDs for source formats that lack them; equal names do not silently coalesce records. Unknown future schema versions must not be overwritten as though they were current data.
 
-On desktop, store the catalog, backup, and transition journal outside the vault/repository, beneath the operating system's application-data location. Derive the vault-specific key from its local path. Use atomic replacement and preserve a backup. On mobile, use the plugin's `loadData`/`saveData` persistence.
+On desktop, store the catalog, backup, and transition journal outside the vault/repository, beneath the operating system's application-data location. Derive the vault-specific key from its canonical local path and verify the store lies outside the Git repository before using Git bindings. Use atomic replacement, preserve a backup, and reject conflicting writes through an exclusive lock and expected revision. Do not expire locks automatically. On mobile, use the plugin's `loadData`/`saveData` persistence.
 
 Provide explicit export/import. Automatic cross-device merge is outside the initial implementation: independently merging a branch association and a layout can create a context that never existed. External transport of mobile plugin data does not establish a supported merge protocol.
 

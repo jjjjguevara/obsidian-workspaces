@@ -19,43 +19,49 @@ Native layouts remain opaque Obsidian state wherever possible. The product adds 
 
 ## Implementation map
 
-| Module | Responsibility |
-| --- | --- |
-| `src/main.ts` | Compose services and register the plugin lifecycle and commands. |
-| `src/workspaces/model.ts` | Workspace records, platform-specific context snapshots, state version, and recovery journal. |
-| `src/workspaces/catalog.ts` | Identity, creation, rename, duplication, grouping, history, and record queries. |
-| `src/workspaces/controller.ts` | Serialized activation, explicit saves/binding changes, persistence, and recovery. |
-| `src/storage/store.ts` | Desktop atomic files and mobile plugin-data storage. |
-| `src/storage/migrations.ts` | Validate the product schema and convert supported import formats. |
-| `src/obsidian/layout.ts` | Capture/restore live layouts and observe target files. |
-| `src/obsidian/layout-data.ts`, `clone-json.ts` | Pure layout operations and independent JSON snapshots. |
-| `src/git/backend.ts`, `obsidian-git.ts` | Required Git operations and the installed-plugin compatibility adapter. |
-| `src/ui/menu.ts`, `switcher.ts`, `settings.ts` | Native presentation and user requests. |
+| Module                                                       | Responsibility                                                                                                    |
+| ------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------- |
+| `src/main.ts`                                                | Compose services and register the plugin lifecycle and commands.                                                  |
+| `src/workspaces/model.ts`                                    | Workspace records, platform-specific context snapshots, state version, and recovery journal.                      |
+| `src/workspaces/catalog.ts`                                  | Identity, creation, rename, duplication, grouping, history, and record queries.                                   |
+| `src/workspaces/controller.ts`                               | Serialized activation, explicit saves/binding changes, persistence, and recovery.                                 |
+| `src/storage/store.ts`                                       | Desktop atomic files and mobile plugin-data storage.                                                              |
+| `src/storage/migrations.ts`                                  | Validate the product schema and convert supported import formats.                                                 |
+| `src/obsidian/layout.ts`                                     | Capture/restore layouts, flush supported editors, unload outgoing views, and block interaction during transition. |
+| `src/obsidian/layout-files.ts`                               | Observe file/index/cache readiness and verify restored file leaves and pins.                                      |
+| `src/obsidian/layout-data.ts`, `clone-json.ts`               | Pure layout operations and independent JSON snapshots.                                                            |
+| `src/obsidian/plugins.ts`                                    | Isolate lookup of the installed Git plugin.                                                                       |
+| `src/git/backend.ts`, `obsidian-git.ts`                      | Required Git operations and the installed-plugin compatibility adapter.                                           |
+| `src/ui/menu.ts`, `switcher.ts`, `settings.ts`, `dialogs.ts` | Native presentation and user requests.                                                                            |
 
 ## State boundaries
 
-| State | Owner | Lifetime |
-| --- | --- | --- |
-| Workspace ID, name, group, presentation | Catalog | Persistent; name changes preserve ID. |
-| Branch association and saved layouts | Catalog context | Persistent together; a layout has an interpretable branch context. |
-| Desktop/mobile layout slots | Catalog context | Separate slots sharing workspace identity. |
-| History | Catalog | Immutable saved contexts with bounded retention. |
-| Actual branch and working-tree status | Git backend | Observed at operation boundaries; never inferred from the status indicator. |
-| Live Obsidian leaves | Obsidian | Captured/restored through the host adapter. |
-| Current operation and capture suppression | Transition controller | In memory while an operation owns activation. |
-| Incomplete transition | Journal | Durable until completion or explicit recovery. |
+| State                                   | Owner                 | Lifetime                                                                    |
+| --------------------------------------- | --------------------- | --------------------------------------------------------------------------- |
+| Workspace ID, name, group, presentation | Catalog               | Persistent; name changes preserve ID.                                       |
+| Branch association and saved layouts    | Catalog context       | Persistent together; a layout has an interpretable branch context.          |
+| Desktop/mobile layout slots             | Catalog context       | Separate slots sharing workspace identity.                                  |
+| History                                 | Catalog               | Immutable saved contexts with bounded retention.                            |
+| Actual branch and working-tree status   | Git backend           | Observed at operation boundaries; never inferred from the status indicator. |
+| Live Obsidian leaves                    | Obsidian              | Captured/restored through the host adapter.                                 |
+| Current operation and mutation queue    | Transition controller | In memory while an operation owns activation.                               |
+| Incomplete transition                   | Journal               | Durable until completion or explicit recovery.                              |
 
 The model exposes explicit fields for supported metadata. New fields require migration, duplication, history, and transfer rules. Independent last-writer-wins merging of branch metadata and layout snapshots is excluded from the initial implementation.
 
 ## Storage
 
-Desktop stores `state.json` beneath `<application-data>/obsidian-workspaces/<vault-key>/`. The key is the first 24 hexadecimal characters of SHA-256 over the vault's canonical filesystem path. The catalog, history, and journal are part of that state; `state.json.backup` retains the previous complete file. These files remain outside the repository. Atomic file replacement prevents a partial JSON write from replacing the last complete record.
+Desktop stores `state.json` beneath `<application-data>/obsidian-workspaces/<vault-key>/`. The key is the first 24 hexadecimal characters of SHA-256 over the vault's canonical filesystem path, resolved through `realpath`. The catalog, history, and journal are part of that state; `state.json.backup` retains the previous complete file. Before Git-aware operations, the store checks its resolved directory against the repository root and rejects an application-data location inside that repository.
 
 The application-data base is `~/Library/Application Support` on macOS, `%APPDATA%` on Windows (with the conventional roaming directory as fallback), and `$XDG_DATA_HOME` or `~/.local/share` on Linux. These are local storage locations, not paths to add to the vault.
 
+Each write creates `state.json.lock` exclusively and checks the expected persisted revision. It writes and syncs a temporary file, copies the previous primary to `.backup`, atomically renames the temporary file, then syncs the directory where supported. A write conflict requires reloading Workspaces; the store does not merge competing instances. The lock is removed after writing. If a process interruption leaves it behind, close every instance using that vault before manually removing the reported lock path. The plugin never expires or steals a lock based on its age.
+
+Invalid primary data fails loading without replacing it or silently loading the backup. The backup is available for explicit recovery with the plugin closed. A write that replaced the primary but could not confirm directory durability is reported as such, keeping the controller aligned with the replaced state rather than pretending no write occurred.
+
 The path key identifies a local vault location, not a cross-device identity. Moving or renaming the vault path requires explicit export/import to relocate its contexts. No Git credentials are stored with the catalog.
 
-Mobile uses Obsidian plugin data. External tools may transport that data; Workspaces does not implement automatic reconciliation. Export/import is the initial transfer mechanism.
+Mobile uses Obsidian plugin data, as does a desktop vault without a filesystem adapter. Git binding requires the external desktop store. External tools may transport plugin data; Workspaces does not implement automatic reconciliation. Export/import is the initial transfer mechanism.
 
 ## Activation lifecycle
 
@@ -74,7 +80,9 @@ stateDiagram-v2
     Recovery --> Idle: Explicit recovery completes
 ```
 
-Preparation records the outgoing layout before checkout can remove files. Capture suppression remains active while Git, vault observation, and layout restoration run. The controller verifies the branch and target file state before restoration; a fixed delay alone is not evidence that the vault is ready.
+Preparation records the outgoing layout before checkout can remove files. All mutations use the controller queue; this version has no periodic, layout-change, rename, or delete handler that rewrites saved snapshots. User interaction is blocked during the transition. The controller awaits supported text-editor saves, unloads outgoing file views before checkout, and revalidates Git status after unloading because unloading may save again.
+
+File readiness checks require the target paths in both the filesystem and vault index, matching file metadata, and current cached text for supported text paths. Removed source files must also leave the index. Restoration verifies file references, view types, regions, and pin flags against the requested snapshot. A timeout reports failure; elapsed time alone never establishes readiness.
 
 The journal records enough source/target information to distinguish an aborted request from a checkout that completed without a restored layout. A recovered UI must describe the state actually observed. Startup reads that record and reports it without performing a checkout.
 
@@ -82,11 +90,13 @@ Commands, history restoration, imported-context activation, deletion of the acti
 
 ## Compatibility boundaries
 
-The installed Obsidian Git plugin supplies the initial desktop backend. Its `withRepository` adapter scope puts the complete Git-aware transition inside the backend's operation queue, preventing another queued Git operation from running between status validation, checkout, and restoration. The adapter validates its version and required capabilities, observes repository status, and awaits an unambiguous operation result. Compatibility assumptions belong in that adapter and its tests. A same-branch layout switch skips checkout and can retain dirty file state; an actual branch change requires a clean worktree.
+The installed Obsidian Git plugin supplies the initial desktop backend. Workspaces' `withRepository` adapter scope puts the complete Git-aware transition inside that plugin's internal operation queue, preventing another queued Git operation from running between status validation, checkout, and restoration. This is a capability-checked internal integration, not a published Obsidian Git API. The adapter accepts 2.43.x and targets the inspected 2.43.0 contracts. It observes repository status and awaits an unambiguous operation result. A same-branch layout switch skips checkout and can retain dirty file state; an actual branch change requires a clean worktree. External Git processes are outside this queue.
 
-The host adapter handles native layout capture/restoration and file observation. Unavoidable private APIs stay isolated; native UI classes do not make every adjacent internal API public.
+The host adapter handles native layout capture/restoration and file observation. It awaits `TextFileView.save()` and supports native media views and the built-in Backlinks, Outgoing links, and Outline panes when unloading; other editable views require closing before branch checkout. Node filesystem modules are loaded only inside desktop operations, so unbound mobile use does not resolve them at module load. Unavoidable private APIs stay isolated; native UI classes do not make every adjacent internal API public.
 
 Core Workspaces is a source format for explicit import. Workspaces owns its live catalog and does not keep a second writable core catalog in step with it. Native presentation and native layout restoration do not require a dependency on the core Workspaces plugin.
+
+Imports convert source metadata into the product schema. Multiple Workspace++ groups become one label; Workspaces Plus Modes and global configuration overrides are excluded. Platform fallback applies an unbound layout's main area over current platform sidebars, then creates the missing platform slot. Ordinary activation of an existing slot restores its full saved layout.
 
 ## Decisions
 
