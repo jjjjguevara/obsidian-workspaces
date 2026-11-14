@@ -71,6 +71,15 @@ For reproduction against the original implementation, install the pre-fix bundle
 
 Also open the command through the visible command palette, select Beta and return to Alpha, and inspect the status label and suggested details. Record exact versions and installed bundle hashes with the results. Automated adapter tests additionally cover load order, provider reload, stale suggestions, failed saves, and teardown; do not describe those as native runs unless exercised in the app.
 
+The independent review's optional provider harness exercises the official Quick Switcher++ bundle against controlled host sequencing. It starts native-style enable before the adapter, once before instance registration and once during asynchronous provider initialization:
+
+```sh
+node tests/integration/quick-switcher-provider.cjs /absolute/checkout \
+  /absolute/quick-switcher-plugin product
+```
+
+Both cases must list/activate the product ID, leave core loading untouched, and release the manager event subscription on disposal. This is a host-stub regression check using the actual provider bundle; it is separate from native application evidence. The ordinary `npm run check` covers these races with deterministic unit fixtures and does not download or require external plugin assets.
+
 ## Adding a feature
 
 Place state changes in the catalog or controller and let native UI call them. A new activation entry point must not invoke checkout or layout restoration directly. A later custom interface should reuse the same operations.

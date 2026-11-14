@@ -1,6 +1,6 @@
 # Quick Switcher++ and status regression validation
 
-Validated on **2026-11-14** using the native Linux Obsidian deployment. These are implementation-author runs; a separate blind review is requested on the pull request.
+Validated on **2026-11-14** using the native Linux Obsidian deployment. These are implementation-author runs for the initial fix. The subsequent [blind review](quick-switcher-independent-review.md) found an overlapping-plugin-enable race, verified its correction, and independently reran **142 tests** and all **10 native checks** on the final production source. The original run identities below are retained; use the independent review's final report and bundle hash for the corrected build.
 
 ## Build and environment
 

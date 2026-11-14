@@ -1,0 +1,34 @@
+{
+  "expectation": "core",
+  "officialVersion": "6.3.0",
+  "officialBundleSHA256": "6746dad3d6b132698b04c2a10ea0c2f71c03c8b5af7bec753ca76319c72e3f23",
+  "adapterSourceSHA256": "618fbf54020188573e1bb848f6ec98d50a3c304195a7e2d6c89f471218923ea9",
+  "scenarios": [
+    {
+      "stage": "before-instance",
+      "suggestionIds": [
+        "Core-only workspace"
+      ],
+      "productCalls": [],
+      "coreCalls": [
+        "Core-only workspace"
+      ],
+      "notices": [],
+      "changedListenersAfterDispose": 0
+    },
+    {
+      "stage": "during-provider-onload",
+      "suggestionIds": [
+        "Core-only workspace"
+      ],
+      "productCalls": [],
+      "coreCalls": [
+        "Core-only workspace"
+      ],
+      "notices": [
+        "Quick Switcher++ workspace integration is unavailable: The workspace handler is unavailable."
+      ],
+      "changedListenersAfterDispose": 0
+    }
+  ]
+}
