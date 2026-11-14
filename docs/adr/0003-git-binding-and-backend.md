@@ -18,6 +18,12 @@ A dirty working tree blocks a branch change. A layout switch on the already-acti
 
 An unbound activation changes the layout while leaving Git untouched. Initial mobile support is for unbound workspaces; bound activation is unavailable there. External Git changes are observed at operation boundaries, since the plugin cannot serialize an unrelated terminal process.
 
+Keep reads proportional to the information a caller needs. Binding checks may use a fresh identity-only observation; this carries no assertion of cleanliness. Checkout safeguards still read dirty/conflict state, exact local refs, operation markers, recursive-submodule settings, ignored paths, and protected runtime paths. Batch compatible Git outputs and await all parallel reads before releasing queue ownership, including on failure.
+
+Successful checkout returns freshly verified repository/branch identity. Failure diagnostics still attempt a full status observation. The controller may opt into overlapping the provider's presentation refresh with vault readiness and layout restoration. The repository scope owns and drains that refresh before releasing the provider queue on success or failure; a later checkout cannot overtake it. Direct checkout calls retain awaited presentation by default.
+
+Within each safeguard, observe full source and target object IDs, then reconstruct the complete target path set from a fresh source-tree/index union and their raw diff. Including the source tree preserves protection when an external process removes an index entry after status was read. Extra index paths are treated conservatively. Do not replace complete target coverage with only changed paths, or cache mutable refs, index, configuration, or status across safeguards. The final checkout safeguard remains fresh after outgoing views unload.
+
 ## Consequences
 
 The integration adds no separate credential store or Git implementation. It depends on a tested compatibility boundary with Obsidian Git and must fail clearly when that boundary changes. Users handle pending file changes through explicit Git operations before switching branches.

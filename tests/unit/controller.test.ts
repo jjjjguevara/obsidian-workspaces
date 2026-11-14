@@ -204,6 +204,89 @@ function fixture(
   return { state, ids, store, host, git, controller };
 }
 
+test('fresh identity checks retain branch validation without treating identity as clean status', async () => {
+  const { controller, git, host, ids } = fixture();
+  let identities = 0;
+  Object.assign(git, {
+    inspectIdentity: async () => {
+      identities += 1;
+      return { root: git.status.root, branch: git.status.branch };
+    },
+  });
+  host.flushHook = async () => {
+    git.status.dirty = true;
+  };
+  await assert.rejects(controller.activate(ids[1]!), /Uncommitted changes/);
+  assert.equal(identities, 2, 'Identity is re-observed after editor flush');
+  assert.deepEqual(git.checkouts, []);
+  assert.equal(controller.state.journal, null);
+  assert.equal(host.events.includes('quiesce'), false);
+
+  host.flushHook = undefined;
+  git.status.dirty = false;
+  await controller.activate(ids[1]!);
+  assert.equal(identities, 5, 'A successful switch also checks identity after restoration');
+  assert.equal(controller.state.activeId, ids[1]);
+});
+
+test('a branch change during flush is rejected by the identity observation before unload', async () => {
+  const { controller, git, host, ids } = fixture();
+  Object.assign(git, {
+    inspectIdentity: async () => ({ root: git.status.root, branch: git.status.branch }),
+  });
+  host.flushHook = async () => {
+    git.status.branch = 'external';
+  };
+  await assert.rejects(controller.activate(ids[1]!), /Git is on “external”/);
+  assert.deepEqual(git.checkouts, []);
+  assert.equal(host.events.includes('quiesce'), false);
+  assert.equal(controller.state.activeId, ids[0]);
+  assert.equal(controller.state.journal, null);
+});
+
+test('identity mismatch after native restoration retains recovery rather than completing', async () => {
+  const { controller, git, host, ids } = fixture();
+  Object.assign(git, {
+    inspectIdentity: async () => ({ root: git.status.root, branch: git.status.branch }),
+  });
+  host.restoreHook = async () => {
+    git.status.branch = 'external';
+  };
+  await assert.rejects(controller.activate(ids[1]!), /Git is on “external”/);
+  assert.equal(controller.state.activeId, ids[0]);
+  assert.equal(controller.state.journal?.phase, 'recovery');
+  assert.equal(git.active, 0);
+  assert.equal(host.blocked, 0);
+});
+
+test('readiness accelerates only a completed checkout, including explicit recovery', async () => {
+  const { controller, git, host, ids } = fixture(['alpha', 'beta', 'alpha', null]);
+  const observed: Array<{ branch: string | null; afterCheckout?: boolean }> = [];
+  host.waitForFiles = async (
+    _target?: Layout,
+    _previous?: Layout,
+    options?: { afterCheckout?: boolean },
+  ) => {
+    observed.push({ branch: git.status.branch, afterCheckout: options?.afterCheckout });
+  };
+  await controller.activate(ids[2]!);
+  await controller.activate(ids[3]!);
+  await controller.activate(ids[0]!);
+  assert.deepEqual(
+    observed.map((entry) => entry.afterCheckout),
+    [false, false, false],
+  );
+  host.restoreHook = async () => {
+    throw new Error('Native restore failed');
+  };
+  await assert.rejects(controller.activate(ids[1]!), /Native restore failed/);
+  assert.deepEqual(observed.at(-1), { branch: 'beta', afterCheckout: true });
+  host.restoreHook = undefined;
+  await controller.recover();
+  assert.deepEqual(observed.at(-1), { branch: 'alpha', afterCheckout: true });
+  assert.equal(controller.state.journal, null);
+});
+
 test('a malformed imported workspace ID cannot mutate the catalog or disable saving', async () => {
   const { controller, store, ids, host, git } = fixture([null]);
   const original = controller.state;

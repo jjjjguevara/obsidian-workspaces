@@ -1,0 +1,99 @@
+[
+  {
+    "file": "baseline.json.gz",
+    "uncompressedSHA256": "d6be63f2e26eb3f03663230a07137ea9e26d72e9a88f45a36d18da8e72ebec97",
+    "status": "passed",
+    "samples": 42,
+    "startedAt": "2026-11-14T02:38:24.630Z",
+    "note": "Historical run with Settings open; compare with same condition only."
+  },
+  {
+    "file": "optimized-first.json.gz",
+    "uncompressedSHA256": "7c24a50774a40be29e9894448aca58f8cb4aa39f410da5f63ff079f2926dc7d3",
+    "status": "passed",
+    "samples": 42,
+    "startedAt": "2026-11-14T02:43:54.837Z",
+    "note": "Historical run with Settings open; compare with same condition only."
+  },
+  {
+    "file": "optimized-journal.json.gz",
+    "uncompressedSHA256": "36c59b31241388db7795c1e087c580ecc3951b05d2608fad26c35c3c88dc3c78",
+    "status": "passed",
+    "samples": 42,
+    "startedAt": "2026-11-14T02:53:28.202Z",
+    "note": "Historical run with Settings open; compare with same condition only."
+  },
+  {
+    "file": "optimized-deep-native.json.gz",
+    "uncompressedSHA256": "53247e052029065a739d7d07cc85b1c2306120424a4344100d9713d64127f185",
+    "status": "passed",
+    "samples": 4,
+    "startedAt": "2026-11-14T03:19:48.473Z",
+    "diagnosticOnly": true,
+    "note": "Manual start with Settings closed. Deep traces are diagnostic and perturb timing; use normal runs for latency distributions."
+  },
+  {
+    "file": "optimized-native-reconcile.json.gz",
+    "uncompressedSHA256": "14b6a96f65f3ea0b3124861fef7771d0cdd7a3b25a7a0688f1332a9d564f5ab2",
+    "status": "passed",
+    "samples": 42,
+    "startedAt": "2026-11-14T03:20:43.288Z",
+    "diagnosticOnly": false,
+    "note": "Manual start with Settings closed. Deep traces are diagnostic and perturb timing; use normal runs for latency distributions."
+  },
+  {
+    "file": "candidate-deep.json.gz",
+    "uncompressedSHA256": "e992fcb70ac59e0b3cf52d444c28272d0e684c8559b28d25e2f93c8806defdac",
+    "status": "passed",
+    "samples": 4,
+    "startedAt": "2026-11-14T03:23:49.901Z",
+    "diagnosticOnly": true,
+    "note": "Manual start with Settings closed. Deep traces are diagnostic and perturb timing; use normal runs for latency distributions."
+  },
+  {
+    "file": "optimized-overlap.json.gz",
+    "uncompressedSHA256": "05a3b583971959fb5c9850eb5561a4fd24f408c6d9701b2b7beb6a2ace74f818",
+    "status": "passed",
+    "samples": 42,
+    "startedAt": "2026-11-14T03:30:28.254Z",
+    "diagnosticOnly": false,
+    "note": "Manual start with Settings closed. Deep traces are diagnostic and perturb timing; use normal runs for latency distributions."
+  },
+  {
+    "file": "git-read-transport-native.json.gz",
+    "uncompressedSHA256": "e6544ed374a5cf35ab91e5dc146710a1a2b9471d8b8c05c052151bdb79555e19",
+    "status": "failed",
+    "samples": 0,
+    "startedAt": "2026-11-14T03:36:45.770Z",
+    "category": "unsupported-host-feasibility",
+    "diagnosticOnly": true,
+    "note": "Worker construction rejected by native host. Zero query samples; not latency evidence."
+  },
+  {
+    "file": "baseline-matched.json.gz",
+    "uncompressedSHA256": "72eb25b080836c0268593d15a5fdf06e06f051f0cd976fb6ad6af6273160f90c",
+    "status": "passed",
+    "samples": 42,
+    "startedAt": "2026-11-14T03:37:49.698Z",
+    "diagnosticOnly": false,
+    "note": "Manual start with Settings closed; same probe for matched baseline/final. Deep tracing, where enabled, is diagnostic only."
+  },
+  {
+    "file": "optimized-matched.json.gz",
+    "uncompressedSHA256": "e2ab21eee158bb0c71918713ccf9cc22d7217273dce04b7382a10af60c308ab2",
+    "status": "passed",
+    "samples": 42,
+    "startedAt": "2026-11-14T03:38:59.824Z",
+    "diagnosticOnly": false,
+    "note": "Manual start with Settings closed; same probe for matched baseline/final. Deep tracing, where enabled, is diagnostic only."
+  },
+  {
+    "file": "optimized-final-deep.json.gz",
+    "uncompressedSHA256": "9a29adce5dc6a9febaa9de12f6e4d9dcba9db64bc55e32a72cee91cfa9870097",
+    "status": "passed",
+    "samples": 4,
+    "startedAt": "2026-11-14T03:41:04.758Z",
+    "diagnosticOnly": true,
+    "note": "Manual start with Settings closed; same probe for matched baseline/final. Deep tracing, where enabled, is diagnostic only."
+  }
+]

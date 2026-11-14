@@ -102,6 +102,18 @@ function deferred() {
   return { promise, resolve };
 }
 
+function guardedAdapter(f: Awaited<ReturnType<typeof fixture>>) {
+  return new ObsidianGitBackend({
+    resolvePlugin: () => f.plugin,
+    isDesktop: () => true,
+    checkoutGuard: {
+      vaultPath: f.root,
+      configDir: '.obsidian',
+      pluginId: 'obsidian-workspaces',
+    },
+  });
+}
+
 test('round trips branch-exclusive files through the installed provider', async (t) => {
   const f = await fixture(t);
   await f.adapter.withRepository(async (repository) => {
@@ -119,6 +131,120 @@ test('round trips branch-exclusive files through the installed provider', async 
     await assert.rejects(access(join(f.root, 'b.md')));
   });
   assert.deepEqual(f.checkouts, ['beta', 'alpha']);
+});
+
+test('successful checkout verifies identity without a redundant post-checkout status scan', async (t) => {
+  const f = await fixture(t);
+  const nativeCheckout = f.manager.checkout;
+  let checkedOut = false;
+  const postCheckoutReads: string[][] = [];
+  f.manager.checkout = async (branch) => {
+    await nativeCheckout(branch);
+    checkedOut = true;
+    await writeFile(join(f.root, 'common.md'), 'Provider hook updated this file\n');
+  };
+  f.manager.git.raw = async (args) => {
+    if (checkedOut) postCheckoutReads.push([...args]);
+    return f.git(args);
+  };
+  const result = await f.adapter.withRepository((repository) => repository.checkout('beta'));
+  assert.deepEqual(result, { root: f.root, branch: 'beta' });
+  assert.deepEqual(postCheckoutReads, [
+    ['rev-parse', '--show-toplevel', '--symbolic-full-name', 'HEAD'],
+  ]);
+  assert.equal((await f.adapter.withRepository((repository) => repository.inspect())).dirty, true);
+});
+
+test('identity reads report attached and detached roots without claiming cleanliness', async (t) => {
+  const f = await fixture(t);
+  await writeFile(join(f.root, 'common.md'), 'Dirty local note\n');
+  const calls: string[][] = [];
+  f.manager.git.raw = async (args) => {
+    calls.push([...args]);
+    return f.git(args);
+  };
+  await f.adapter.withRepository(async (repository) => {
+    assert.ok(repository.inspectIdentity);
+    assert.deepEqual(await repository.inspectIdentity(), { root: f.root, branch: 'alpha' });
+    assert.equal(calls.length, 1);
+    assert.equal(
+      calls.some((args) => args.includes('status')),
+      false,
+    );
+    assert.equal((await repository.inspect()).dirty, true);
+    await f.git(['checkout', '--detach', 'HEAD']);
+    calls.length = 0;
+    assert.deepEqual(await repository.inspectIdentity(), { root: f.root, branch: null });
+    assert.equal(calls.length, 1);
+    assert.equal(
+      calls.some((args) => args.includes('status')),
+      false,
+    );
+  });
+});
+
+test('identity reads fall back to full status for unborn HEAD and unrecognized ref output', async (t) => {
+  for (const scenario of ['unborn', 'unrecognized-ref', 'missing-ref', 'truncated-output']) {
+    await t.test(scenario, async (subtest) => {
+      const f = await fixture(subtest);
+      if (scenario === 'unborn') {
+        await f.git(['checkout', '--orphan', 'unborn']);
+        await f.git(['rm', '-r', '-f', '--', '.']);
+      }
+      const calls: string[][] = [];
+      f.manager.git.raw = async (args) => {
+        calls.push([...args]);
+        if (args.includes('--symbolic-full-name')) {
+          if (scenario === 'unrecognized-ref') return `${f.root}\nrefs/tags/unexpected\n`;
+          if (scenario === 'missing-ref') return `${f.root}\n\n`;
+          if (scenario === 'truncated-output') return `${f.root}\nrefs/heads/alpha`;
+        }
+        return f.git(args);
+      };
+      await f.adapter.withRepository(async (repository) => {
+        assert.ok(repository.inspectIdentity);
+        assert.deepEqual(await repository.inspectIdentity(), {
+          root: f.root,
+          branch: scenario === 'unborn' ? 'unborn' : 'alpha',
+        });
+      });
+      assert.equal(calls.length, 3);
+      assert.equal(calls.filter((args) => args.includes('status')).length, 1);
+    });
+  }
+});
+
+test('identity and marker paths preserve embedded and trailing POSIX line terminators', async (t) => {
+  if (process.platform === 'win32') {
+    t.skip('Windows filenames cannot contain these characters.');
+    return;
+  }
+  for (const scenario of ['embedded-newline', 'trailing-newline', 'trailing-carriage-return']) {
+    await t.test(scenario, async (subtest) => {
+      const f = await fixture(subtest, 'obsidian-workspaces-identity-\n');
+      let root = f.root;
+      if (scenario !== 'embedded-newline') {
+        root += scenario === 'trailing-newline' ? '\n' : '\r';
+        await rename(f.root, root);
+        await symlink(root, f.root, 'dir');
+        subtest.after(() => rm(root, { recursive: true, force: true }));
+        f.manager.absoluteRepoPath = root;
+      }
+      const calls: string[][] = [];
+      f.manager.git.raw = async (args) => {
+        calls.push([...args]);
+        return f.git(args);
+      };
+      await f.adapter.withRepository(async (repository) => {
+        assert.ok(repository.inspectIdentity);
+        assert.deepEqual(await repository.inspectIdentity(), { root, branch: 'alpha' });
+        assert.equal(calls.length, 1);
+        assert.equal((await repository.inspect()).root, root);
+        assert.equal((await repository.checkout('beta')).root, root);
+      });
+      assert.deepEqual(f.checkouts, ['beta']);
+    });
+  }
 });
 
 test('a vault opened through a directory alias keeps canonical identity through checkout', async (t) => {
@@ -172,6 +298,8 @@ test('repository identity is pinned before the callback so an alias cannot retar
     await rm(alias);
     await symlink(replacement.root, alias, kind);
     await assert.rejects(repository.inspect(), hasCode('repository-changed'));
+    assert.ok(repository.inspectIdentity);
+    await assert.rejects(repository.inspectIdentity(), hasCode('repository-changed'));
     await assert.rejects(repository.checkout('beta'), hasCode('repository-changed'));
   });
   assert.deepEqual(original.checkouts, []);
@@ -199,6 +327,7 @@ test('checkout awaits the provider branch label and refreshes its views after Gi
   const events: string[] = [];
   let displayedBranch = 'alpha';
   let completed = false;
+  let checkoutReturned = false;
   const workspace = {
     trigger(event: string): void {
       assert.equal(this, workspace);
@@ -217,7 +346,11 @@ test('checkout awaits the provider branch label and refreshes its views after Gi
     },
   };
   Object.assign(f.plugin, { app: { workspace }, branchBar });
-  const checkout = f.adapter.withRepository((repository) => repository.checkout('beta'));
+  const checkout = f.adapter.withRepository(async (repository) => {
+    const result = await repository.checkout('beta');
+    checkoutReturned = true;
+    return result;
+  });
   void checkout.then(
     () => {
       completed = true;
@@ -229,13 +362,171 @@ test('checkout awaits the provider branch label and refreshes its views after Gi
   await displayStarted.promise;
   assert.equal((await f.git(['branch', '--show-current'])).trim(), 'beta');
   assert.equal(completed, false);
+  assert.equal(checkoutReturned, false, 'Direct checkout still awaits its presentation');
   assert.equal(displayedBranch, 'alpha');
   assert.deepEqual(events, ['obsidian-git:refresh', 'display-start:beta']);
   allowDisplay.resolve();
   const result = await checkout;
   assert.equal(result.branch, 'beta');
+  assert.equal(checkoutReturned, true);
   assert.equal(displayedBranch, 'beta');
   assert.deepEqual(events, ['obsidian-git:refresh', 'display-start:beta', 'display-finish:beta']);
+});
+
+test('overlapping presentation permits caller work but drains before success or failure releases the queue', async (t) => {
+  for (const scenario of ['success', 'callback-failure', 'checkout-failure']) {
+    await t.test(scenario, async (subtest) => {
+      const f = await fixture(subtest);
+      const displayStarted = deferred();
+      const allowDisplay = deferred();
+      const backgroundFinished = deferred();
+      const failure = new Error('Original operation failure');
+      let callbackContinued = false;
+      let finished = false;
+      let displayFinished = false;
+      let backgroundStarted = false;
+      let backgroundQueued = false;
+      subtest.mock.method(console, 'warn', () => {});
+      Object.assign(f.plugin, {
+        branchBar: {
+          async display(): Promise<void> {
+            assert.equal((await f.git(['branch', '--show-current'])).trim(), 'beta');
+            displayStarted.resolve();
+            await allowDisplay.promise;
+            displayFinished = true;
+            if (scenario !== 'success') throw new Error('Optional presentation failed');
+          },
+        },
+      });
+      if (scenario === 'checkout-failure') {
+        const nativeCheckout = f.manager.checkout;
+        f.manager.checkout = async (branch) => {
+          await nativeCheckout(branch);
+          throw failure;
+        };
+      }
+      const pending = f.adapter.withRepository(async (repository) => {
+        assert.ok(repository.overlapPresentation);
+        repository.overlapPresentation();
+        let identity;
+        try {
+          identity = await repository.checkout('beta');
+        } catch (error) {
+          callbackContinued = true;
+          throw error;
+        }
+        callbackContinued = true;
+        if (scenario === 'callback-failure') throw failure;
+        return identity;
+      });
+      const outcome = pending.then(
+        (value) => {
+          finished = true;
+          return { value, error: undefined as unknown };
+        },
+        (error: unknown) => {
+          finished = true;
+          return { value: undefined, error };
+        },
+      );
+      try {
+        await Promise.race([
+          displayStarted.promise,
+          outcome.then((result) => {
+            throw result.error ?? new Error('The scope ended before presentation started.');
+          }),
+        ]);
+        await new Promise<void>((resolve) => setImmediate(resolve));
+        assert.equal(callbackContinued, true, 'Caller work must overlap a held presentation');
+        assert.equal(finished, false, 'withRepository must retain pending refresh ownership');
+        f.plugin.promiseQueue.addTask(
+          async () => {
+            backgroundStarted = true;
+            assert.equal(displayFinished, true);
+            await f.git(['checkout', 'alpha']);
+          },
+          () => backgroundFinished.resolve(),
+        );
+        backgroundQueued = true;
+        await new Promise<void>((resolve) => setImmediate(resolve));
+        assert.equal(backgroundStarted, false, 'The next queued mutation must remain blocked');
+      } finally {
+        allowDisplay.resolve();
+        await outcome;
+        if (backgroundQueued) await backgroundFinished.promise;
+      }
+      const result = await outcome;
+      assert.equal(displayFinished, true);
+      assert.equal(backgroundStarted, true);
+      assert.equal((await f.git(['branch', '--show-current'])).trim(), 'alpha');
+      if (scenario === 'success') {
+        assert.deepEqual(result.value, { root: f.root, branch: 'beta' });
+        assert.equal(result.error, undefined);
+      } else if (scenario === 'callback-failure') {
+        assert.equal(
+          result.error,
+          failure,
+          'Optional refresh failure must not replace caller failure',
+        );
+      } else {
+        assert.ok(result.error instanceof GitBackendError);
+        assert.equal(result.error.code, 'checkout-failed');
+        assert.equal(result.error.cause, failure);
+        assert.equal(result.error.status?.branch, 'beta');
+      }
+    });
+  }
+});
+
+test('a second checkout in one scope cannot overtake pending presentation', async (t) => {
+  const f = await fixture(t);
+  const displayStarted = deferred();
+  const allowDisplay = deferred();
+  const labels: string[] = [];
+  let secondCheckoutCalled = false;
+  Object.assign(f.plugin, {
+    branchBar: {
+      async display(): Promise<void> {
+        const branch = (await f.git(['branch', '--show-current'])).trim();
+        if (branch === 'beta') {
+          displayStarted.resolve();
+          await allowDisplay.promise;
+        }
+        labels.push(branch);
+      },
+    },
+  });
+  const pending = f.adapter.withRepository(async (repository) => {
+    assert.ok(repository.overlapPresentation);
+    repository.overlapPresentation();
+    assert.equal((await repository.checkout('beta')).branch, 'beta');
+    secondCheckoutCalled = true;
+    return repository.checkout('alpha');
+  });
+  const outcome = pending.then(
+    (value) => ({ value, error: undefined as unknown }),
+    (error: unknown) => ({ value: undefined, error }),
+  );
+  try {
+    await Promise.race([
+      displayStarted.promise,
+      outcome.then((result) => {
+        throw result.error ?? new Error('The scope ended before presentation started.');
+      }),
+    ]);
+    await new Promise<void>((resolve) => setImmediate(resolve));
+    assert.equal(secondCheckoutCalled, true);
+    assert.deepEqual(f.checkouts, ['beta']);
+    assert.deepEqual(labels, []);
+  } finally {
+    allowDisplay.resolve();
+    await outcome;
+  }
+  const result = await outcome;
+  assert.equal(result.error, undefined);
+  assert.equal(result.value?.branch, 'alpha');
+  assert.deepEqual(f.checkouts, ['beta', 'alpha']);
+  assert.deepEqual(labels, ['beta', 'alpha']);
 });
 
 test('checkout remains available when optional provider presentation hooks are absent or unavailable', async (t) => {
@@ -329,7 +620,12 @@ test('keeps the queue occupied through caller restoration, including successful 
 });
 
 test('failed parallel reads drain their siblings before releasing the provider queue', async (t) => {
-  for (const batch of ['preflight', 'runtime-trees', 'inspection'] as const) {
+  for (const batch of [
+    'preflight',
+    'marker-fallback',
+    'runtime-comparison',
+    'inspection',
+  ] as const) {
     await t.test(batch, async (subtest) => {
       const f = await fixture(subtest);
       const guarded = new ObsidianGitBackend({
@@ -350,17 +646,23 @@ test('failed parallel reads drain their siblings before releasing the provider q
       let backgroundQueued = false;
       const rejects = (args: string[]): boolean =>
         batch === 'preflight'
-          ? args[0] === 'check-ref-format'
-          : batch === 'runtime-trees'
-            ? args[0] === 'ls-tree' && args.at(-1) === 'HEAD'
-            : args[0] === 'rev-parse' && args[1] === '--show-toplevel';
+          ? args[0] === 'for-each-ref'
+          : batch === 'marker-fallback'
+            ? args[0] === 'rev-parse' && args.length === 2 && args[1] === '--show-prefix'
+            : batch === 'runtime-comparison'
+              ? args[0] === 'diff'
+              : args[0] === 'rev-parse' && args[1] === '--show-toplevel';
       const holds = (args: string[]): boolean =>
         batch === 'preflight'
           ? args[0] === 'config'
-          : batch === 'runtime-trees'
-            ? args[0] === 'ls-tree' && args.at(-1) === 'refs/heads/beta'
-            : args.includes('status');
+          : batch === 'marker-fallback'
+            ? args[0] === 'rev-parse' && args.length === 3 && args[2] === 'index.lock'
+            : batch === 'runtime-comparison'
+              ? args[0] === 'ls-files'
+              : args.includes('status');
       f.manager.git.raw = async (args) => {
+        if (batch === 'marker-fallback' && args.includes('--git-path') && args.length > 3)
+          return 'ambiguous paths\n';
         if (rejects(args)) throw new Error('Injected parallel read failure');
         const result = await f.git(args);
         if (holds(args)) {
@@ -493,7 +795,7 @@ test('checks every operation marker in ordinary repositories and linked worktree
     'BISECT_LOG',
     'index.lock',
   ];
-  for (const topology of ['repository', 'linked-worktree'] as const) {
+  for (const topology of ['repository', 'linked-worktree', 'nested-provider-cwd'] as const) {
     await t.test(topology, async (subtest) => {
       const f = await fixture(subtest);
       let root = f.root;
@@ -504,16 +806,20 @@ test('checks every operation marker in ordinary repositories and linked worktree
         await f.git(['worktree', 'add', '-b', 'linked-alpha', root, 'alpha']);
         f.manager.absoluteRepoPath = root;
       }
+      const cwd = topology === 'nested-provider-cwd' ? join(root, 'nested', 'directory') : root;
+      if (cwd !== root) await mkdir(cwd, { recursive: true });
       const calls: string[][] = [];
       f.manager.git.raw = async (args) => {
         calls.push([...args]);
-        return f.git(['-C', root, ...args]);
+        return f.git(['-C', cwd, ...args]);
       };
       await f.adapter.withRepository((repository) => repository.assertCanSwitch('beta'));
       const markerCalls = calls.filter(
         (args) => args[0] === 'rev-parse' && args.includes('--git-path'),
       );
       assert.equal(markerCalls.length, 1, 'A clean preflight resolves all marker paths once');
+      assert.ok(markerCalls[0]!.includes('--show-toplevel'));
+      assert.ok(markerCalls[0]!.includes('--show-prefix'));
       for (const marker of markers) assert.ok(markerCalls[0]!.includes(marker));
 
       const commit = (await f.git(['-C', root, 'rev-parse', 'HEAD'])).trim();
@@ -557,7 +863,7 @@ test('marker checks handle newline repository paths and fall back for newline Gi
     t.skip('Windows filenames cannot contain newline characters.');
     return;
   }
-  for (const location of ['repository', 'external-git-directory'] as const) {
+  for (const location of ['repository', 'external-git-directory', 'nested-provider-cwd'] as const) {
     await t.test(location, async (subtest) => {
       const f = await fixture(
         subtest,
@@ -571,13 +877,15 @@ test('marker checks handle newline repository paths and fall back for newline Gi
         await writeFile(join(f.root, '.git'), `gitdir: ${gitDirectory}\n`);
         await f.git(['config', 'core.hooksPath', join(gitDirectory, 'disabled-hooks')]);
       }
+      const cwd = location === 'nested-provider-cwd' ? join(f.root, 'nested\ndirectory') : f.root;
+      if (cwd !== f.root) await mkdir(cwd);
       const calls: string[][] = [];
       f.manager.git.raw = async (args) => {
         calls.push([...args]);
-        return f.git(args);
+        return f.git(['-C', cwd, ...args]);
       };
       await f.adapter.withRepository((repository) => repository.assertCanSwitch('beta'));
-      if (location === 'external-git-directory') {
+      if (location !== 'nested-provider-cwd' || cwd.includes('\n')) {
         const markerCalls = calls.filter(
           (args) => args[0] === 'rev-parse' && args.includes('--git-path'),
         );
@@ -712,6 +1020,167 @@ test('allows only exact existing local branches, rejecting options and reflog ex
   assert.equal((await f.git(['branch', '--show-current'])).trim(), 'alpha');
 });
 
+test('exact local refs with shell metacharacters stay literal and avoid redundant syntax reads', async (t) => {
+  const f = await fixture(t);
+  const branches = ['$(touch${IFS}unexpected-shell-marker)', 'quotes-\'"-;|&$'];
+  for (const branch of branches) await f.git(['branch', branch, 'beta']);
+  const calls: string[][] = [];
+  f.manager.git.raw = async (args) => {
+    calls.push([...args]);
+    return f.git(args);
+  };
+  await f.adapter.withRepository(async (repository) => {
+    for (const branch of branches) {
+      assert.equal((await repository.checkout(branch)).branch, branch);
+      assert.equal((await repository.checkout('alpha')).branch, 'alpha');
+    }
+  });
+  assert.equal(
+    calls.some((args) => args[0] === 'check-ref-format'),
+    false,
+  );
+  await assert.rejects(access(join(f.root, 'unexpected-shell-marker')));
+  assert.deepEqual(
+    f.checkouts,
+    branches.flatMap((branch) => [branch, 'alpha']),
+  );
+});
+
+test('a clean guarded preflight uses six fresh reads with ignored files included in status', async (t) => {
+  const f = await fixture(t);
+  await writeFile(join(f.root, '.git', 'info', 'exclude'), 'local.tmp\n');
+  await writeFile(join(f.root, 'local.tmp'), 'Local runtime state\n');
+  const sourceOID = (await f.git(['rev-parse', 'HEAD'])).trim();
+  const targetOID = (await f.git(['rev-parse', 'beta'])).trim();
+  const calls: string[][] = [];
+  f.manager.git.raw = async (args) => {
+    calls.push([...args]);
+    return f.git(args);
+  };
+  await guardedAdapter(f).withRepository(async (repository) => {
+    await repository.assertCanSwitch('beta');
+    const first = calls.splice(0);
+    assert.equal(first.length, 6);
+    assert.equal(first.filter((args) => args.includes('status')).length, 1);
+    assert.ok(first.some((args) => args.includes('--ignored=traditional')));
+    assert.equal(
+      first.some((args) => args[0] === 'ls-tree' || args.includes('--others')),
+      false,
+    );
+    assert.equal(
+      first.some((args) => args[0] === 'check-ref-format'),
+      false,
+    );
+    assert.ok(first.some((args) => args.includes(`--with-tree=${sourceOID}`)));
+    const diff = first.find((args) => args[0] === 'diff')!;
+    assert.deepEqual(diff.slice(-3), [sourceOID, targetOID, '--']);
+    await repository.assertCanSwitch('beta');
+    assert.deepEqual(calls, first, 'The next preflight must reread all mutable repository state');
+  });
+});
+
+test('source commit paths remain protected if another client removes index entries after status', async (t) => {
+  for (const scenario of ['source-layout', 'unchanged-layout', 'ignored-ancestor']) {
+    await t.test(scenario, async (subtest) => {
+      const f = await fixture(subtest);
+      const path =
+        scenario === 'ignored-ancestor' ? 'unchanged/child.md' : '.obsidian/workspace.json';
+      const branches = scenario === 'source-layout' ? ['alpha'] : ['alpha', 'beta'];
+      for (const branch of branches) {
+        await f.git(['checkout', branch]);
+        await mkdir(join(f.root, path.split('/')[0]!), { recursive: true });
+        await writeFile(join(f.root, path), 'Identical tracked content\n');
+        await f.git(['add', path]);
+        await f.git(['commit', '-m', 'Tracked path protected after index mutation']);
+      }
+      await f.git(['checkout', 'alpha']);
+      if (scenario === 'ignored-ancestor') {
+        await f.git(['update-index', '--skip-worktree', path]);
+        await rm(join(f.root, 'unchanged'), { recursive: true });
+        await writeFile(join(f.root, 'unchanged'), 'Ignored ancestor must survive\n');
+        await writeFile(join(f.root, '.git', 'info', 'exclude'), '/unchanged\n');
+      }
+      let changedIndex = false;
+      f.manager.git.raw = async (args) => {
+        const output = await f.git(args);
+        if (args.includes('status') && args.includes('--ignored=traditional') && !changedIndex) {
+          assert.equal(
+            output.split('\0').some((entry) => /^[12u?] /.test(entry)),
+            false,
+          );
+          changedIndex = true;
+          await f.git(['update-index', '--force-remove', path]);
+        }
+        return output;
+      };
+      await assert.rejects(
+        guardedAdapter(f).withRepository((repository) => repository.checkout('beta')),
+        hasCode(scenario === 'ignored-ancestor' ? 'dirty-worktree' : 'unsafe-runtime-files'),
+      );
+      assert.equal(changedIndex, true);
+      assert.deepEqual(f.checkouts, []);
+      assert.equal((await f.git(['branch', '--show-current'])).trim(), 'alpha');
+    });
+  }
+});
+
+test('malformed index and raw diff responses fail closed before checkout', async (t) => {
+  const f = await fixture(t);
+  const validDiff = await f.git([
+    'diff',
+    '--raw',
+    '-z',
+    '--no-abbrev',
+    '--no-renames',
+    'HEAD',
+    'refs/heads/beta',
+    '--',
+  ]);
+  const entries = validDiff.split('\0');
+  const firstHeader = entries[0]!;
+  const replaceHeader = (header: string): string => [header, ...entries.slice(1)].join('\0');
+  const malformed = [
+    { name: 'missing terminal NUL', diff: validDiff.slice(0, -1) },
+    { name: 'missing path', diff: `${firstHeader}\0` },
+    { name: 'unknown mode', diff: replaceHeader(firstHeader.replace(/^:[0-7]{6}/, ':100660')) },
+    {
+      name: 'abbreviated object',
+      diff: replaceHeader(firstHeader.replace(/[0-9a-f]{40}/, '1234')),
+    },
+    {
+      name: 'unexpected rename',
+      diff: replaceHeader(firstHeader.replace(/ [A-Z][0-9]*$/, ' R100')),
+    },
+    {
+      name: 'unexpected unmerged path',
+      diff: replaceHeader(firstHeader.replace(/ [A-Z][0-9]*$/, ' U')),
+    },
+    {
+      name: 'mode and zero object disagree',
+      diff: replaceHeader(firstHeader.replace(/^:[0-7]{6}/, ':000000')),
+    },
+    { name: 'duplicate change', diff: `${validDiff}${entries[0]}\0${entries[1]}\0` },
+    { name: 'outside relative path', diff: `${firstHeader}\0../a.md\0` },
+    { name: 'truncated index', index: 'a.md' },
+    { name: 'unexpanded sparse index', index: 'hidden/\0' },
+  ];
+  for (const scenario of malformed) {
+    await t.test(scenario.name, async () => {
+      f.manager.git.raw = async (args) => {
+        if (args[0] === 'diff' && 'diff' in scenario) return scenario.diff!;
+        if (args[0] === 'ls-files' && 'index' in scenario) return scenario.index!;
+        return f.git(args);
+      };
+      await assert.rejects(
+        guardedAdapter(f).withRepository((repository) => repository.checkout('beta')),
+        hasCode('invalid-status'),
+      );
+      assert.deepEqual(f.checkouts, []);
+      assert.equal((await f.git(['branch', '--show-current'])).trim(), 'alpha');
+    });
+  }
+});
+
 test('reports detached HEAD without pretending it is a branch', async (t) => {
   const f = await fixture(t);
   await f.git(['checkout', '--detach', 'HEAD']);
@@ -741,6 +1210,7 @@ test('re-reads the real branch when a provider fails after changing it', async (
   });
   f.manager.checkout = async (branch) => {
     await f.git(['checkout', branch]);
+    await writeFile(join(f.root, 'common.md'), 'Provider changed this file before failing\n');
     throw new Error('Provider failed after checkout');
   };
   await assert.rejects(
@@ -749,6 +1219,8 @@ test('re-reads the real branch when a provider fails after changing it', async (
       assert.ok(error instanceof GitBackendError);
       assert.equal(error.code, 'checkout-failed');
       assert.equal(error.status?.branch, 'beta');
+      assert.equal(error.status?.dirty, true);
+      assert.equal(error.status?.conflicted, false);
       return true;
     },
   );
@@ -797,6 +1269,121 @@ test('protects ignored local files that Git checkout would otherwise overwrite',
   });
   assert.equal(await readFile(join(f.root, 'b.md'), 'utf8'), 'Local ignored content\n');
   assert.deepEqual(f.checkouts, []);
+});
+
+test('retains unchanged target paths when ignored files hide skip-worktree or assumed-unchanged entries', async (t) => {
+  for (const flag of ['--skip-worktree', '--assume-unchanged']) {
+    await t.test(flag, async (subtest) => {
+      const f = await fixture(subtest);
+      for (const branch of ['alpha', 'beta']) {
+        await f.git(['checkout', branch]);
+        await mkdir(join(f.root, 'unchanged'), { recursive: true });
+        await writeFile(join(f.root, 'unchanged', 'child.md'), 'Identical tracked child\n');
+        await f.git(['add', 'unchanged/child.md']);
+        await f.git(['commit', '-m', 'Unchanged tracked subtree']);
+      }
+      await f.git(['checkout', 'alpha']);
+      await f.git(['update-index', flag, 'unchanged/child.md']);
+      await rm(join(f.root, 'unchanged'), { recursive: true });
+      await writeFile(join(f.root, 'unchanged'), 'Ignored ancestor must survive\n');
+      await writeFile(join(f.root, '.git', 'info', 'exclude'), '/unchanged\n');
+      const guarded = guardedAdapter(f);
+      await guarded.withRepository(async (repository) => {
+        assert.equal((await repository.inspect()).dirty, false);
+        await assert.rejects(repository.checkout('beta'), hasCode('dirty-worktree'));
+      });
+      assert.equal(
+        await readFile(join(f.root, 'unchanged'), 'utf8'),
+        'Ignored ancestor must survive\n',
+      );
+      assert.deepEqual(f.checkouts, []);
+    });
+  }
+});
+
+test('ignored nested repository directories collide with destination tracked descendants', async (t) => {
+  const f = await fixture(t);
+  await f.git(['checkout', 'beta']);
+  await mkdir(join(f.root, 'local-repo'));
+  await writeFile(join(f.root, 'local-repo', 'tracked.md'), 'Target tracked contents\n');
+  await f.git(['add', 'local-repo']);
+  await f.git(['commit', '-m', 'Target tracked subtree']);
+  await f.git(['checkout', 'alpha']);
+  await mkdir(join(f.root, 'local-repo'));
+  await f.git(['-C', 'local-repo', 'init', '-b', 'local']);
+  await writeFile(join(f.root, 'local-repo', 'local.md'), 'Local repository contents\n');
+  await writeFile(join(f.root, '.git', 'info', 'exclude'), '/local-repo/\n');
+  const ignored = await f.git([
+    'status',
+    '--porcelain=v2',
+    '-z',
+    '--untracked-files=all',
+    '--ignored=traditional',
+  ]);
+  assert.ok(ignored.includes('! local-repo/\0'));
+  await assert.rejects(
+    guardedAdapter(f).withRepository((repository) => repository.checkout('beta')),
+    hasCode('dirty-worktree'),
+  );
+  assert.equal(
+    await readFile(join(f.root, 'local-repo', 'local.md'), 'utf8'),
+    'Local repository contents\n',
+  );
+  assert.deepEqual(f.checkouts, []);
+});
+
+test('full index reconstruction covers excluded sparse directories and tracked native layouts', async (t) => {
+  for (const trackedLayout of [false, true]) {
+    await t.test(
+      trackedLayout ? 'excluded tracked layout' : 'safe sparse checkout',
+      async (subtest) => {
+        const f = await fixture(subtest);
+        for (const directory of ['visible', 'hidden', '.obsidian']) {
+          await mkdir(join(f.root, directory));
+          await writeFile(join(f.root, directory, 'note.md'), 'Tracked note\n');
+        }
+        if (trackedLayout) await writeFile(join(f.root, '.obsidian', 'workspace.json'), '{}\n');
+        await f.git(['add', '.']);
+        await f.git(['commit', '-m', 'Sparse source paths']);
+        await f.git(['sparse-checkout', 'init', '--cone', '--sparse-index']);
+        await f.git(['sparse-checkout', 'set', 'visible']);
+        assert.ok((await f.git(['ls-files', '--sparse', '-z'])).includes('hidden/\0'));
+        await assert.rejects(access(join(f.root, '.obsidian', 'note.md')));
+        await guardedAdapter(f).withRepository(async (repository) => {
+          assert.equal((await repository.inspect()).dirty, false);
+          if (trackedLayout)
+            await assert.rejects(repository.checkout('beta'), hasCode('unsafe-runtime-files'));
+          else assert.equal((await repository.checkout('beta')).branch, 'beta');
+        });
+        assert.deepEqual(f.checkouts, trackedLayout ? [] : ['beta']);
+      },
+    );
+  }
+});
+
+test('a nested provider cwd cannot hide source runtime paths or target ignored collisions', async (t) => {
+  for (const scenario of ['source-layout', 'target-collision']) {
+    await t.test(scenario, async (subtest) => {
+      const f = await fixture(subtest);
+      const cwd = join(f.root, 'nested', 'directory');
+      await mkdir(cwd, { recursive: true });
+      if (scenario === 'source-layout') {
+        await mkdir(join(f.root, '.obsidian'));
+        await writeFile(join(f.root, '.obsidian', 'workspace.json'), '{}\n');
+        await f.git(['add', '.obsidian']);
+        await f.git(['commit', '-m', 'Tracked source layout outside provider cwd']);
+      } else {
+        await writeFile(join(f.root, '.git', 'info', 'exclude'), '/b.md\n');
+        await writeFile(join(f.root, 'b.md'), 'Ignored outside provider cwd\n');
+      }
+      f.manager.git.raw = (args) => f.git(['-C', cwd, ...args]);
+      await assert.rejects(
+        guardedAdapter(f).withRepository((repository) => repository.checkout('beta')),
+        hasCode(scenario === 'source-layout' ? 'unsafe-runtime-files' : 'dirty-worktree'),
+      );
+      assert.deepEqual(f.checkouts, []);
+    });
+  }
 });
 
 test('rejects repository replacement and use after the queue scope ends', async (t) => {
@@ -894,6 +1481,53 @@ test('checkout guard refuses changed integration manifests and plugin enablement
         hasCode('unsafe-runtime-files'),
       );
       assert.deepEqual(f.checkouts, []);
+    });
+  }
+});
+
+test('raw diff type changes preserve safe note switches and protect integration paths', async (t) => {
+  if (process.platform === 'win32') {
+    t.skip('These cases require POSIX symlinks and newline filenames.');
+    return;
+  }
+  for (const scenario of ['ordinary-note', 'integration-file', 'integration-ancestor-gitlink']) {
+    await t.test(scenario, async (subtest) => {
+      const f = await fixture(subtest);
+      if (scenario === 'integration-file') {
+        await mkdir(join(f.root, '.obsidian'));
+        await writeFile(join(f.root, '.obsidian', 'community-plugins.json'), '[]\n');
+        await f.git(['add', '.obsidian']);
+        await f.git(['commit', '-m', 'Source integration file']);
+      }
+      const source = (await f.git(['rev-parse', 'HEAD'])).trim();
+      await f.git(['checkout', 'beta']);
+      if (scenario === 'ordinary-note') {
+        await rm(join(f.root, 'common.md'));
+        await symlink('b.md', join(f.root, 'common.md'));
+        await writeFile(join(f.root, 'literal\n\tname.md'), 'Unusual path contents\n');
+        await f.git(['add', '-A']);
+      } else if (scenario === 'integration-file') {
+        await mkdir(join(f.root, '.obsidian'));
+        await symlink('../common.md', join(f.root, '.obsidian', 'community-plugins.json'));
+        await f.git(['add', '.obsidian']);
+      } else {
+        await f.git(['update-index', '--add', '--cacheinfo', `160000,${source},.obsidian/plugins`]);
+      }
+      await f.git(['commit', '-m', 'Target type changes']);
+      await f.git(['checkout', 'alpha']);
+      await guardedAdapter(f).withRepository(async (repository) => {
+        if (scenario === 'ordinary-note') {
+          assert.equal((await repository.checkout('beta')).branch, 'beta');
+          assert.equal(await readFile(join(f.root, 'common.md'), 'utf8'), 'Only on beta\n');
+          assert.equal(
+            await readFile(join(f.root, 'literal\n\tname.md'), 'utf8'),
+            'Unusual path contents\n',
+          );
+        } else {
+          await assert.rejects(repository.checkout('beta'), hasCode('unsafe-runtime-files'));
+        }
+      });
+      assert.deepEqual(f.checkouts, scenario === 'ordinary-note' ? ['beta'] : []);
     });
   }
 });
