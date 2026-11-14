@@ -71,7 +71,9 @@ export class QuickSwitcherIntegration {
       !object(manager) ||
       !method(manager.getPlugin) ||
       !method(manager.loadPlugin) ||
-      !method(manager.unloadPlugin)
+      !method(manager.unloadPlugin) ||
+      !method(manager.on) ||
+      !method(manager.offref)
     ) {
       this.notify(
         'Quick Switcher++ integration is unavailable: Obsidian plugin lifecycle access is missing.',
@@ -81,6 +83,13 @@ export class QuickSwitcherIntegration {
     this.active = true;
     const integration = this;
     try {
+      // A native enable may already be awaiting Q++ onload before we wrap loadPlugin.
+      // Its instance exists then, but commandDefinitions is not ready. The manager's
+      // changed event runs after enable finishes, so observe it before initial discovery.
+      const changed = manager.on.call(manager, 'changed', () => {
+        if (integration.active) integration.reconcile(manager);
+      });
+      this.managerCleanup.push(() => (manager.offref as Method).call(manager, changed));
       this.managerCleanup.push(
         replace(
           manager,
@@ -188,6 +197,9 @@ export class QuickSwitcherIntegration {
       )
         throw new Error('Use Quick Switcher++ 6.3.x; this integration was tested with 6.3.0.');
       const definitions = candidate.commandDefinitions;
+      // Q++ 6.3.x publishes these after its asynchronous settings load. A provider
+      // already loading at start is discovered again on the native changed event.
+      if (definitions === undefined) return;
       const definition = Array.isArray(definitions)
         ? definitions.find(
             (value: unknown) =>

@@ -673,7 +673,7 @@ module.exports = class QuickSwitcherProbe extends Plugin {
           bundleSHA256: hashes,
           controlStore: this.controller.storageLocation,
           nativePluginManager: Object.fromEntries(
-            ['getPlugin', 'loadPlugin', 'unloadPlugin'].map((name) => [
+            ['getPlugin', 'loadPlugin', 'unloadPlugin', 'on', 'offref'].map((name) => [
               name,
               typeof this.app.plugins[name],
             ]),

@@ -177,6 +177,7 @@ type Provider = ReturnType<typeof makeProvider>;
 
 class PluginManager {
   readonly instances = new Map<string, Provider>();
+  readonly listeners = new Set<() => void>();
   readonly calls: Array<{ operation: string; id: string; extra: unknown[] }> = [];
   nextProvider = makeProvider();
   loadGate: Promise<void> | undefined;
@@ -186,6 +187,22 @@ class PluginManager {
   readonly unloadResult = { unloaded: true };
   getPlugin(id: string): Provider | undefined {
     return this.instances.get(id);
+  }
+  on(name: string, callback: () => void): () => void {
+    assert.equal(name, 'changed');
+    this.listeners.add(callback);
+    return callback;
+  }
+  offref(callback: () => void): void {
+    this.listeners.delete(callback);
+  }
+  changed(): void {
+    for (const callback of this.listeners) callback();
+  }
+  async enablePlugin(id: string): Promise<object> {
+    const result = await this.loadPlugin(id);
+    this.changed();
+    return result;
   }
   async loadPlugin(id: string, ...extra: unknown[]): Promise<object> {
     this.calls.push({ operation: 'load', id, extra });
@@ -526,6 +543,84 @@ test('provider reload replaces cached-handler hooks and rejects suggestions issu
   handler.onChooseSuggestion(handler.getSuggestions(input())[1]!);
   await settle();
   assert.deepEqual(f.controller.activations, ['research-id']);
+});
+
+test('attaches when native provider enable was already in progress before integration starts', async (t) => {
+  const f = fixture({ installed: false });
+  t.after(() => f.integration.dispose());
+  const definitions = f.provider.commandDefinitions;
+  let initialized = false;
+  Object.defineProperty(f.provider, 'commandDefinitions', {
+    configurable: true,
+    get: () => (initialized ? definitions : undefined),
+  });
+  let release!: () => void;
+  const gate = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  // Native Obsidian publishes the instance before awaiting its onload. Q++ only
+  // publishes commandDefinitions after its asynchronous settings read finishes.
+  f.manager.loadPlugin = async function (id: string) {
+    this.instances.set(id, f.provider);
+    await gate;
+    initialized = true;
+    return this.loadResult;
+  };
+  const pending = f.manager.enablePlugin(providerId);
+  assert.equal(f.manager.getPlugin(providerId), f.provider);
+  assert.equal(f.provider.commandDefinitions, undefined);
+  f.integration.start();
+  assert.deepEqual(f.notices, [], 'A partially loaded provider is not an incompatible provider.');
+  release();
+  assert.equal(await pending, f.manager.loadResult);
+  const suggestions = f.handler.getSuggestions(input());
+  assert.deepEqual(ids(suggestions), ['writing-id', 'research-id']);
+  f.handler.onChooseSuggestion(suggestions[1]!);
+  await settle();
+  assert.deepEqual(f.controller.activations, ['research-id']);
+  assert.deepEqual(f.nativeCalls, []);
+});
+
+test('attaches when native enable starts before integration and publishes its instance later', async (t) => {
+  const f = fixture({ installed: false });
+  t.after(() => f.integration.dispose());
+  let release!: () => void;
+  f.manager.loadGate = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  const pending = f.manager.enablePlugin(providerId);
+  assert.equal(f.manager.getPlugin(providerId), undefined);
+  f.integration.start();
+  release();
+  await pending;
+  const suggestions = f.handler.getSuggestions(input());
+  assert.deepEqual(ids(suggestions), ['writing-id', 'research-id']);
+  f.handler.onChooseSuggestion(suggestions[1]!);
+  await settle();
+  assert.deepEqual(f.controller.activations, ['research-id']);
+  assert.deepEqual(f.nativeCalls, []);
+  assert.deepEqual(f.notices, []);
+});
+
+test('native lifecycle events reconcile replacements and stop observing after disposal', async (t) => {
+  const f = fixture();
+  t.after(() => f.integration.dispose());
+  const original = f.Handler.prototype.getSuggestions;
+  f.integration.start();
+  assert.equal(f.manager.listeners.size, 1);
+  f.manager.instances.delete(providerId);
+  f.manager.changed();
+  assert.equal(f.Handler.prototype.getSuggestions, original);
+  f.manager.instances.set(providerId, f.provider);
+  f.manager.changed();
+  assert.deepEqual(ids(f.handler.getSuggestions(input())), ['writing-id', 'research-id']);
+  const queuedEvent = [...f.manager.listeners][0]!;
+  f.integration.dispose();
+  assert.equal(f.manager.listeners.size, 0);
+  queuedEvent();
+  f.manager.changed();
+  assert.equal(f.Handler.prototype.getSuggestions, original);
+  assert.deepEqual(f.notices, []);
 });
 
 test('invalidates workspace modals on install and teardown while leaving another mode open', (t) => {
