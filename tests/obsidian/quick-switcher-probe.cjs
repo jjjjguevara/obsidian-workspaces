@@ -376,7 +376,13 @@ module.exports = class QuickSwitcherProbe extends Plugin {
         (await fs.readFile(path.join(this.config.vaultPath, name), 'utf8')) === content,
         `${name} disk contents are wrong.`,
       );
-      const views = snapshot.views.filter((view) => view.state.state?.file === name);
+      // The fixture's notes are Markdown editors. Native backlinks, outgoing
+      // links and outline can follow the same file after application startup,
+      // but are read-only panes with no editor text buffer to compare. Retain
+      // the complete snapshot/pin checks and verify every matching editor.
+      const views = snapshot.views.filter(
+        (view) => view.state.state?.file === name && view.state.type === 'markdown',
+      );
       assert(
         views.length > 0 && views.every((view) => !view.deferred && view.content === content),
         `${name} editor retained missing/stale contents.`,

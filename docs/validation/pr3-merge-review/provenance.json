@@ -1,0 +1,20 @@
+{
+  "reviewedCommit": "27c7a8d56fa708036248ffcc63120b243703fff4",
+  "recordedAt": "2026-11-14T04:37:38.475816+00:00",
+  "vault": "/workspace/scratch/0a8d9baba8ea/runtime/reviewer-vault",
+  "isolatedWorktree": "/workspace/scratch/0a8d9baba8ea/repos/pr3-blind-review",
+  "workspacesDisabledBeforeInstall": true,
+  "quickSwitcherProbeDisabledBeforeRearming": true,
+  "installed": {
+    "main.js": "9dee2cbb8b25f768f81d3b94ec1a7c57ddae55267ae29de459ad00a8d94d3400",
+    "manifest.json": "28f8fc19cf3e9d4fe3872bddd9a1639934f5ade81fad604a35d5f94ab622fe42",
+    "styles.css": "95030197e09cae454d807f8890fb66f4cb0daf2fbfa581170a40942f135fbcbe"
+  },
+  "sourceProbeSHA256": "00c6c9ed6da1e8f43f6f06c6120dd53887025e04cc03436472e6f05cf9137640",
+  "workspacesReenabledThroughNativeSettings": true,
+  "freshNativeRunId": "939f0eaa-9c16-4cfc-8504-5b4bf4f3a75a",
+  "fixtureAlphaCommit": "16b513247d3d6c7b06a96e08cd66216f745765c6",
+  "fixtureBetaCommit": "bc4e41676d573c09173dd9b77632f6713188ca35",
+  "physicalRoundtripFinishedOn": "alpha",
+  "physicalFinalGitStatus": ""
+}

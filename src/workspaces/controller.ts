@@ -21,7 +21,11 @@ export interface WorkspaceHost {
   flush(): Promise<void>;
   quiesce(): Promise<void>;
   assertCanQuiesce?(): Promise<void>;
-  waitForFiles(target: Layout, previous: Layout): Promise<void>;
+  waitForFiles(
+    target: Layout,
+    previous: Layout,
+    options?: { afterCheckout?: boolean },
+  ): Promise<void>;
   restore(layout: Layout): Promise<void>;
   /** Blocks user interaction during the transition; returns its release callback. */
   block(message: string): () => void;
@@ -113,6 +117,13 @@ export class WorkspaceController {
     this.current = structuredClone(next);
     this.emit();
   }
+  private setTransitionPhase(phase: 'checkout' | 'restoring'): void {
+    // The durable prepared journal already contains the complete recovery
+    // context. These phases are live diagnostics, not additional commits:
+    // recovery always inspects actual Git state instead of trusting a phase.
+    this.current.journal!.phase = phase;
+    this.emit();
+  }
   private record(id: string): WorkspaceRecord {
     if (!Object.hasOwn(this.current.workspaces, id)) throw new Error('Workspace no longer exists.');
     return this.current.workspaces[id];
@@ -129,7 +140,7 @@ export class WorkspaceController {
       throw new Error('Git binding requires a control store outside the vault.');
     await this.store.assertOutsideRepository?.(root);
   }
-  private assertBinding(actual: GitStatus, expected: GitBinding): void {
+  private assertBinding(actual: Pick<GitStatus, 'root' | 'branch'>, expected: GitBinding): void {
     if (actual.root !== expected.root)
       throw new Error(
         'This workspace belongs to a different Git repository. Rebind it explicitly in the intended vault.',
@@ -139,8 +150,16 @@ export class WorkspaceController {
         `The active workspace belongs to “${expected.branch}”, but Git is on “${actual.branch ?? 'detached HEAD'}”. Return to that branch or explicitly bind the current context again.`,
       );
   }
+  private inspectIdentity(repository: GitRepository): Promise<Pick<GitStatus, 'root' | 'branch'>> {
+    // Binding checks need a fresh repository/branch identity. Dirty/conflict
+    // observations remain mandatory in the adapter's checkout safeguards.
+    return repository.inspectIdentity?.() ?? repository.inspect();
+  }
   private async observeSource<T>(
-    operation: (repository: GitRepository | null, actual: GitStatus | null) => Promise<T>,
+    operation: (
+      repository: GitRepository | null,
+      actual: Pick<GitStatus, 'root' | 'branch'> | null,
+    ) => Promise<T>,
     needsGit = false,
   ): Promise<T> {
     const binding = this.activeContext()?.binding;
@@ -149,7 +168,7 @@ export class WorkspaceController {
       throw new Error('Git-bound workspaces are only available on desktop.');
     return this.git.withRepository(async (repository) => {
       if (this.stopped) throw new Error('Workspaces has been unloaded.');
-      const actual = await repository.inspect();
+      const actual = await this.inspectIdentity(repository);
       await this.validateStore(actual.root);
       if (binding) this.assertBinding(actual, binding);
       return operation(repository, actual);
@@ -374,7 +393,7 @@ export class WorkspaceController {
         // Capture once more after flushing, before any outgoing leaf is unloaded.
         source.layout = structuredClone(this.host.capture());
         source.savedAt = Date.now();
-        const actual = repository ? await repository.inspect() : observed;
+        const actual = repository ? await this.inspectIdentity(repository) : observed;
         if (source.binding && actual) this.assertBinding(actual, source.binding);
         if (target.binding) {
           if (!actual || !repository) throw new Error('The Git backend is unavailable.');
@@ -404,21 +423,18 @@ export class WorkspaceController {
         await this.commit(next);
         if (checkout) {
           await this.host.quiesce();
-          const switching = this.state;
-          switching.journal!.phase = 'checkout';
-          await this.commit(switching);
-          // Unloading views can save again. Revalidate immediately before checkout.
-          await repository!.assertCanSwitch(target.binding!.branch);
+          this.setTransitionPhase('checkout');
+          // Unloading views can save again. checkout() owns the authoritative
+          // fresh validation; duplicating it here adds a full Git preflight.
+          repository!.overlapPresentation?.();
           const result = await repository!.checkout(target.binding!.branch);
           this.assertBinding(result, target.binding!);
         }
-        const restoring = this.state;
-        restoring.journal!.phase = 'restoring';
-        await this.commit(restoring);
-        await this.host.waitForFiles(target.layout, source.layout);
+        this.setTransitionPhase('restoring');
+        await this.host.waitForFiles(target.layout, source.layout, { afterCheckout: checkout });
         await this.host.restore(target.layout);
         if (target.binding && repository)
-          this.assertBinding(await repository.inspect(), target.binding);
+          this.assertBinding(await this.inspectIdentity(repository), target.binding);
         const done = this.state;
         // Keep the requested native snapshot, not a transient host view that may have lost a pin.
         remember(done.workspaces[id], { ...target, savedAt: Date.now() });
@@ -454,8 +470,8 @@ export class WorkspaceController {
     try {
       await this.commit(failed);
     } catch (storageError) {
-      // A failed write must not enable more captures in this process. The last durable
-      // prepared/checkout/restoring journal still causes recovery after a restart.
+      // A failed write must not enable more captures in this process. The last
+      // durable journal still causes recovery after a restart.
       this.current.journal = failed.journal;
       this.current.activeId = failed.activeId;
       this.emit();
@@ -473,6 +489,7 @@ export class WorkspaceController {
           if (this.stopped) throw new Error('Workspaces has been unloaded.');
           const release = this.host.block('Restoring the previous workspace…');
           try {
+            let checkedOut = false;
             await this.host.flush();
             if (journal.originalBranch) {
               if (!repository) throw new Error('Recovery requires the Git backend.');
@@ -485,13 +502,17 @@ export class WorkspaceController {
                 await repository.assertCanSwitch(journal.originalBranch.branch);
                 await this.host.quiesce();
                 await repository.assertCanSwitch(journal.originalBranch.branch);
+                repository.overlapPresentation?.();
                 this.assertBinding(
                   await repository.checkout(journal.originalBranch.branch),
                   journal.originalBranch,
                 );
+                checkedOut = true;
               }
             }
-            await this.host.waitForFiles(journal.source.layout, journal.target.layout);
+            await this.host.waitForFiles(journal.source.layout, journal.target.layout, {
+              afterCheckout: checkedOut,
+            });
             await this.host.restore(journal.source.layout);
             if (journal.originalBranch && repository)
               this.assertBinding(await repository.inspect(), journal.originalBranch);

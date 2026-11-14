@@ -6,11 +6,19 @@ export interface GitStatus {
   conflicted: boolean;
 }
 
+/** Repository identity only; this does not assert working-tree cleanliness. */
+export type GitIdentity = Pick<GitStatus, 'root' | 'branch'>;
+
 /** Only valid for the duration of GitBackend.withRepository's callback. */
 export interface GitRepository {
   inspect(): Promise<GitStatus>;
+  /** Optional fast identity read for callers that do not need dirty/conflict state. */
+  inspectIdentity?(): Promise<GitIdentity>;
+  /** Start presentation immediately, but let its refresh overlap the rest of this queue scope. */
+  overlapPresentation?(): void;
   assertCanSwitch(branch: string): Promise<void>;
-  checkout(branch: string): Promise<GitStatus>;
+  /** Revalidates current checkout safety even after an earlier preflight. */
+  checkout(branch: string): Promise<GitIdentity>;
 }
 
 export interface GitBackend {

@@ -80,6 +80,33 @@ node tests/integration/quick-switcher-provider.cjs /absolute/checkout \
 
 Both cases must list/activate the product ID, leave core loading untouched, and release the manager event subscription on disposal. This is a host-stub regression check using the actual provider bundle; it is separate from native application evidence. The ordinary `npm run check` covers these races with deterministic unit fixtures and does not download or require external plugin assets.
 
+### Workspace switch performance fixture
+
+Use the same completed disposable Alpha/Beta fixture and installed plugin versions as the Quick Switcher++ regression. The [latency evidence and limitations](validation/switch-latency/README.md) retain individual native samples, installed bundle hashes, historical UI conditions, and diagnostic traces.
+
+The matched recorded performance checkpoint improved median branch switching from 1426.540 ms to 522.178 ms, but its p95 was 735.477 ms and progress opened in 10/20 measured switches. Near-instant and reliably modal-free switching remain unmet objectives; do not substitute the faster exploratory runs for the matched result. Any later bundle must retain its own validation identity.
+
+Disable the benchmark before rearming it. Install the intended Workspaces bundle separately while Workspaces is disabled; the preparer leaves that bundle unchanged. Reports must remain outside the vault, and earlier reports are preserved.
+
+```sh
+node scripts/prepare-switch-benchmark.mjs /absolute/disposable/vault \
+  --phase candidate --manual-start \
+  --samples 20 --warmups 3 --baseline-samples 6 \
+  --result /absolute/report-directory/switch-candidate.json
+```
+
+Enable **Workspaces Switch Latency Benchmark**, close Settings, and invoke **Run switch benchmark** from the command palette. Keep the main workspace unobscured and avoid concurrent build/test activity. For a before/after comparison, use the same probe, fixture, UI state, and counts for both installed product bundles. The probe checks actual branch, journal, disk/index/cache, editor contents, main/sidebar pins, and status after each timed transition, then restores clean Alpha. A passing mocked host test is not a native latency measurement.
+
+The primary interval is actual chooser selection to controller-promise settlement; the report separately records command/chooser timings and the next animation-frame opportunity. Its first switch is probe-cold, not process/OS-cache cold. Normal runs include 20 alternating measured branch switches and six measured same-branch/unbound controls each. Complete directions, warmups, individual samples, and median/p95/min/max remain in the external report.
+
+Use `--deep-trace --diagnostic-samples 2 --warmups 1 --baseline-samples 0` for a short separate diagnostic capture. Deep observation perturbs execution and is not a replacement for the normal distribution. Inspect reports with:
+
+```sh
+node scripts/analyze-switch-benchmark.mjs /absolute/report-directory/switch-candidate.json
+```
+
+Spans can overlap: do not add raw Git, filesystem, native leaf, and presentation durations to infer elapsed time. The analyzer accounts for presentation overlap. The separate `prepare-git-read-transport-probe.mjs` experiment uses only fixed Git reads; native Obsidian 1.15.1 rejected its Node worker construction with `ERR_MISSING_PLATFORM_FOR_WORKER`, so it produced no transport timing comparison. See the archived feasibility report before attempting that optional diagnostic.
+
 ## Adding a feature
 
 Place state changes in the catalog or controller and let native UI call them. A new activation entry point must not invoke checkout or layout restoration directly. A later custom interface should reuse the same operations.
