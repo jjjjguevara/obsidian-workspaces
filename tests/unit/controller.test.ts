@@ -221,6 +221,68 @@ test('a malformed imported workspace ID cannot mutate the catalog or disable sav
   assert.equal(store.writes.length, 1);
 });
 
+test('save-and-switch saves in manual mode before activating with one mutation owner', async () => {
+  const f = fixture(['alpha', 'beta'], { autoSave: false });
+  f.host.current = layout('Unsaved source');
+  const entered = deferred();
+  const release = deferred();
+  let first = true;
+  f.host.flushHook = async () => {
+    if (first) {
+      first = false;
+      entered.resolve();
+      await release.promise;
+    }
+  };
+  const switchToBeta = f.controller.saveAndActivate(f.ids[1]!);
+  await entered.promise;
+  const returnToAlpha = f.controller.activate(f.ids[0]!);
+  release.resolve();
+  await Promise.all([switchToBeta, returnToAlpha]);
+  assert.deepEqual(f.git.checkouts, ['beta', 'alpha']);
+  assert.deepEqual(
+    f.controller.state.workspaces[f.ids[0]!]!.contexts.desktop!.layout,
+    layout('Unsaved source'),
+  );
+  assert.deepEqual(f.host.current, layout('Unsaved source'));
+  assert.equal(f.host.events.includes('confirm-discard'), false);
+});
+
+test('save-and-switch stops on a failed save before attempting activation', async () => {
+  const f = fixture();
+  f.store.beforeSave = () => {
+    throw new Error('Save failed');
+  };
+  await assert.rejects(f.controller.saveAndActivate(f.ids[1]!), /Save failed/);
+  assert.equal(f.controller.state.activeId, f.ids[0]);
+  assert.equal(f.controller.state.journal, null);
+  assert.deepEqual(f.git.checkouts, []);
+  assert.deepEqual(f.host.restored, []);
+});
+
+test('save-and-switch on the active workspace still performs its explicit save', async () => {
+  const f = fixture([null], { autoSave: false });
+  f.host.current = layout('Changed');
+  await f.controller.saveAndActivate(f.ids[0]!);
+  assert.equal(f.store.writes.length, 1);
+  assert.deepEqual(
+    f.controller.state.workspaces[f.ids[0]!]!.contexts.desktop!.layout,
+    layout('Changed'),
+  );
+  assert.deepEqual(f.host.restored, []);
+});
+
+test('save-and-switch refuses a source that changed while the request was queued', async () => {
+  const f = fixture([null, null]);
+  const creation = f.controller.create('New context');
+  const request = f.controller.saveAndActivate(f.ids[1]!, f.ids[0]!);
+  const createdId = await creation;
+  await assert.rejects(request, /active workspace changed/);
+  assert.equal(f.controller.state.activeId, createdId);
+  assert.equal(f.store.writes.length, 1);
+  assert.deepEqual(f.host.restored, []);
+});
+
 test('same-branch layout switches retain dirty note edits without issuing checkout', async () => {
   const f = fixture(['alpha', 'alpha']);
   f.git.status.dirty = true;

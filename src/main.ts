@@ -2,9 +2,9 @@ import { FileSystemAdapter, Notice, Platform, Plugin, setIcon } from 'obsidian';
 import { ObsidianGitBackend } from './git/obsidian-git';
 import { ObsidianWorkspaceHost } from './obsidian/layout';
 import { installedPlugin } from './obsidian/plugins';
+import { QuickSwitcherIntegration } from './obsidian/quick-switcher';
 import { desktopStore, PluginStateStore } from './storage/store';
 import { WorkspaceController } from './workspaces/controller';
-import { contextOf } from './workspaces/model';
 import { WorkspaceSwitcher } from './ui/switcher';
 import { openWorkspaceMenu } from './ui/menu';
 import { WorkspaceManagerModal, WorkspacesSettingTab } from './ui/settings';
@@ -24,6 +24,7 @@ export default class WorkspacesPlugin extends Plugin {
   private status?: HTMLElement;
   private ready = false;
   private unloaded = false;
+  private quickSwitcher?: QuickSwitcherIntegration;
 
   async onload(): Promise<void> {
     const device = Platform.isMobile ? 'mobile' : 'desktop';
@@ -77,6 +78,9 @@ export default class WorkspacesPlugin extends Plugin {
 
   /** No mutating UI surface exists until Obsidian has finished startup restoration. */
   private registerInterface(controller: WorkspaceController): void {
+    this.quickSwitcher = new QuickSwitcherIntegration(this.app, controller);
+    this.quickSwitcher.start();
+    this.register(() => this.quickSwitcher?.dispose());
     this.addSettingTab(new WorkspacesSettingTab(this.app, this, controller));
     const actions = {
       manage: () => new WorkspaceManagerModal(this.app, controller).open(),
@@ -141,23 +145,20 @@ export default class WorkspacesPlugin extends Plugin {
     const controller = this.controller;
     const state = controller.state;
     const workspace = state.activeId ? state.workspaces[state.activeId] : null;
-    const binding = workspace ? contextOf(workspace, controller.device).binding : null;
     const label =
       controller.busy ?? (state.journal ? 'Recovery required' : (workspace?.name ?? 'Workspaces'));
     this.status.empty();
     const icon = this.status.createSpan({ cls: 'workspaces-context-icon' });
     setIcon(icon, state.journal ? 'triangle-alert' : 'panels-top-left');
-    this.status.createSpan({ text: binding ? `${label} · ${binding.branch}` : label });
+    this.status.createSpan({ text: label });
     this.status.setAttribute('aria-label', 'Open Workspaces menu');
-    this.status.setAttribute(
-      'title',
-      binding ? `${label} — saved branch: ${binding.branch}` : label,
-    );
+    this.status.setAttribute('title', label);
   }
 
   onunload(): void {
     this.unloaded = true;
     this.ready = false;
+    this.quickSwitcher?.dispose();
     this.controller?.dispose();
   }
 }

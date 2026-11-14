@@ -2,6 +2,10 @@
 
 Validated on 2026-11-13. This document distinguishes native application observations from automated simulations.
 
+## Quick Switcher++ regression validation — 2026-11-14
+
+The subsequent status/Quick Switcher++ fixes passed **142 automated tests** and **10 native checks** on Linux with Obsidian **1.15.1**, Obsidian Git **2.43.0**, and Quick Switcher++ **6.3.0**. Both reported bugs were reproduced with the original build before the fixed build was installed. A separate blind reviewer identified an overlapping-plugin-enable race; the correction passed the reviewer's official-provider regression harness and a fresh full native run. The [independent review](validation/quick-switcher-independent-review.md) records the resolved finding, exact final bundle hashes, and [final native report](validation/quick-switcher-independent-final.json). The [original regression validation](validation/quick-switcher.md) retains the author's before/after results and manual observations. The initial implementation evidence below remains unchanged.
+
 ## Automated verification
 
 `npm run check` runs TypeScript checking, the Node test suite, and the shipping build. Tests use real temporary Git repositories for the installed-provider adapter, deterministic host doubles for transition failures, temporary filesystem stores, and the actual generated CommonJS bundle for desktop/mobile loading.

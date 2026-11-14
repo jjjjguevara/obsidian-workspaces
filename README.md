@@ -16,6 +16,7 @@ The first version uses Obsidian's native controls. A workspace switcher, command
 | Imports          | Bring in core Workspaces layouts, Workspaces Plus presentation metadata, or Workspace++ session JSON.      |
 | Transfer         | Export and import workspace snapshots explicitly.                                                          |
 | Mobile           | Use unbound workspaces and a separate mobile layout. Git-bound activation is desktop only.                 |
+| Quick Switcher++ | Select this catalog through Workspaces Mode, including its explicit save-and-switch shortcut.             |
 
 This is an initial development build targeting **Obsidian 1.13.0+**. Native validation passed on **Obsidian 1.15.1 with Obsidian Git 2.43.0 on Linux**, including branch-exclusive pinned notes in the main area and both sidebars. The Git adapter accepts **Obsidian Git 2.43.x** and targets the inspected **2.43.0** integration surface. See [Validation](docs/validation.md) for tested behavior and platform limits.
 
@@ -64,6 +65,14 @@ Use the vault's actual configuration directory if it differs from `.obsidian`, t
 
 The plugin maintains its own catalog. Core Workspaces is an import source; it is not a second catalog that must remain enabled or synchronized.
 
+## Quick Switcher++ integration
+
+With **Quick Switcher++ 6.3.x** enabled, **Quick Switcher++: Open in Workspaces Mode** lists this product's workspaces. Selecting one uses the same branch validation, checkout, and pinned-layout restoration as the Workspaces menu. Core Workspaces can remain disabled. The integration targets the inspected **6.3.0** release, which requires **Obsidian 1.15.0+**.
+
+Suggestions show the workspace name, group, and saved branch association. Names can repeat; selection uses each workspace's stable ID. Quick Switcher++'s save-and-switch shortcut (default **Mod+Shift+S**) explicitly saves the source before activating the target, including when save on switch is disabled. A failed save stops the switch. Creating a workspace from an empty search result uses this product's catalog as well.
+
+The Workspaces status indicator shows the active workspace name. Obsidian Git owns the active-branch indicator; Workspaces does not repeat it. Branch associations remain visible in workspace selection and settings.
+
 ## Direction
 
 The current work concentrates on dependable workspace restoration, native presentation, and branch-aware switching. A custom workspace interface is a later layer. Automatic cross-device reconciliation, Git switching on mobile, remote-branch creation, and automatic commit/push workflows are outside the initial scope.
@@ -78,6 +87,6 @@ The current work concentrates on dependable workspace restoration, native presen
 
 ## Attribution and license
 
-Workspaces is a personal project maintained by **jjjjguevara**. It adapts selected work from [Workspace++ by s1m4ne](https://github.com/s1m4ne/obsidian-workspace-plus) and [Workspaces Plus by jsmorabito](https://github.com/jsmorabito/obsidian-workspaces-plus), with an integration targeting [Obsidian Git](https://github.com/Vinzent03/obsidian-git).
+Workspaces is a personal project maintained by **jjjjguevara**. It adapts selected work from [Workspace++ by s1m4ne](https://github.com/s1m4ne/obsidian-workspace-plus) and [Workspaces Plus by jsmorabito](https://github.com/jsmorabito/obsidian-workspaces-plus), with integrations targeting [Obsidian Git](https://github.com/Vinzent03/obsidian-git) and [Quick Switcher++](https://github.com/darlal/obsidian-switcher-plus).
 
 The combined project is licensed under [GNU GPL version 3](LICENSE). Original notices, source revisions, and the retained MIT license texts are recorded in [Third-party notices](THIRD_PARTY_NOTICES.md).

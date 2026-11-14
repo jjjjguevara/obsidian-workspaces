@@ -1,0 +1,32 @@
+{
+  "expectation": "product",
+  "officialVersion": "6.3.0",
+  "officialBundleSHA256": "6746dad3d6b132698b04c2a10ea0c2f71c03c8b5af7bec753ca76319c72e3f23",
+  "adapterSourceSHA256": "4e9bc168040edea4f4256b1802b328683d5175abb36e502ce3d48d4562207539",
+  "scenarios": [
+    {
+      "stage": "before-instance",
+      "suggestionIds": [
+        "product-id"
+      ],
+      "productCalls": [
+        "product-id"
+      ],
+      "coreCalls": [],
+      "notices": [],
+      "changedListenersAfterDispose": 0
+    },
+    {
+      "stage": "during-provider-onload",
+      "suggestionIds": [
+        "product-id"
+      ],
+      "productCalls": [
+        "product-id"
+      ],
+      "coreCalls": [],
+      "notices": [],
+      "changedListenersAfterDispose": 0
+    }
+  ]
+}
