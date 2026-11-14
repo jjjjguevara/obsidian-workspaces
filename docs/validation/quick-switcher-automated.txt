@@ -1,0 +1,186 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> obsidian-workspaces@0.1.0 check
+> npm run typecheck && npm test && npm run build
+
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> obsidian-workspaces@0.1.0 typecheck
+> tsc --noEmit
+
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> obsidian-workspaces@0.1.0 test
+> node --import tsx --test tests/**/*.test.ts
+
+✔ round trips branch-exclusive files through the installed provider (414.207086ms)
+✔ a vault opened through a directory alias keeps canonical identity through checkout (299.914695ms)
+✔ repository identity is pinned before the callback so an alias cannot retarget it (156.763529ms)
+✔ an unresolved provider root rejects before the transaction callback can run (57.256668ms)
+✔ checkout awaits the provider branch label and refreshes its views after Git changes branch (122.775848ms)
+✔ checkout remains available when optional provider presentation hooks are absent or unavailable (171.34484ms)
+✔ provider presentation failures cannot turn successful checkout into failure or obscure a partial checkout failure (178.492982ms)
+✔ keeps the queue occupied through caller restoration, including successful void results (103.014558ms)
+▶ blocks untracked, unstaged and staged changes across the whole repository
+  ✔ untracked (68.440254ms)
+  ✔ unstaged (64.765677ms)
+  ✔ staged (68.683673ms)
+✔ blocks untracked, unstaged and staged changes across the whole repository (247.652825ms)
+✔ parses staged renames without interpreting their second pathname as status (62.620489ms)
+✔ identifies real merge conflicts and refuses checkout (90.551002ms)
+✔ refuses an unfinished merge even without unmerged paths (85.469291ms)
+✔ refuses a paused rebase even with a clean working tree (103.454113ms)
+✔ allows only exact existing local branches, rejecting options and reflog expressions (124.592403ms)
+✔ reports detached HEAD without pretending it is a branch (98.431516ms)
+✔ re-reads the real branch when a provider fails after changing it (116.206916ms)
+✔ detects a provider that resolves without activating the target branch (135.587215ms)
+✔ rejects recursive submodule checkout from both plugin and Git configuration (155.373155ms)
+✔ protects ignored local files that Git checkout would otherwise overwrite (171.509234ms)
+✔ rejects repository replacement and use after the queue scope ends (44.671085ms)
+✔ propagates controller failures while allowing the next queued transaction (58.532716ms)
+▶ checkout guard refuses native layout runtime files tracked on the source or target branch
+  ✔ alpha: workspace.json (150.139965ms)
+  ✔ beta: workspace-mobile.json (137.936247ms)
+✔ checkout guard refuses native layout runtime files tracked on the source or target branch (288.978707ms)
+▶ checkout guard refuses changed integration manifests and plugin enablement
+  ✔ plugins/obsidian-workspaces/manifest.json (156.165482ms)
+  ✔ plugins/obsidian-git/manifest.json (148.043391ms)
+  ✔ community-plugins.json (164.310004ms)
+✔ checkout guard refuses changed integration manifests and plugin enablement (469.450683ms)
+✔ checkout guard allows identical tracked plugin code with a custom vault config and plugin ID (177.381462ms)
+✔ checkout guard requires the vault to be inside the inspected repository (94.98608ms)
+✔ checkout guard resolves runtime paths relative to a vault nested in its repository (118.810337ms)
+✔ checkout guard refuses configuration symlinks that hide their real runtime paths (99.181369ms)
+✔ controller round trips exclusive pinned notes and waits for changed same-size shared content (722.74022ms)
+✔ dirty editor content is flushed and blocks the transition before checkout or journaling (137.888753ms)
+✔ failed restoration retains a durable journal and explicit recovery survives controller restart (454.064531ms)
+✔ the complete shipping bundle loads and saves an unbound mobile context without Node or browser imports (205.64272ms)
+✔ desktop onload uses CommonJS Node loading and an isolated filesystem control store (32.479346ms)
+✔ a malformed imported workspace ID cannot mutate the catalog or disable saving (8.445878ms)
+✔ save-and-switch saves in manual mode before activating with one mutation owner (9.22869ms)
+✔ save-and-switch stops on a failed save before attempting activation (1.280207ms)
+✔ save-and-switch on the active workspace still performs its explicit save (1.343102ms)
+✔ save-and-switch refuses a source that changed while the request was queued (2.44189ms)
+✔ same-branch layout switches retain dirty note edits without issuing checkout (1.683412ms)
+Workspaces could not update the recovery journal Error: Storage unavailable
+    at MemoryStore.f.store.beforeSave (/workspace/scratch/0a8d9baba8ea/repos/obsidian-workspaces/tests/unit/controller.test.ts:775:42)
+    at MemoryStore.save (/workspace/scratch/0a8d9baba8ea/repos/obsidian-workspaces/tests/unit/controller.test.ts:69:10)
+    at WorkspaceController.commit (/workspace/scratch/0a8d9baba8ea/repos/obsidian-workspaces/src/workspaces/controller.ts:105:24)
+    at WorkspaceController.markRecovery (/workspace/scratch/0a8d9baba8ea/repos/obsidian-workspaces/src/workspaces/controller.ts:455:18)
+    at async <anonymous> (/workspace/scratch/0a8d9baba8ea/repos/obsidian-workspaces/src/workspaces/controller.ts:429:23)
+    at async TestGit.withRepository (/workspace/scratch/0a8d9baba8ea/repos/obsidian-workspaces/tests/unit/controller.test.ts:96:14)
+    at async WorkspaceController.transition (/workspace/scratch/0a8d9baba8ea/repos/obsidian-workspaces/src/workspaces/controller.ts:357:5)
+    at async <anonymous> (/workspace/scratch/0a8d9baba8ea/repos/obsidian-workspaces/src/workspaces/controller.ts:92:16)
+✔ rapid activations remain serialized while the first restoration is unresolved (16.796386ms)
+✔ history restores its branch binding and preserves the displaced context for another restoration (4.948927ms)
+✔ external branch drift blocks saving before the workspace snapshot can be overwritten (0.940132ms)
+✔ activating the already active workspace still detects external branch drift (0.922579ms)
+▶ source validation is repeated after flushing before save and create
+  ✔ save (1.127468ms)
+  ✔ create (0.897172ms)
+✔ source validation is repeated after flushing before save and create (3.058179ms)
+✔ duplicate preserves metadata and branch/history values without sharing mutable nested objects (2.061995ms)
+✔ cancelling manual discard also cancels deletion of the active workspace (1.219925ms)
+✔ storage failure after checkout retains the durable journal and blocks in-memory mutation (6.955533ms)
+✔ a committed write with uncertain durability retains a recovery path and correct revision (3.117832ms)
+▶ same-workspace history recovery restores the source binding and honors the autosave policy after a committed-write failure
+  ✔ autoSave=true (3.487007ms)
+  ✔ autoSave=false (2.933141ms)
+✔ same-workspace history recovery restores the source binding and honors the autosave policy after a committed-write failure (6.944889ms)
+✔ a committed-write failure while finishing recovery retains a durable journal until a successful retry (3.459265ms)
+▶ disposing while waiting for the provider queue prevents all later workspace side effects
+  ✔ save (0.913896ms)
+  ✔ create (0.42074ms)
+  ✔ activate (0.542383ms)
+  ✔ bind (0.74127ms)
+  ✔ recover (0.783598ms)
+✔ disposing while waiting for the provider queue prevents all later workspace side effects (4.057637ms)
+✔ unbound mobile contexts work without Git and a bound import requires explicit unbinding (3.250389ms)
+✔ a confirmed binding cannot follow an earlier queued activation to another identity (1.489398ms)
+▶ confirmation revisions are checked inside the mutation queue
+  ✔ delete (0.967084ms)
+  ✔ details (0.670862ms)
+  ✔ unbind (0.662954ms)
+✔ confirmation revisions are checked inside the mutation queue (4.006327ms)
+✔ history selection retains its snapshot while an earlier save prepends history (2.162422ms)
+✔ a failed recovery write after target replacement keeps valid in-memory source identity (10.056945ms)
+✔ the bundled adapter can be evaluated on mobile without resolving Node modules (72.7415ms)
+✔ fails before executing a transaction when plugin, desktop, version or native capabilities are unavailable (3.978955ms)
+✔ never mistakes the provider queue's undefined error callback for a successful void operation (1.343659ms)
+✔ fails a pending operation if the Git plugin unloads and drops its queued callback (252.820126ms)
+✔ does not release a running transaction merely because provider availability changes (5.434677ms)
+✔ same-size stale text cannot pass readiness until cached bytes match disk (8.312512ms)
+✔ a source-only deleted note must disappear from the Vault index before readiness (1.914048ms)
+✔ a missing target fails within the configured readiness budget (16.875999ms)
+✔ binary readiness waits on matching file metadata without using text reads (2.033529ms)
+✔ file leaves cover sidebars and floating windows and accept both native pin encodings (2.140486ms)
+✔ restoration verification catches a lost pin even when the expected note is open (0.350695ms)
+▶ extra stale file leaves are rejected in main, sidebars and floating windows
+  ✔ main (0.742237ms)
+  ✔ left (0.637733ms)
+  ✔ right (0.536429ms)
+  ✔ floating (0.870179ms)
+✔ extra stale file leaves are rejected in main, sidebars and floating windows (8.900253ms)
+✔ restoration preserves file region and duplicate-leaf multiplicity (0.670749ms)
+✔ own catalog round trips native state, metadata, history, bindings and explicit order (6.014952ms)
+✔ future versions, invalid revisions and malformed own catalogs are refused (3.025116ms)
+✔ blank workspace IDs are refused on load and own-product import (3.934613ms)
+✔ legacy blank IDs receive distinct usable identities while valid non-UUID IDs survive (1.338829ms)
+▶ valid recovery journals survive reload while corrupted recovery references are rejected
+  ✔ unknown target (0.590707ms)
+  ✔ unknown source (0.500689ms)
+  ✔ source differs from active (0.43134ms)
+  ✔ invalid phase (0.625053ms)
+  ✔ invalid source snapshot (1.188242ms)
+  ✔ empty recovery root (0.746252ms)
+  ✔ empty recovery branch (0.610309ms)
+✔ valid recovery journals survive reload while corrupted recovery references are rejected (7.901911ms)
+▶ path traversal is rejected in saved contexts, history and imported native trees
+  ✔ ../outside.md (0.884852ms)
+  ✔ notes/../../outside.md (0.719792ms)
+  ✔ /outside.md (1.09567ms)
+  ✔ C:/outside.md (1.202025ms)
+  ✔ notes\outside.md (1.263442ms)
+✔ path traversal is rejected in saved contexts, history and imported native trees (6.690608ms)
+✔ standard wrapped Workspace++ export preserves order, both device layouts and group presentation (1.355688ms)
+✔ explicit Workspace++ history imports legacy timestamps and device-specific layouts (0.760488ms)
+✔ native core workspaces import while capitalized and compact Mode entries are excluded (2.053412ms)
+✔ Workspaces Plus metadata and missing tracked references migrate without executing mode or override settings (1.349454ms)
+✔ native file-following sidebar views pass preflight and their unloads are awaited (24.558466ms)
+✔ an unknown editable FileView blocks before any supported leaf is unloaded (2.314647ms)
+✔ a core-looking type does not exempt an unknown file-backed non-FileView (1.122908ms)
+✔ lists stable IDs with duplicate names, group and branch search, without core Workspaces (12.535905ms)
+✔ chooses duplicate names by their own IDs and observes renames without touching the core catalog (4.237182ms)
+✔ consumes failed activation and deleted suggestions without falling through to native loading (5.069028ms)
+✔ save-and-switch calls one atomic controller operation and keeps save intent local to its facade (4.065092ms)
+✔ save failure and a stale save source prevent fallback activation (2.163765ms)
+✔ rejects unmarked native rows even when a core name exactly equals a stable product ID (2.024253ms)
+✔ creates unmatched workspaces through the controller without native save or active-state writes (2.145577ms)
+✔ hooks apply only to their app and do not redirect a foreign app selection (2.030135ms)
+✔ attaches after provider load, preserves manager results and arguments, and restores after unload (3.228293ms)
+✔ provider reload replaces cached-handler hooks and rejects suggestions issued by the old provider (5.067083ms)
+✔ invalidates workspace modals on install and teardown while leaving another mode open (1.800702ms)
+✔ dispose restores inherited and own descriptors and makes previously captured operations harmless (1.815868ms)
+✔ a provider load completing after disposal does not reinstall hooks (1.285395ms)
+✔ later wrappers are preserved and captured adapter callbacks reject owned rows after disposal (2.172654ms)
+✔ unsupported versions and incomplete handler capabilities produce a notice without partial hooks (3.532456ms)
+✔ a non-replaceable handler method rolls back hooks installed earlier in the same attempt (1.673365ms)
+✔ failed provider unload restores integration and propagates the original manager error (3.519376ms)
+✔ atomic replacement exposes complete revisions and keeps the previous generation (30.532413ms)
+✔ corrupt and future-version files are refused and never silently overwritten (17.914708ms)
+✔ stale writers cannot overwrite a newer revision even if they guess its successor (16.601502ms)
+✔ an existing writer lock is preserved rather than stolen or removed (4.632773ms)
+✔ outside-repository validation rejects lexical and resolved symlink containment (6.170288ms)
+ℹ tests 139
+ℹ suites 0
+ℹ pass 139
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4503.87078
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> obsidian-workspaces@0.1.0 build
+> node esbuild.config.mjs
+
