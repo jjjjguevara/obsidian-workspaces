@@ -1,0 +1,339 @@
+{
+  "recordedAt": "2026-11-14T04:41:34.069947+00:00",
+  "action": "Visible command palette, Quick Switcher++ Workspaces command, Return on the Alpha suggestion",
+  "branch": "alpha",
+  "gitStatus": "",
+  "observedWorkspaceLabel": "Alpha",
+  "nativeLayout": {
+    "main": {
+      "id": "faa3eb2a9707c3c9",
+      "type": "split",
+      "children": [
+        {
+          "id": "88dc66d5fe6bdd71",
+          "type": "tabs",
+          "children": [
+            {
+              "id": "7792ca5c4c58d8bb",
+              "type": "leaf",
+              "pinned": true,
+              "state": {
+                "type": "markdown",
+                "state": {
+                  "file": "alpha-exclusive.md",
+                  "mode": "source",
+                  "source": false
+                },
+                "pinned": true,
+                "icon": "lucide-file",
+                "title": "alpha-exclusive"
+              }
+            },
+            {
+              "id": "ff3583adb1b93166",
+              "type": "leaf",
+              "state": {
+                "type": "markdown",
+                "state": {
+                  "file": "shared.md",
+                  "mode": "source",
+                  "source": false
+                },
+                "icon": "lucide-file",
+                "title": "shared"
+              }
+            }
+          ]
+        }
+      ],
+      "direction": "vertical"
+    },
+    "left": {
+      "id": "4e0ae0c0b86dbcc2",
+      "type": "split",
+      "children": [
+        {
+          "id": "de14f48063627e67",
+          "type": "tabs",
+          "children": [
+            {
+              "id": "373a1befab571059",
+              "type": "leaf",
+              "state": {
+                "type": "file-explorer",
+                "state": {
+                  "sortOrder": "alphabetical",
+                  "autoReveal": false,
+                  "showSearch": false,
+                  "searchQuery": ""
+                },
+                "icon": "lucide-folder-closed",
+                "title": "Files"
+              }
+            },
+            {
+              "id": "96a8b68e020eb880",
+              "type": "leaf",
+              "state": {
+                "type": "search",
+                "state": {
+                  "query": "",
+                  "matchingCase": false,
+                  "explainSearch": false,
+                  "collapseAll": false,
+                  "extraContext": false,
+                  "sortOrder": "alphabetical"
+                },
+                "icon": "lucide-search",
+                "title": "Search"
+              }
+            },
+            {
+              "id": "2787ed626fe4f09d",
+              "type": "leaf",
+              "state": {
+                "type": "bookmarks",
+                "state": {
+                  "showSearch": false,
+                  "searchQuery": ""
+                },
+                "icon": "lucide-bookmark",
+                "title": "Bookmarks"
+              }
+            },
+            {
+              "id": "5ca68e286ce3a626",
+              "type": "leaf",
+              "pinned": true,
+              "state": {
+                "type": "markdown",
+                "state": {
+                  "file": "sidebar-alpha.md",
+                  "mode": "source",
+                  "source": false
+                },
+                "pinned": true,
+                "icon": "lucide-file",
+                "title": "sidebar-alpha"
+              }
+            }
+          ]
+        }
+      ],
+      "direction": "horizontal",
+      "width": 300
+    },
+    "right": {
+      "id": "f74d5f13f6604e4c",
+      "type": "split",
+      "children": [
+        {
+          "id": "84c8f694ad62f7b3",
+          "type": "tabs",
+          "children": [
+            {
+              "id": "9ce9f489ee7772cb",
+              "type": "leaf",
+              "state": {
+                "type": "empty",
+                "state": {},
+                "icon": "lucide-file",
+                "title": "New tab"
+              }
+            },
+            {
+              "id": "35f4628609f157b6",
+              "type": "leaf",
+              "state": {
+                "type": "empty",
+                "state": {},
+                "icon": "lucide-file",
+                "title": "New tab"
+              }
+            },
+            {
+              "id": "7fae9c990edaf674",
+              "type": "leaf",
+              "state": {
+                "type": "tag",
+                "state": {
+                  "sortOrder": "frequency",
+                  "useHierarchy": true,
+                  "showSearch": false,
+                  "searchQuery": ""
+                },
+                "icon": "lucide-tags",
+                "title": "Tags"
+              }
+            },
+            {
+              "id": "2ce6b479fa2ea29a",
+              "type": "leaf",
+              "state": {
+                "type": "all-properties",
+                "state": {
+                  "sortOrder": "frequency",
+                  "showSearch": false,
+                  "searchQuery": ""
+                },
+                "icon": "lucide-archive",
+                "title": "All properties"
+              }
+            },
+            {
+              "id": "2b5c66a3af7de49c",
+              "type": "leaf",
+              "state": {
+                "type": "empty",
+                "state": {},
+                "icon": "lucide-file",
+                "title": "New tab"
+              }
+            },
+            {
+              "id": "c56ffad3006d4250",
+              "type": "leaf",
+              "pinned": true,
+              "state": {
+                "type": "markdown",
+                "state": {
+                  "file": "sidebar-alpha.md",
+                  "mode": "source",
+                  "source": false
+                },
+                "pinned": true,
+                "icon": "lucide-file",
+                "title": "sidebar-alpha"
+              }
+            },
+            {
+              "id": "398a5b6f156c7586",
+              "type": "leaf",
+              "state": {
+                "type": "backlink",
+                "state": {
+                  "file": "alpha-exclusive.md",
+                  "collapseAll": false,
+                  "extraContext": false,
+                  "sortOrder": "alphabetical",
+                  "showSearch": false,
+                  "searchQuery": "",
+                  "backlinkCollapsed": false,
+                  "unlinkedCollapsed": true
+                },
+                "icon": "links-coming-in",
+                "title": "Backlinks"
+              }
+            },
+            {
+              "id": "185d764673a26c95",
+              "type": "leaf",
+              "state": {
+                "type": "outgoing-link",
+                "state": {
+                  "file": "alpha-exclusive.md",
+                  "linksCollapsed": false,
+                  "unlinkedCollapsed": true
+                },
+                "icon": "links-going-out",
+                "title": "Outgoing links"
+              }
+            },
+            {
+              "id": "7966bd547b032cd9",
+              "type": "leaf",
+              "state": {
+                "type": "outline",
+                "state": {
+                  "file": "alpha-exclusive.md",
+                  "followCursor": false,
+                  "showSearch": false,
+                  "searchQuery": ""
+                },
+                "icon": "lucide-list",
+                "title": "Outline"
+              }
+            }
+          ]
+        }
+      ],
+      "direction": "horizontal",
+      "width": 300
+    },
+    "left-ribbon": {
+      "hiddenItems": {
+        "switcher:Open quick switcher": false,
+        "graph:Open graph view": false,
+        "canvas:Create new canvas": false,
+        "daily-notes:Open today's daily note": false,
+        "templates:Insert template": false,
+        "command-palette:Open command palette": false,
+        "bases:Create new base": false,
+        "obsidian-git:Open Git source control": false,
+        "darlal-switcher-plus:Open in Headings Mode": false,
+        "darlal-switcher-plus:Open Symbols for the active editor": false,
+        "workspaces:Manage workspace layouts": false,
+        "obsidian-workspaces:Workspaces": false
+      }
+    },
+    "active": "7792ca5c4c58d8bb",
+    "lastOpenFiles": [
+      "sidebar-alpha.md",
+      "alpha-exclusive.md",
+      "sidebar-beta.md",
+      "beta-exclusive.md",
+      "shared.md"
+    ]
+  },
+  "fileLeaves": [
+    {
+      "region": "main",
+      "path": "alpha-exclusive.md",
+      "type": "markdown",
+      "pinned": true
+    },
+    {
+      "region": "main",
+      "path": "shared.md",
+      "type": "markdown",
+      "pinned": false
+    },
+    {
+      "region": "left",
+      "path": "sidebar-alpha.md",
+      "type": "markdown",
+      "pinned": true
+    },
+    {
+      "region": "right",
+      "path": "sidebar-alpha.md",
+      "type": "markdown",
+      "pinned": true
+    },
+    {
+      "region": "right",
+      "path": "alpha-exclusive.md",
+      "type": "backlink",
+      "pinned": false
+    },
+    {
+      "region": "right",
+      "path": "alpha-exclusive.md",
+      "type": "outgoing-link",
+      "pinned": false
+    },
+    {
+      "region": "right",
+      "path": "alpha-exclusive.md",
+      "type": "outline",
+      "pinned": false
+    }
+  ],
+  "files": {
+    "alpha-exclusive.md": "# Alpha exclusive\n",
+    "sidebar-alpha.md": "# Alpha sidebar\n",
+    "shared.md": "ALPHA\n"
+  },
+  "bundleSHA256": "9dee2cbb8b25f768f81d3b94ec1a7c57ddae55267ae29de459ad00a8d94d3400",
+  "scope": "Git and native workspace.json independently read after physical input. Active product label observed on native desktop; separate native probe supplies controller/journal snapshots."
+}

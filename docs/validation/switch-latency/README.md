@@ -8,6 +8,8 @@ The matched and exploratory measurements below were collected by implementation 
 
 The [Git process census](git-process-census.md) accounts for every observed process in the final diagnostic samples, distinguishes recorded arguments from source-supported inference, and identifies the remaining opportunities to combine work without reusing stale state.
 
+A [fresh blind merge review](../pr3-merge-review/README.md) independently reran the complete repository gate, installed the matching build in Linux Obsidian, repeated the native safety scenarios, and completed a physical command-palette roundtrip. It found no material correctness blocker for merging this partial improvement. The performance measurements and unmet objective above remain unchanged.
+
 ## Environment and measurement
 
 - Obsidian **1.15.1**, Linux x64; Electron **43.8.9**, embedded Node **24.22.1**.
@@ -19,7 +21,7 @@ The [native benchmark](../../../tests/obsidian/switch-benchmark.cjs) invokes the
 
 Normal runs contain a first switch, three branch warmups, **20 measured alternating branch switches**, and **six measured same-branch and six measured unbound layout switches**, with their own warmups and cleanup. Reports retain 42 verified transitions. The first switch is probe-cold, not process/OS-cache cold; existing starting editors are hydrated before timing, without a setup activation. No human decision time is simulated.
 
-After timing, the [shared native verifier](../../../tests/obsidian/quick-switcher-probe.cjs) checks actual Git branch, journal/active identity, disk bytes, Vault index/cache, active note, every matching Markdown editor's hydration/content, main/sidebar pins, and status. Native backlinks, outgoing links, and outline may follow a file without exposing text-editor contents; those views remain covered by layout/pin checks. Verification never repairs target views. Later probe revisions additionally assert the independent Git branch label; installed probe hashes identify these revisions.
+After timing, the [shared native verifier](../../../tests/obsidian/quick-switcher-probe.cjs) checks actual Git branch, journal/active identity, disk bytes, the Vault index, active note, every matching Markdown editor's hydration/content, main/sidebar pins, and status. Current text is verified through the loaded Markdown buffers; this verifier does not independently call `vault.cachedRead()`. Native backlinks, outgoing links, and outline may follow a file without exposing text-editor contents; raw layouts retain those views for review. The verifier checks required pin presence rather than an independent complete-layout equality comparison. Verification never repairs target views. Later probe revisions additionally assert the independent Git branch label; installed probe hashes identify these revisions.
 
 Median is the midpoint of the two middle observations for even sample counts; p95 uses nearest rank. Full direction-specific statistics and individual values remain in each report.
 

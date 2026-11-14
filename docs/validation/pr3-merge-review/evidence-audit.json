@@ -1,0 +1,163 @@
+{
+  "reviewedCommit": "27c7a8d56fa708036248ffcc63120b243703fff4",
+  "historical": {
+    "baseline-matched.json.gz": {
+      "fileSHA256": "34435393b7fcb227c05711151522ff20fbae2c4aad9bbc5470f2f5f10bfd8fa4",
+      "uncompressedSHA256": "72eb25b080836c0268593d15a5fdf06e06f051f0cd976fb6ad6af6273160f90c",
+      "runId": "3431a0e5-055f-4f65-8d40-3f12f3af7453",
+      "totalCorrectnessSamples": 42,
+      "productBundleSHA256": "62a226c43d5a9f635c04edd6f0ef92fab572c103ad7bea3e09f53966cc48a0d8",
+      "groups": {
+        "branch": {
+          "n": 20,
+          "medianMs": 1426.5402864998905,
+          "p95Ms": 1679.2857079999521,
+          "minimumMs": 1136.9517200000118,
+          "maximumMs": 1858.173859000206,
+          "progressOpened": 20,
+          "progressAtFrameOpportunity": 20
+        },
+        "same-branch": {
+          "n": 6,
+          "medianMs": 436.6962540000677,
+          "p95Ms": 512.1042240001261,
+          "minimumMs": 289.040277000051,
+          "maximumMs": 512.1042240001261,
+          "progressOpened": 6,
+          "progressAtFrameOpportunity": 6
+        },
+        "unbound": {
+          "n": 6,
+          "medianMs": 232.638712999993,
+          "p95Ms": 375.3623709999956,
+          "minimumMs": 136.92430399986915,
+          "maximumMs": 375.3623709999956,
+          "progressOpened": 6,
+          "progressAtFrameOpportunity": 6
+        }
+      }
+    },
+    "optimized-matched.json.gz": {
+      "fileSHA256": "7d987357dbb4e7e3ff365f9420a2c2f7854bf4bcb25528cd409329b85c46a16b",
+      "uncompressedSHA256": "e2ab21eee158bb0c71918713ccf9cc22d7217273dce04b7382a10af60c308ab2",
+      "runId": "2ad829e9-a157-4958-ade7-b8f2dbf26bb4",
+      "totalCorrectnessSamples": 42,
+      "productBundleSHA256": "e2f1c9ec72f65500957124e5692bf6cc549d2beb2d71e695abb894c348a5f701",
+      "groups": {
+        "branch": {
+          "n": 20,
+          "medianMs": 522.1782505001174,
+          "p95Ms": 735.4773860001005,
+          "minimumMs": 440.63391100009903,
+          "maximumMs": 765.4418089999817,
+          "progressOpened": 10,
+          "progressAtFrameOpportunity": 9
+        },
+        "same-branch": {
+          "n": 6,
+          "medianMs": 220.65981350000948,
+          "p95Ms": 253.80444600014016,
+          "minimumMs": 183.9947590001393,
+          "maximumMs": 253.80444600014016,
+          "progressOpened": 0,
+          "progressAtFrameOpportunity": 0
+        },
+        "unbound": {
+          "n": 6,
+          "medianMs": 135.47886599996127,
+          "p95Ms": 199.9423930000048,
+          "minimumMs": 125.16826199996285,
+          "maximumMs": 199.9423930000048,
+          "progressOpened": 0,
+          "progressAtFrameOpportunity": 0
+        }
+      }
+    },
+    "independent-review/benchmark-final.json.gz": {
+      "fileSHA256": "70a7d9fc0830b2d79f61fac5353742a072c65e40e530f1597bb9966206a904f6",
+      "uncompressedSHA256": "51ab1829d35718f747a49a1a0a364956d7e8868ec74ac60cf7677d813ba87f77",
+      "runId": "cfa23bee-0581-4438-8fc2-11a99780cbe3",
+      "totalCorrectnessSamples": 42,
+      "productBundleSHA256": "9dee2cbb8b25f768f81d3b94ec1a7c57ddae55267ae29de459ad00a8d94d3400",
+      "groups": {
+        "branch": {
+          "n": 20,
+          "medianMs": 563.4722874998115,
+          "p95Ms": 680.7502469997853,
+          "minimumMs": 467.66809700010344,
+          "maximumMs": 685.5713789998554,
+          "progressOpened": 14,
+          "progressAtFrameOpportunity": 11
+        },
+        "same-branch": {
+          "n": 6,
+          "medianMs": 233.48643049993552,
+          "p95Ms": 575.5421600001864,
+          "minimumMs": 184.81264599971473,
+          "maximumMs": 575.5421600001864,
+          "progressOpened": 1,
+          "progressAtFrameOpportunity": 1
+        },
+        "unbound": {
+          "n": 6,
+          "medianMs": 151.95471499976702,
+          "p95Ms": 182.4836499998346,
+          "minimumMs": 135.79509800020605,
+          "maximumMs": 182.4836499998346,
+          "progressOpened": 0,
+          "progressAtFrameOpportunity": 0
+        }
+      }
+    }
+  },
+  "allHistoricalManifestHashesVerified": true,
+  "historicalInputGuard": {
+    "input-before.json": {
+      "fileSHA256": "a9a6e4d8fdcbb4a15403faa3ac9363b0c64fb9cbea1b3c44635065da8f7d7fd0",
+      "uncompressedSHA256": "a9a6e4d8fdcbb4a15403faa3ac9363b0c64fb9cbea1b3c44635065da8f7d7fd0",
+      "trustedClickCancelled": false,
+      "beforeLeaves": 15,
+      "afterLeaves": 16,
+      "productBundleSHA256": "e2f1c9ec72f65500957124e5692bf6cc549d2beb2d71e695abb894c348a5f701"
+    },
+    "input-after.json": {
+      "fileSHA256": "4d91c24bca7048279fd361883a4665cd96f623288fcb79cc5407768372a55778",
+      "uncompressedSHA256": "4d91c24bca7048279fd361883a4665cd96f623288fcb79cc5407768372a55778",
+      "trustedClickCancelled": true,
+      "beforeLeaves": 15,
+      "afterLeaves": 15,
+      "productBundleSHA256": "9dee2cbb8b25f768f81d3b94ec1a7c57ddae55267ae29de459ad00a8d94d3400"
+    }
+  },
+  "freshNative": {
+    "fileSHA256": "59051a4d495025b3cc0125c20239e6e4f01cd624b2c18ad96ae16a617fd70ff6",
+    "uncompressedSHA256": "f96a22282d406dcd19798ce8297b38748409ee6af6adad45adc1e2330fdbc9d3",
+    "runId": "939f0eaa-9c16-4cfc-8504-5b4bf4f3a75a",
+    "startedAt": "2026-11-14T04:37:49.833Z",
+    "finishedAt": "2026-11-14T04:37:58.048Z",
+    "checksPassed": 10,
+    "snapshotsWithCorrectPinsAndNoStaleSourceFileLeaves": 14,
+    "bundleSHA256": "9dee2cbb8b25f768f81d3b94ec1a7c57ddae55267ae29de459ad00a8d94d3400",
+    "dirtyCheckoutRejected": true,
+    "finalBranch": "alpha",
+    "finalActiveId": "runtime-alpha",
+    "finalJournal": null,
+    "finalGitStatus": ""
+  },
+  "physical-beta": {
+    "fileSHA256": "fadd8423cd62ba24ad580b969d1110704ec324fa25499171cbcc84c0783eae92",
+    "uncompressedSHA256": "fadd8423cd62ba24ad580b969d1110704ec324fa25499171cbcc84c0783eae92",
+    "recordedAt": "2026-11-14T04:40:04.253423+00:00",
+    "branch": "beta",
+    "gitStatus": "",
+    "pinsVerified": true
+  },
+  "physical-alpha": {
+    "fileSHA256": "85b7df3361d785fe6e43f187a1edc5a9bbc3829c555f50bc6e14da5c9c56d99d",
+    "uncompressedSHA256": "85b7df3361d785fe6e43f187a1edc5a9bbc3829c555f50bc6e14da5c9c56d99d",
+    "recordedAt": "2026-11-14T04:41:34.069947+00:00",
+    "branch": "alpha",
+    "gitStatus": "",
+    "pinsVerified": true
+  }
+}

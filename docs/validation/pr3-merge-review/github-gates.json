@@ -1,0 +1,29 @@
+{
+  "observedAt": "2026-11-14T04:42:49.488730+00:00",
+  "pullRequest": 3,
+  "repository": "jjjjguevara/obsidian-workspaces",
+  "state": {
+    "headRefOid": "27c7a8d56fa708036248ffcc63120b243703fff4",
+    "isDraft": true,
+    "mergeStateStatus": "CLEAN",
+    "mergeable": "MERGEABLE",
+    "statusCheckRollup": [
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-11-14T03:55:18Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/jjjjguevara/obsidian-workspaces/actions/runs/43554012634/job/132322643282",
+        "name": "check",
+        "startedAt": "2026-11-14T03:54:52Z",
+        "status": "COMPLETED",
+        "workflowName": "Check"
+      }
+    ]
+  },
+  "requiredChecksCommand": {
+    "exitCode": 1,
+    "stdout": "",
+    "stderr": "no required checks reported on the 'perf/instant-workspace-switching' branch\n"
+  },
+  "scope": "Before the forthcoming evidence-only commit; merge owner must recheck the final head and its CI."
+}
