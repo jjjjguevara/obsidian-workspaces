@@ -1,0 +1,45 @@
+{
+  "reviewedCommit": "bb208bf6f12fc5d830bbb720b3bd5c9066c2bad3",
+  "baseCommit": "f061347313c031d03b1491a9072717c7ba80b15d",
+  "productBundleSHA256": "9dee2cbb8b25f768f81d3b94ec1a7c57ddae55267ae29de459ad00a8d94d3400",
+  "nativeTotal": 42,
+  "nativePassed": 42,
+  "performanceObjectiveMet": false,
+  "groups": {
+    "branch": {
+      "n": 20,
+      "medianMs": 563.4722874998115,
+      "p95Ms": 680.7502469997853,
+      "minimumMs": 467.66809700010344,
+      "maximumMs": 685.5713789998554,
+      "progressModalOpened": 14,
+      "progressVisibleAtFrameOpportunity": 11
+    },
+    "same-branch": {
+      "n": 6,
+      "medianMs": 233.48643049993552,
+      "p95Ms": 575.5421600001864,
+      "minimumMs": 184.81264599971473,
+      "maximumMs": 575.5421600001864,
+      "progressModalOpened": 1,
+      "progressVisibleAtFrameOpportunity": 1
+    },
+    "unbound": {
+      "n": 6,
+      "medianMs": 151.95471499976702,
+      "p95Ms": 182.4836499998346,
+      "minimumMs": 135.79509800020605,
+      "maximumMs": 182.4836499998346,
+      "progressModalOpened": 0,
+      "progressVisibleAtFrameOpportunity": 0
+    }
+  },
+  "evidence": {
+    "benchmark-final.json.gz": "70a7d9fc0830b2d79f61fac5353742a072c65e40e530f1597bb9966206a904f6",
+    "focused-tests.txt": "e71e0fd91e022789b0260eedc12572f721b0c0c424d17a9872e14c933a3757f4",
+    "input-after.json": "4d91c24bca7048279fd361883a4665cd96f623288fcb79cc5407768372a55778",
+    "input-before.json": "a9a6e4d8fdcbb4a15403faa3ac9363b0c64fb9cbea1b3c44635065da8f7d7fd0",
+    "quick-switcher-final.json.gz": "3cee0421e3328945dfdb2cdf1090905c1186d307e52fa6c8e1d76dcb7f234e3c"
+  },
+  "nativeInputProbeSourceSHA256": "61762a86245ef0faecbd9a2eba0c8ed35a65a9ec71258dd84c0b46e4c1a155c6"
+}

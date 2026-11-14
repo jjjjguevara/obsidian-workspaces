@@ -1,8 +1,12 @@
 # Native switch latency validation
 
-Implementation-author evidence captured on **2026-11-14** in native Linux Obsidian. The matched normal runs reduced branch-switch median latency from **1426.540 ms to 522.178 ms**, with candidate p95 **735.477 ms**. The candidate still opened transition progress in **10/20 measured branch switches**. **The near-instant and reliably modal-free objectives are not met; this is a partial performance improvement, not completion of those objectives.** Both matched runs passed 42/42 post-transition correctness checks and restored clean Alpha. See the [matched baseline](baseline-matched.json.gz) and [candidate](optimized-matched.json.gz).
+Native Linux evidence captured on **2026-11-14**. The [independent review of the final build](independent-review/README.md) measured **563.472 ms median / 680.750 ms p95**, with progress opening in **14/20 measured branch switches**. Its 42 native transitions and 10 separate Quick Switcher++ safety scenarios passed. **The near-instant and reliably modal-free objectives are not met; this is a partial performance improvement, not completion of those objectives.**
 
-These are author measurements using an independent state/content verifier, not an independent review of the performance change. Complete samples, directions, spans, environment versions, and installed bundle hashes are retained in the compressed reports. [reports.json](reports.json) records archive identities and original JSON hashes.
+The implementation-author matched normal runs reduced branch-switch median latency from **1426.540 ms to 522.178 ms**, with candidate p95 **735.477 ms** and progress in **10/20 measured branch switches**. Both matched runs passed 42/42 post-transition correctness checks and restored clean Alpha. See the [matched baseline](baseline-matched.json.gz) and [candidate](optimized-matched.json.gz). That performance checkpoint preceded the input-guard correction; the independent review records the exact corrected bundle and separate results.
+
+The matched and exploratory measurements below were collected by implementation authors using an independent state/content verifier. The [separate subagent review](independent-review/README.md) independently inspected the changes, reproduced and retested the delayed-modal input bug with trusted native clicks, and ran the final native and focused automated gates. Complete samples, directions, spans, environment versions, and installed bundle hashes are retained in the compressed reports. [reports.json](reports.json) records author archive identities and original JSON hashes; the review has its own [evidence summary](independent-review/summary.json).
+
+The [Git process census](git-process-census.md) accounts for every observed process in the final diagnostic samples, distinguishes recorded arguments from source-supported inference, and identifies the remaining opportunities to combine work without reusing stale state.
 
 ## Environment and measurement
 
@@ -144,7 +148,7 @@ In the earlier deep trace, two durable writes cost **16.862/15.438 ms** total; f
 
 Fifteen state getter calls and six notifications occur during each measured switch. Getter/notification/phase-update synchronous intervals have a union of **7.281/8.614 ms**; most getters are nested inside notifications. Clean editor flush costs about **0.11 ms**. These are smaller remaining contributors than process creation or layout work.
 
-Awaited presentation costs **36.547/34.462 ms** in the earlier trace. A separate background branch-label refresh overlaps hydration/final inspection; counting it again would overstate cost. The later overlap build starts optional presentation within the repository scope and drains it before that scope ends. The analysis utility attributes only presentation time outside the other selected stages. A pending presentation promise does not authorize dropping final identity, readiness, durability, or queue-ownership guarantees.
+Awaited presentation costs **36.547/34.462 ms** in the earlier trace. A separate background branch-label refresh overlaps hydration/final inspection; counting it again would overstate cost. The later overlap build starts its explicit branch-indicator refresh within the repository scope and drains that promise before the scope ends. The native refresh event also starts provider-owned asynchronous listeners; the event dispatcher does not return their completion, so they are outside this drainage guarantee. The analysis utility attributes only presentation time outside the other selected stages. A pending presentation promise does not authorize dropping final identity, readiness, durability, or queue-ownership guarantees.
 
 ### Remaining opportunities and their boundaries
 
