@@ -83,9 +83,15 @@ stateDiagram-v2
 
 Preparation records the outgoing layout before checkout can remove files. All mutations use the controller queue; this version has no periodic, layout-change, rename, or delete handler that rewrites saved snapshots. User interaction is blocked during the transition. The controller awaits supported text-editor saves, unloads outgoing file views before checkout, and revalidates Git status after unloading because unloading may save again.
 
+The adapter's checkout method owns that final revalidation; the controller does not run an identical guard immediately before it. The progress modal is delayed by 500 ms while input protection remains immediate. Finishing sooner cancels the modal without changing the native modal stack.
+
 File readiness checks require the target paths in both the filesystem and vault index, matching file metadata, and current cached text for supported text paths. Removed source files must also leave the index. Restoration verifies file references, view types, regions, and pin flags against the requested snapshot. A timeout reports failure; elapsed time alone never establishes readiness.
 
+Readiness subscribes before probing. Relevant vault events wake the next full pass, including events received during an awaited probe; a revision counter prevents lost notifications or acceptance of a pass invalidated midway. The 100 ms fallback remains bounded by the remaining timeout. Listeners and timers are removed on every exit.
+
 The journal records enough source/target information to distinguish an aborted request from a checkout that completed without a restored layout. A recovered UI must describe the state actually observed. Startup reads that record and reports it without performing a checkout.
+
+Only preparation and successful completion require durable writes on the normal path. Intermediate checkout/restoring phases are emitted in memory at the prepared revision. The prepared record contains the entire recovery context and remains on disk until completion; its phase does not prove whether checkout ran. Recovery observes the actual repository before acting. Atomic replacement, fsync, backups, locking, and revision checks remain unchanged.
 
 Commands, history restoration, imported-context activation, deletion of the active workspace, and any future frontmatter or custom UI route must use this lifecycle. Passive imports and external file arrival do not activate a branch.
 

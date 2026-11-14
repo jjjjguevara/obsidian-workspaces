@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { test } from 'node:test';
+import { test, type TestContext } from 'node:test';
 import {
   assertRestoredFiles,
   fileLeaves,
@@ -34,6 +34,265 @@ function port(overrides: Partial<VaultReadinessPort> = {}): VaultReadinessPort {
     ...overrides,
   };
 }
+
+const settle = () => new Promise<void>((resolve) => setImmediate(resolve));
+
+function changes() {
+  const listeners = new Set<() => void>();
+  let subscriptions = 0;
+  let releases = 0;
+  return {
+    subscribe(onChange: () => void) {
+      subscriptions += 1;
+      listeners.add(onChange);
+      return () => {
+        assert.equal(listeners.delete(onChange), true, 'unsubscribe exactly once');
+        releases += 1;
+      };
+    },
+    emit() {
+      for (const listener of [...listeners]) listener();
+    },
+    get active() {
+      return listeners.size;
+    },
+    get subscriptions() {
+      return subscriptions;
+    },
+    get releases() {
+      return releases;
+    },
+  };
+}
+
+function clock(t: TestContext) {
+  t.mock.timers.enable({ apis: ['setTimeout', 'Date'] });
+  return {
+    tick: (milliseconds: number) => t.mock.timers.tick(milliseconds),
+    scheduled: t.mock.method(globalThis, 'setTimeout'),
+    cleared: t.mock.method(globalThis, 'clearTimeout'),
+  };
+}
+
+test('readiness subscribes before probes and latches an event before the first sleep', async (t) => {
+  const timers = clock(t);
+  const events = changes();
+  let cached = 'ALPHA\n';
+  let reads = 0;
+  let ready = false;
+  const pending = waitForVaultFiles(
+    layout('shared.md'),
+    layout('shared.md'),
+    port({
+      subscribe: events.subscribe,
+      hasFile: () => {
+        assert.equal(events.active, 1, 'subscribe before the initial probe');
+        return true;
+      },
+      cachedRead: async () => {
+        reads += 1;
+        return cached;
+      },
+      diskRead: async () => {
+        if (cached === 'ALPHA\n') {
+          cached = 'BRAVO\n';
+          events.emit();
+        }
+        return 'BRAVO\n';
+      },
+    }),
+  ).then(() => {
+    ready = true;
+  });
+  await settle();
+  assert.equal(ready, true, 'the event must prompt a fresh pass without ticking the poll timer');
+  await pending;
+  assert.equal(reads, 2);
+  assert.equal(timers.scheduled.mock.callCount(), 0);
+  assert.equal(events.subscriptions, 1);
+  assert.equal(events.releases, 1);
+  assert.equal(events.active, 0);
+});
+
+test('an event invalidates an otherwise successful pass when an earlier file changed', async (t) => {
+  const timers = clock(t);
+  const events = changes();
+  let earlierPresent = true;
+  let changed = false;
+  let ready = false;
+  const target = { main: { type: 'split', children: [leaf('earlier.md'), leaf('later.md')] } };
+  const pending = waitForVaultFiles(
+    target,
+    target,
+    port({
+      subscribe: events.subscribe,
+      hasFile: (path) => path !== 'earlier.md' || earlierPresent,
+      diskRead: async (path) => {
+        if (path === 'later.md' && !changed) {
+          changed = true;
+          earlierPresent = false;
+          events.emit();
+        }
+        return 'Current content\n';
+      },
+    }),
+  ).then(() => {
+    ready = true;
+  });
+  await settle();
+  assert.equal(ready, false, 'the first pass inspected earlier.md before the notification');
+  earlierPresent = true;
+  events.emit();
+  await pending;
+  assert.equal(ready, true);
+  assert.equal(events.active, 0);
+  assert.equal(events.releases, 1);
+  assert.equal(timers.scheduled.mock.callCount(), timers.cleared.mock.callCount());
+});
+
+test('event wakeups revalidate index, disk, metadata, cached bytes and removed source notes', async (t) => {
+  const timers = clock(t);
+  const events = changes();
+  let indexed = false;
+  let exists = false;
+  let metadataMatches = false;
+  let cacheMatches = false;
+  let removedSourceIndexed = true;
+  let targetProbes = 0;
+  let ready = false;
+  const pending = waitForVaultFiles(
+    layout('target.md'),
+    layout('removed.md'),
+    port({
+      subscribe: events.subscribe,
+      hasFile: (path) => {
+        if (path === 'removed.md') return removedSourceIndexed;
+        targetProbes += 1;
+        return indexed;
+      },
+      exists: async (path) => path !== 'removed.md' && exists,
+      matchesStat: async () => metadataMatches,
+      cachedRead: async () => (cacheMatches ? 'BRAVO\n' : 'ALPHA\n'),
+      diskRead: async () => 'BRAVO\n',
+    }),
+  ).then(() => {
+    ready = true;
+  });
+  await settle();
+  for (const update of [
+    () => {}, // A stale/unrelated notification is never evidence of readiness.
+    () => {
+      indexed = true;
+    },
+    () => {
+      exists = true;
+    },
+    () => {
+      metadataMatches = true;
+    },
+    () => {
+      cacheMatches = true;
+    },
+  ]) {
+    const previousProbes = targetProbes;
+    update();
+    events.emit();
+    await settle();
+    assert.equal(ready, false);
+    assert.ok(targetProbes > previousProbes, 'each wakeup starts from the target index check');
+  }
+  removedSourceIndexed = false;
+  events.emit();
+  await pending;
+  assert.equal(ready, true);
+  assert.equal(events.active, 0);
+  assert.equal(events.releases, 1);
+  assert.equal(timers.scheduled.mock.callCount(), timers.cleared.mock.callCount());
+});
+
+test('eventless readiness retains the polling fallback and releases its subscription', async (t) => {
+  const timers = clock(t);
+  const events = changes();
+  let indexed = false;
+  let ready = false;
+  const pending = waitForVaultFiles(
+    layout('target.md'),
+    layout('target.md'),
+    port({ subscribe: events.subscribe, hasFile: () => indexed }),
+  ).then(() => {
+    ready = true;
+  });
+  await settle();
+  indexed = true;
+  timers.tick(99);
+  await settle();
+  assert.equal(ready, false);
+  timers.tick(1);
+  await pending;
+  assert.equal(ready, true);
+  assert.equal(events.releases, 1);
+  assert.equal(events.active, 0);
+  assert.equal(timers.scheduled.mock.callCount(), timers.cleared.mock.callCount());
+});
+
+test('eventless timeout bounds the last poll and cleans up the timer and subscription', async (t) => {
+  const timers = clock(t);
+  const events = changes();
+  const pending = waitForVaultFiles(
+    layout('missing.md'),
+    layout('missing.md'),
+    port({ subscribe: events.subscribe, hasFile: () => false }),
+    { timeoutMs: 25, pollMs: 100 },
+  );
+  const rejected = assert.rejects(pending, /missing\.md.*not available/);
+  await settle();
+  assert.equal(timers.scheduled.mock.calls[0]!.arguments[1], 25);
+  timers.tick(25);
+  await rejected;
+  assert.equal(events.releases, 1);
+  assert.equal(events.active, 0);
+  assert.equal(timers.scheduled.mock.callCount(), timers.cleared.mock.callCount());
+});
+
+test('probe errors after an event wakeup release the timer and subscription', async (t) => {
+  const timers = clock(t);
+  const events = changes();
+  let indexed = false;
+  const pending = waitForVaultFiles(
+    layout('target.md'),
+    layout('target.md'),
+    port({
+      subscribe: events.subscribe,
+      hasFile: () => indexed,
+      exists: async () => {
+        throw new Error('broken adapter');
+      },
+    }),
+  );
+  const rejected = assert.rejects(pending, /broken adapter/);
+  await settle();
+  indexed = true;
+  events.emit();
+  await rejected;
+  assert.equal(events.releases, 1);
+  assert.equal(events.active, 0);
+  assert.equal(timers.scheduled.mock.callCount(), timers.cleared.mock.callCount());
+});
+
+test('already-ready files release their subscription without creating a timer', async (t) => {
+  const timers = clock(t);
+  const events = changes();
+  await waitForVaultFiles(
+    layout('current.md'),
+    layout('current.md'),
+    port({ subscribe: events.subscribe }),
+  );
+  assert.equal(events.subscriptions, 1);
+  assert.equal(events.releases, 1);
+  assert.equal(events.active, 0);
+  assert.equal(timers.scheduled.mock.callCount(), 0);
+  assert.equal(timers.cleared.mock.callCount(), 0);
+});
 
 test('same-size stale text cannot pass readiness until cached bytes match disk', async () => {
   let cached = 'ALPHA\n';

@@ -2,12 +2,12 @@ import assert from 'node:assert/strict';
 import { execFile } from 'node:child_process';
 import { access, mkdir, mkdtemp, readFile, realpath, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { isAbsolute, join, relative } from 'node:path';
+import { dirname, isAbsolute, join, relative } from 'node:path';
 import { test, type TestContext } from 'node:test';
 import { promisify } from 'node:util';
 import { GitBackendError } from '../../src/git/backend.ts';
 import { ObsidianGitBackend } from '../../src/git/obsidian-git.ts';
-import type { StateStore } from '../../src/storage/store.ts';
+import { FileStateStore, type StateStore } from '../../src/storage/store.ts';
 import { addWorkspace } from '../../src/workspaces/catalog.ts';
 import { WorkspaceController, type WorkspaceHost } from '../../src/workspaces/controller.ts';
 import {
@@ -43,6 +43,11 @@ class DurableMemoryStore implements StateStore {
     return structuredClone(this.durable);
   }
   async save(state: WorkspaceState): Promise<void> {
+    assert.equal(
+      state.revision,
+      this.durable.revision + 1,
+      'Every durable write advances CAS once',
+    );
     this.durable = structuredClone(state);
     this.writes.push(structuredClone(state));
   }
@@ -207,7 +212,43 @@ class TestHost implements WorkspaceHost {
   }
 }
 
-async function fixture(t: TestContext) {
+function gitBackend(root: string, git: (args: string[]) => Promise<string>, store: StateStore) {
+  const checkouts: string[] = [];
+  let tail: Promise<void> = Promise.resolve();
+  const provider = {
+    manifest: { id: 'obsidian-git', version: '2.43.0' },
+    gitReady: true,
+    settings: { submoduleRecurseCheckout: false },
+    gitManager: {
+      absoluteRepoPath: root,
+      git: { raw: git },
+      async checkout(branch: string): Promise<void> {
+        const durable = await store.load();
+        assert.ok(durable.journal, 'A recovery journal must be durable before checkout');
+        checkouts.push(branch);
+        await git(['checkout', branch]);
+      },
+    },
+    promiseQueue: {
+      addTask<T>(task: () => Promise<T>, callback?: (result: T | undefined) => void): void {
+        tail = tail.then(task).then(
+          (value) => {
+            callback?.(value);
+          },
+          () => {
+            callback?.(undefined);
+          },
+        );
+      },
+    },
+  };
+  return {
+    checkouts,
+    adapter: new ObsidianGitBackend({ resolvePlugin: () => provider, isDesktop: () => true }),
+  };
+}
+
+async function fixture(t: TestContext, autoSave = true) {
   const directory = await mkdtemp(join(tmpdir(), 'obsidian-workspace-transition-'));
   const base = await realpath(directory);
   t.after(() => rm(base, { recursive: true, force: true }));
@@ -243,6 +284,7 @@ async function fixture(t: TestContext) {
   const alphaLayout = nativeLayout('alpha');
   const betaLayout = nativeLayout('beta');
   const state = emptyState();
+  state.autoSave = autoSave;
   const alphaId = addWorkspace(
     state,
     'Alpha',
@@ -257,38 +299,11 @@ async function fixture(t: TestContext) {
   const store = new DurableMemoryStore(state, join(base, 'control', 'state.json'));
   const host = new TestHost(root, alphaLayout);
   await host.seedCache();
-  const checkouts: string[] = [];
-  let tail: Promise<void> = Promise.resolve();
-  const provider = {
-    manifest: { id: 'obsidian-git', version: '2.43.0' },
-    gitReady: true,
-    settings: { submoduleRecurseCheckout: false },
-    gitManager: {
-      absoluteRepoPath: root,
-      git: { raw: git },
-      async checkout(branch: string): Promise<void> {
-        const durable = await store.load();
-        assert.ok(durable.journal, 'A recovery journal must be durable before checkout');
-        checkouts.push(branch);
-        await git(['checkout', branch]);
-      },
-    },
-    promiseQueue: {
-      addTask<T>(task: () => Promise<T>, callback?: (result: T | undefined) => void): void {
-        tail = tail.then(task).then(
-          (value) => {
-            callback?.(value);
-          },
-          () => {
-            callback?.(undefined);
-          },
-        );
-      },
-    },
-  };
-  const adapter = new ObsidianGitBackend({ resolvePlugin: () => provider, isDesktop: () => true });
+  const { adapter, checkouts } = gitBackend(root, git, store);
   const controller = new WorkspaceController(state, store, host, adapter, 'desktop');
   return {
+    base,
+    environment,
     root,
     git,
     store,
@@ -322,6 +337,12 @@ test('controller round trips exclusive pinned notes and waits for changed same-s
     'The active workspace must not advance before restoration',
   );
   assert.equal(f.controller.state.journal?.phase, 'restoring');
+  assert.equal((await f.store.load()).journal?.phase, 'prepared');
+  assert.equal(
+    f.store.writes.length,
+    1,
+    'Only the prepared checkpoint is durable before restoration',
+  );
   assert.equal(completed, false);
   assert.deepEqual(f.host.restored, []);
   assert.equal(f.host.blockDepth, 1);
@@ -337,6 +358,13 @@ test('controller round trips exclusive pinned notes and waits for changed same-s
   assert.ok(f.host.cachedText.has('notes/beta-only.md'));
   assert.equal(f.controller.state.activeId, f.betaId);
   assert.equal(f.controller.state.journal, null);
+  assert.deepEqual(
+    f.store.writes.map((state) => [state.revision, state.journal?.phase ?? null]),
+    [
+      [1, 'prepared'],
+      [2, null],
+    ],
+  );
 
   f.host.waitGate = undefined;
   await f.controller.activate(f.alphaId);
@@ -351,6 +379,15 @@ test('controller round trips exclusive pinned notes and waits for changed same-s
   assert.equal(persisted.journal, null);
   assert.deepEqual(persisted.workspaces[f.alphaId]!.contexts.desktop!.layout, f.alphaLayout);
   assert.deepEqual(persisted.workspaces[f.betaId]!.contexts.desktop!.layout, f.betaLayout);
+  assert.deepEqual(
+    f.store.writes.map((state) => [state.revision, state.journal?.phase ?? null]),
+    [
+      [1, 'prepared'],
+      [2, null],
+      [3, 'prepared'],
+      [4, null],
+    ],
+  );
 });
 
 test('dirty editor content is flushed and blocks the transition before checkout or journaling', async (t) => {
@@ -402,4 +439,237 @@ test('failed restoration retains a durable journal and explicit recovery survive
   await assert.rejects(access(join(f.root, 'notes', 'beta-only.md')));
   assert.deepEqual(f.checkouts, ['beta', 'alpha']);
   assert.equal(f.host.blockDepth, 0);
+});
+
+// Run the real controller/store/adapter in a separate process. Exiting at the
+// selected checkpoint prevents catch/finally from turning a crash into a handled
+// transition error that happens to persist an additional recovery record.
+const crashRunner = String.raw`
+import assert from 'node:assert/strict';
+import { execFile } from 'node:child_process';
+import { readFile, writeFile } from 'node:fs/promises';
+import { join } from 'node:path';
+import { promisify } from 'node:util';
+const config = JSON.parse(await readFile(process.argv[1], 'utf8'));
+const { WorkspaceController } = await import(config.modules.controller);
+const { FileStateStore } = await import(config.modules.store);
+const { ObsidianGitBackend } = await import(config.modules.backend);
+const execute = promisify(execFile);
+const git = async (args) => (await execute('git', args, {
+  cwd: config.root, encoding: 'utf8', env: process.env,
+})).stdout;
+const diskStore = new FileStateStore(config.controlFile);
+let controller;
+const notePaths = (layout) => {
+  const paths = new Set();
+  const visit = (node) => {
+    if (!node || typeof node !== 'object') return;
+    if (typeof node.file === 'string') paths.add(node.file);
+    for (const child of Object.values(node)) visit(child);
+  };
+  visit(layout);
+  return paths;
+};
+const host = {
+  current: structuredClone(config.liveLayout),
+  events: [],
+  capture() { return structuredClone(this.current); },
+  async flush() { this.events.push('flush'); },
+  async quiesce() {
+    const durable = JSON.parse(await readFile(config.controlFile, 'utf8'));
+    assert.equal(durable.journal?.phase, 'prepared');
+    assert.equal(durable.revision, 1);
+    assert.deepEqual(durable.journal.source.layout, config.liveLayout);
+    this.events.push('quiesce');
+    this.current = { main: { id: 'transition', type: 'split', children: [] } };
+  },
+  async waitForFiles(target) {
+    this.events.push('wait');
+    for (const path of notePaths(target)) await readFile(join(config.root, path));
+  },
+  async restore(target) {
+    assert.equal(this.events.at(-1), 'wait');
+    this.events.push('restore');
+    this.current = structuredClone(target);
+  },
+  block() { return () => {}; },
+  async confirmDiscard() { return true; },
+};
+async function crash(point) {
+  if (config.checkpoint !== point) return;
+  await writeFile(config.checkpointFile, JSON.stringify({
+    point,
+    branch: (await git(['branch', '--show-current'])).trim(),
+    phase: controller.state.journal?.phase,
+    revision: controller.state.revision,
+    liveLayout: host.current,
+    events: host.events,
+  }));
+  process.exit(86);
+}
+const store = {
+  location: diskStore.location,
+  load: () => diskStore.load(),
+  assertOutsideRepository: (root) => diskStore.assertOutsideRepository(root),
+  async save(state) {
+    if (state.journal === null && state.activeId === config.betaId) {
+      assert.equal(host.events.at(-1), 'restore');
+      await crash('before-final-commit');
+    }
+    return diskStore.save(state);
+  },
+};
+let tail = Promise.resolve();
+const provider = {
+  manifest: { id: 'obsidian-git', version: '2.43.0' },
+  gitReady: true,
+  settings: { submoduleRecurseCheckout: false },
+  gitManager: {
+    absoluteRepoPath: config.root,
+    git: { raw: git },
+    async checkout(branch) {
+      assert.equal(host.events.at(-1), 'quiesce');
+      await crash('before-checkout');
+      await git(['checkout', branch]);
+      await crash('after-checkout');
+    },
+  },
+  promiseQueue: {
+    addTask(task, callback) {
+      tail = tail.then(task).then(
+        (result) => { callback?.(result); },
+        () => { callback?.(undefined); },
+      );
+    },
+  },
+};
+const backend = new ObsidianGitBackend({ resolvePlugin: () => provider, isDesktop: () => true });
+controller = new WorkspaceController(await store.load(), store, host, backend, 'desktop');
+await controller.activate(config.betaId);
+throw new Error('The requested crash checkpoint was not reached');
+`;
+
+test('the prepared journal recovers actual process interruptions at every checkout/commit boundary', async (t) => {
+  for (const checkpoint of ['before-checkout', 'after-checkout', 'before-final-commit'] as const) {
+    for (const autoSave of [true, false]) {
+      await t.test(`${checkpoint}, autoSave=${autoSave}`, async (t) => {
+        const f = await fixture(t, autoSave);
+        const initial = await f.store.load();
+        const liveLayout = structuredClone(f.alphaLayout);
+        (liveLayout.left as { width: number }).width = 280;
+        const controlFile = f.store.location;
+        const checkpointFile = join(f.base, 'checkpoint.json');
+        const configFile = join(f.base, 'crash-input.json');
+        await mkdir(dirname(controlFile), { recursive: true });
+        await writeFile(controlFile, JSON.stringify(initial));
+        await writeFile(
+          configFile,
+          JSON.stringify({
+            checkpoint,
+            root: f.root,
+            controlFile,
+            checkpointFile,
+            betaId: f.betaId,
+            liveLayout,
+            modules: {
+              controller: new URL('../../src/workspaces/controller.ts', import.meta.url).href,
+              store: new URL('../../src/storage/store.ts', import.meta.url).href,
+              backend: new URL('../../src/git/obsidian-git.ts', import.meta.url).href,
+            },
+          }),
+        );
+        await assert.rejects(
+          execute(
+            process.execPath,
+            ['--import', 'tsx', '--input-type=module', '-e', crashRunner, configFile],
+            {
+              env: f.environment,
+              encoding: 'utf8',
+              timeout: 20_000,
+            },
+          ),
+          (error: unknown) => error instanceof Error && 'code' in error && error.code === 86,
+          'The child must exit at the checkpoint, without unwinding controller recovery',
+        );
+        const stopped = JSON.parse(await readFile(checkpointFile, 'utf8')) as {
+          point: string;
+          branch: string;
+          phase: string;
+          revision: number;
+          liveLayout: Layout;
+          events: string[];
+        };
+        const expectedBranch = checkpoint === 'before-checkout' ? 'alpha' : 'beta';
+        assert.equal(stopped.point, checkpoint);
+        assert.equal(stopped.branch, expectedBranch);
+        assert.equal((await f.git(['branch', '--show-current'])).trim(), expectedBranch);
+        assert.equal(
+          stopped.phase,
+          checkpoint === 'before-final-commit' ? 'restoring' : 'checkout',
+        );
+        assert.equal(stopped.revision, 1, 'Diagnostic phase changes must not advance durable CAS');
+        assert.deepEqual(
+          stopped.events,
+          checkpoint === 'before-final-commit'
+            ? ['flush', 'quiesce', 'wait', 'restore']
+            : ['flush', 'quiesce'],
+        );
+        const diskStore = new FileStateStore(controlFile);
+        const interrupted = await diskStore.load();
+        assert.equal(interrupted.revision, 1);
+        assert.equal(interrupted.activeId, f.alphaId);
+        assert.equal(interrupted.journal?.phase, 'prepared');
+        assert.equal(interrupted.journal?.sourceId, f.alphaId);
+        assert.equal(interrupted.journal?.targetId, f.betaId);
+        assert.deepEqual(interrupted.journal?.originalBranch, { root: f.root, branch: 'alpha' });
+        assert.deepEqual(interrupted.journal?.source.layout, liveLayout);
+        assert.deepEqual(interrupted.journal?.source.binding, { root: f.root, branch: 'alpha' });
+        assert.deepEqual(
+          interrupted.journal?.target,
+          initial.workspaces[f.betaId]!.contexts.desktop,
+        );
+        const sourceSaved = autoSave
+          ? interrupted.journal!.source
+          : initial.workspaces[f.alphaId]!.contexts.desktop;
+        assert.deepEqual(interrupted.journal?.sourceSaved, sourceSaved);
+        assert.deepEqual(interrupted.workspaces[f.alphaId]!.contexts.desktop, sourceSaved);
+        assert.deepEqual(interrupted.workspaces[f.betaId], initial.workspaces[f.betaId]);
+        assert.deepEqual(JSON.parse(await readFile(`${controlFile}.backup`, 'utf8')), initial);
+        await assert.rejects(
+          access(`${controlFile}.lock`),
+          'The prepared commit must release its lock before checkout',
+        );
+
+        const host = new TestHost(f.root, stopped.liveLayout);
+        const { adapter, checkouts } = gitBackend(f.root, f.git, diskStore);
+        const restarted = new WorkspaceController(interrupted, diskStore, host, adapter, 'desktop');
+        assert.deepEqual(checkouts, [], 'Constructing a controller never checks out a branch');
+        assert.equal((await f.git(['branch', '--show-current'])).trim(), expectedBranch);
+        await assert.rejects(restarted.activate(f.betaId), /needs recovery/);
+        assert.deepEqual(checkouts, []);
+        await restarted.recover();
+        assert.equal((await f.git(['branch', '--show-current'])).trim(), 'alpha');
+        assert.deepEqual(checkouts, checkpoint === 'before-checkout' ? [] : ['alpha']);
+        assert.deepEqual(
+          host.current,
+          liveLayout,
+          'Recovery restores the complete live source layout and its pins',
+        );
+        assert.equal(host.cachedText.get('common.md'), 'ALPHA\n');
+        assert.equal(host.cachedText.get('notes/alpha-only.md'), 'A pinned note only on alpha\n');
+        assert.equal(host.cachedText.has('notes/beta-only.md'), false);
+        assert.equal(host.blockDepth, 0);
+        const recovered = await diskStore.load();
+        assert.equal(recovered.revision, 2, 'Recovery advances the prepared revision exactly once');
+        assert.equal(recovered.activeId, f.alphaId);
+        assert.equal(recovered.journal, null);
+        assert.deepEqual(recovered.workspaces[f.alphaId]!.contexts.desktop, sourceSaved);
+        assert.deepEqual(recovered.workspaces[f.alphaId], interrupted.workspaces[f.alphaId]);
+        assert.deepEqual(recovered.workspaces[f.betaId], initial.workspaces[f.betaId]);
+        assert.deepEqual(JSON.parse(await readFile(`${controlFile}.backup`, 'utf8')), interrupted);
+        assert.equal((await f.git(['status', '--porcelain'])).trim(), '');
+        await assert.rejects(access(join(f.root, 'notes', 'beta-only.md')));
+      });
+    }
+  }
 });

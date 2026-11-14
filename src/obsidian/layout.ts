@@ -2,7 +2,7 @@ import { App, FileView, Modal, TextFileView, TFile, type WorkspaceLeaf } from 'o
 import type { WorkspaceHost } from '../workspaces/controller';
 import type { Layout } from '../workspaces/model';
 import { cloneJson } from './clone-json';
-import { assertRestoredFiles, waitForVaultFiles } from './layout-files';
+import { assertRestoredFiles, fileLeaves, waitForVaultFiles } from './layout-files';
 
 // These core FileViews have no editable document buffer to flush. In particular,
 // backlinks, outgoing links, and outline follow the active file but are read-only.
@@ -16,6 +16,10 @@ const READ_ONLY_CORE_FILE_VIEWS = new Set([
   'outgoing-link',
   'outline',
 ]);
+
+// Short switches keep native focus and avoid a modal flash. Input ownership
+// starts immediately; this delay affects only the visible progress indicator.
+const PROGRESS_DELAY_MS = 500;
 
 class TransitionModal extends Modal {
   private released = false;
@@ -95,6 +99,9 @@ export class ObsidianWorkspaceHost implements WorkspaceHost {
   }
   waitForFiles(target: Layout, previous: Layout): Promise<void> {
     const vault = this.app.vault;
+    const watched = new Set(
+      [...fileLeaves(target), ...fileLeaves(previous)].map((leaf) => leaf.path),
+    );
     return waitForVaultFiles(target, previous, {
       hasFile: (path) => vault.getAbstractFileByPath(path) instanceof TFile,
       exists: (path) => vault.adapter.exists(path),
@@ -114,6 +121,26 @@ export class ObsidianWorkspaceHost implements WorkspaceHost {
           file.stat.mtime === stat.mtime
         );
       },
+      subscribe: (changed) => {
+        const notify = (file: { path: string }, oldPath?: string): void => {
+          if (
+            [...watched].some(
+              (path) =>
+                path === file.path ||
+                path.startsWith(`${file.path}/`) ||
+                (oldPath !== undefined && (path === oldPath || path.startsWith(`${oldPath}/`))),
+            )
+          )
+            changed();
+        };
+        const refs = [
+          vault.on('create', notify),
+          vault.on('delete', notify),
+          vault.on('rename', notify),
+          vault.on('modify', notify),
+        ];
+        return () => refs.forEach((ref) => vault.offref(ref));
+      },
     });
   }
   async restore(layout: Layout): Promise<void> {
@@ -123,7 +150,11 @@ export class ObsidianWorkspaceHost implements WorkspaceHost {
   }
   block(message: string): () => void {
     const modal = new TransitionModal(this.app, message);
-    modal.open();
+    let opened = false;
+    const timer = setTimeout(() => {
+      opened = true;
+      modal.open();
+    }, PROGRESS_DELAY_MS);
     const documents = new Set(this.leaves().map((leaf) => leaf.view.containerEl.ownerDocument));
     documents.add(modal.containerEl.ownerDocument);
     const block = (event: Event): void => {
@@ -131,12 +162,14 @@ export class ObsidianWorkspaceHost implements WorkspaceHost {
       event.stopImmediatePropagation();
     };
     const events = ['keydown', 'beforeinput', 'pointerdown', 'drop', 'paste'];
+    const capture = { capture: true };
     for (const document of documents)
-      for (const event of events) document.addEventListener(event, block, true);
+      for (const event of events) document.addEventListener(event, block, capture);
     return () => {
+      clearTimeout(timer);
       for (const document of documents)
-        for (const event of events) document.removeEventListener(event, block, true);
-      modal.release();
+        for (const event of events) document.removeEventListener(event, block, capture);
+      if (opened) modal.release();
     };
   }
   confirmDiscard(name: string): Promise<boolean> {

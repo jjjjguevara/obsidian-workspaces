@@ -6,12 +6,13 @@ import {
   mkdtemp,
   readFile,
   realpath,
+  rename,
   rm,
   symlink,
   writeFile,
 } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { join, resolve } from 'node:path';
 import { test, type TestContext } from 'node:test';
 import { promisify } from 'node:util';
 import { GitBackendError, type GitRepository } from '../../src/git/backend.ts';
@@ -36,8 +37,8 @@ class ProviderQueue {
   }
 }
 
-async function fixture(t: TestContext) {
-  const directory = await mkdtemp(join(tmpdir(), 'obsidian-workspaces-git-'));
+async function fixture(t: TestContext, prefix = 'obsidian-workspaces-git-') {
+  const directory = await mkdtemp(join(tmpdir(), prefix));
   const root = await realpath(directory);
   t.after(() => rm(root, { recursive: true, force: true }));
   const environment = {
@@ -327,6 +328,95 @@ test('keeps the queue occupied through caller restoration, including successful 
   assert.deepEqual(log, ['layout-start', 'layout-finish', 'background-git']);
 });
 
+test('failed parallel reads drain their siblings before releasing the provider queue', async (t) => {
+  for (const batch of ['preflight', 'runtime-trees', 'inspection'] as const) {
+    await t.test(batch, async (subtest) => {
+      const f = await fixture(subtest);
+      const guarded = new ObsidianGitBackend({
+        resolvePlugin: () => f.plugin,
+        isDesktop: () => true,
+        checkoutGuard: {
+          vaultPath: f.root,
+          configDir: '.obsidian',
+          pluginId: 'obsidian-workspaces',
+        },
+      });
+      const heldReadStarted = deferred();
+      const releaseHeldRead = deferred();
+      const transactionFinished = deferred();
+      const backgroundFinished = deferred();
+      let finished = false;
+      let backgroundStarted = false;
+      let backgroundQueued = false;
+      const rejects = (args: string[]): boolean =>
+        batch === 'preflight'
+          ? args[0] === 'check-ref-format'
+          : batch === 'runtime-trees'
+            ? args[0] === 'ls-tree' && args.at(-1) === 'HEAD'
+            : args[0] === 'rev-parse' && args[1] === '--show-toplevel';
+      const holds = (args: string[]): boolean =>
+        batch === 'preflight'
+          ? args[0] === 'config'
+          : batch === 'runtime-trees'
+            ? args[0] === 'ls-tree' && args.at(-1) === 'refs/heads/beta'
+            : args.includes('status');
+      f.manager.git.raw = async (args) => {
+        if (rejects(args)) throw new Error('Injected parallel read failure');
+        const result = await f.git(args);
+        if (holds(args)) {
+          heldReadStarted.resolve();
+          await releaseHeldRead.promise;
+        }
+        return result;
+      };
+      const pending = guarded.withRepository(async (repository) => {
+        if (batch === 'inspection') await repository.inspect();
+        else await repository.assertCanSwitch('beta');
+      });
+      const outcome = pending.then(
+        () => {
+          finished = true;
+          transactionFinished.resolve();
+          return { error: undefined as unknown };
+        },
+        (error: unknown) => {
+          finished = true;
+          transactionFinished.resolve();
+          return { error };
+        },
+      );
+      try {
+        await Promise.race([
+          heldReadStarted.promise,
+          transactionFinished.promise.then(() => {
+            throw new Error('The read batch settled before its sibling read could start.');
+          }),
+        ]);
+        f.plugin.promiseQueue.addTask(
+          async () => {
+            backgroundStarted = true;
+          },
+          () => backgroundFinished.resolve(),
+        );
+        backgroundQueued = true;
+        await new Promise<void>((resolve) => setImmediate(resolve));
+        assert.equal(finished, false, 'A failed read must await its in-flight siblings');
+        assert.equal(backgroundStarted, false, 'The provider queue must retain its owner');
+      } finally {
+        releaseHeldRead.resolve();
+        await outcome;
+        if (backgroundQueued) await backgroundFinished.promise;
+      }
+      const { error } = await outcome;
+      assert.ok(error instanceof GitBackendError);
+      assert.match(`${error.message} ${String(error.cause)}`, /Injected parallel read failure/);
+      assert.equal(backgroundStarted, true);
+      assert.deepEqual(f.checkouts, []);
+      assert.equal((await f.git(['branch', '--show-current'])).trim(), 'alpha');
+    });
+  }
+});
+
 test('blocks untracked, unstaged and staged changes across the whole repository', async (t) => {
   const f = await fixture(t);
   await mkdir(join(f.root, 'vault'));
@@ -390,6 +480,217 @@ test('refuses a paused rebase even with a clean working tree', async (t) => {
     assert.equal((await repository.inspect()).dirty, false);
     await assert.rejects(repository.assertCanSwitch('alpha'), hasCode('operation-in-progress'));
   });
+});
+
+test('checks every operation marker in ordinary repositories and linked worktrees', async (t) => {
+  const markers = [
+    'MERGE_HEAD',
+    'CHERRY_PICK_HEAD',
+    'REVERT_HEAD',
+    'rebase-merge',
+    'rebase-apply',
+    'sequencer',
+    'BISECT_LOG',
+    'index.lock',
+  ];
+  for (const topology of ['repository', 'linked-worktree'] as const) {
+    await t.test(topology, async (subtest) => {
+      const f = await fixture(subtest);
+      let root = f.root;
+      if (topology === 'linked-worktree') {
+        const directory = await mkdtemp(join(tmpdir(), 'obsidian-workspaces-linked-'));
+        subtest.after(() => rm(directory, { recursive: true, force: true }));
+        root = join(directory, 'vault');
+        await f.git(['worktree', 'add', '-b', 'linked-alpha', root, 'alpha']);
+        f.manager.absoluteRepoPath = root;
+      }
+      const calls: string[][] = [];
+      f.manager.git.raw = async (args) => {
+        calls.push([...args]);
+        return f.git(['-C', root, ...args]);
+      };
+      await f.adapter.withRepository((repository) => repository.assertCanSwitch('beta'));
+      const markerCalls = calls.filter(
+        (args) => args[0] === 'rev-parse' && args.includes('--git-path'),
+      );
+      assert.equal(markerCalls.length, 1, 'A clean preflight resolves all marker paths once');
+      for (const marker of markers) assert.ok(markerCalls[0]!.includes(marker));
+
+      const commit = (await f.git(['-C', root, 'rev-parse', 'HEAD'])).trim();
+      for (const marker of markers) {
+        await subtest.test(marker, async () => {
+          const gitPath = (await f.git(['-C', root, 'rev-parse', '--git-path', marker])).replace(
+            /\r?\n$/,
+            '',
+          );
+          const markerPath = resolve(root, gitPath);
+          if (['rebase-merge', 'rebase-apply', 'sequencer'].includes(marker))
+            await mkdir(markerPath);
+          else await writeFile(markerPath, `${commit}\n`);
+          try {
+            await assert.rejects(
+              f.adapter.withRepository((repository) => repository.assertCanSwitch('beta')),
+              (error: unknown) => {
+                assert.ok(error instanceof GitBackendError);
+                assert.equal(error.code, 'operation-in-progress');
+                assert.ok(error.message.includes(marker));
+                return true;
+              },
+            );
+          } finally {
+            await rm(markerPath, { recursive: true, force: true });
+          }
+        });
+      }
+      assert.deepEqual(f.checkouts, []);
+      assert.equal((await f.git(['branch', '--show-current'])).trim(), 'alpha');
+      assert.equal(
+        (await f.git(['-C', root, 'branch', '--show-current'])).trim(),
+        topology === 'linked-worktree' ? 'linked-alpha' : 'alpha',
+      );
+    });
+  }
+});
+
+test('marker checks handle newline repository paths and fall back for newline Git directories', async (t) => {
+  if (process.platform === 'win32') {
+    t.skip('Windows filenames cannot contain newline characters.');
+    return;
+  }
+  for (const location of ['repository', 'external-git-directory'] as const) {
+    await t.test(location, async (subtest) => {
+      const f = await fixture(
+        subtest,
+        location === 'repository' ? 'obsidian-workspaces-repository-\n' : undefined,
+      );
+      if (location === 'external-git-directory') {
+        const directory = await mkdtemp(join(tmpdir(), 'obsidian-workspaces-gitdir-'));
+        subtest.after(() => rm(directory, { recursive: true, force: true }));
+        const gitDirectory = join(directory, 'external\ngit');
+        await rename(join(f.root, '.git'), gitDirectory);
+        await writeFile(join(f.root, '.git'), `gitdir: ${gitDirectory}\n`);
+        await f.git(['config', 'core.hooksPath', join(gitDirectory, 'disabled-hooks')]);
+      }
+      const calls: string[][] = [];
+      f.manager.git.raw = async (args) => {
+        calls.push([...args]);
+        return f.git(args);
+      };
+      await f.adapter.withRepository((repository) => repository.assertCanSwitch('beta'));
+      if (location === 'external-git-directory') {
+        const markerCalls = calls.filter(
+          (args) => args[0] === 'rev-parse' && args.includes('--git-path'),
+        );
+        assert.ok(
+          markerCalls.some((args) => args.filter((arg) => arg === '--git-path').length > 1),
+        );
+        assert.equal(
+          markerCalls.filter((args) => args.filter((arg) => arg === '--git-path').length === 1)
+            .length,
+          8,
+          'Ambiguous newline-delimited paths must be resolved individually',
+        );
+      }
+      const markerPath = resolve(
+        f.root,
+        (await f.git(['rev-parse', '--git-path', 'index.lock'])).replace(/\r?\n$/, ''),
+      );
+      await writeFile(markerPath, '');
+      await assert.rejects(
+        f.adapter.withRepository((repository) => repository.checkout('beta')),
+        (error: unknown) => {
+          assert.ok(error instanceof GitBackendError);
+          assert.equal(error.code, 'operation-in-progress');
+          assert.match(error.message, /index\.lock/);
+          return true;
+        },
+      );
+      assert.deepEqual(f.checkouts, []);
+      await rm(markerPath);
+      assert.equal(
+        (await f.adapter.withRepository((repository) => repository.checkout('beta'))).branch,
+        'beta',
+      );
+      assert.deepEqual(f.checkouts, ['beta']);
+    });
+  }
+});
+
+test('checkout rechecks edits and operation markers created after successful preflight', async (t) => {
+  for (const change of ['tracked-edit', 'untracked-file', 'operation-marker'] as const) {
+    await t.test(change, async (subtest) => {
+      const f = await fixture(subtest);
+      await f.adapter.withRepository(async (repository) => {
+        await repository.assertCanSwitch('beta');
+        if (change === 'tracked-edit')
+          await writeFile(join(f.root, 'common.md'), 'Saved while outgoing views unloaded\n');
+        else if (change === 'untracked-file')
+          await writeFile(join(f.root, 'new-note.md'), 'Created after preflight\n');
+        else await writeFile(join(f.root, '.git', 'index.lock'), '');
+        await assert.rejects(
+          repository.checkout('beta'),
+          hasCode(change === 'operation-marker' ? 'operation-in-progress' : 'dirty-worktree'),
+        );
+      });
+      assert.deepEqual(f.checkouts, []);
+      assert.equal((await f.git(['branch', '--show-current'])).trim(), 'alpha');
+      if (change === 'tracked-edit')
+        assert.equal(
+          await readFile(join(f.root, 'common.md'), 'utf8'),
+          'Saved while outgoing views unloaded\n',
+        );
+    });
+  }
+});
+
+test('checkout rechecks target trees when the target ref moves after preflight', async (t) => {
+  for (const change of ['integration-code', 'ignored-collision'] as const) {
+    await t.test(change, async (subtest) => {
+      const f = await fixture(subtest);
+      await f.git(['checkout', '-b', 'replacement-beta', 'beta']);
+      const replacementPath =
+        change === 'integration-code'
+          ? '.obsidian/plugins/obsidian-workspaces/main.js'
+          : 'local-only.md';
+      if (change === 'integration-code')
+        await mkdir(join(f.root, '.obsidian', 'plugins', 'obsidian-workspaces'), {
+          recursive: true,
+        });
+      await writeFile(join(f.root, replacementPath), 'Replacement target contents\n');
+      await f.git(['add', replacementPath]);
+      await f.git(['commit', '-m', 'Target that must fail revalidation']);
+      const replacementCommit = (await f.git(['rev-parse', 'HEAD'])).trim();
+      await f.git(['checkout', 'alpha']);
+      if (change === 'ignored-collision') {
+        await writeFile(join(f.root, '.git', 'info', 'exclude'), 'local-only.md\n');
+        await writeFile(join(f.root, 'local-only.md'), 'Ignored local contents\n');
+      }
+      const guarded = new ObsidianGitBackend({
+        resolvePlugin: () => f.plugin,
+        isDesktop: () => true,
+        checkoutGuard: {
+          vaultPath: f.root,
+          configDir: '.obsidian',
+          pluginId: 'obsidian-workspaces',
+        },
+      });
+      await guarded.withRepository(async (repository) => {
+        await repository.assertCanSwitch('beta');
+        await f.git(['update-ref', 'refs/heads/beta', replacementCommit]);
+        await assert.rejects(
+          repository.checkout('beta'),
+          hasCode(change === 'integration-code' ? 'unsafe-runtime-files' : 'dirty-worktree'),
+        );
+      });
+      assert.deepEqual(f.checkouts, []);
+      assert.equal((await f.git(['branch', '--show-current'])).trim(), 'alpha');
+      if (change === 'ignored-collision')
+        assert.equal(
+          await readFile(join(f.root, 'local-only.md'), 'utf8'),
+          'Ignored local contents\n',
+        );
+    });
+  }
 });
 
 test('allows only exact existing local branches, rejecting options and reflog expressions', async (t) => {

@@ -10,6 +10,7 @@ export interface GitStatus {
 export interface GitRepository {
   inspect(): Promise<GitStatus>;
   assertCanSwitch(branch: string): Promise<void>;
+  /** Revalidates current checkout safety even after an earlier preflight. */
   checkout(branch: string): Promise<GitStatus>;
 }
 

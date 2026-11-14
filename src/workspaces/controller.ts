@@ -113,6 +113,13 @@ export class WorkspaceController {
     this.current = structuredClone(next);
     this.emit();
   }
+  private setTransitionPhase(phase: 'checkout' | 'restoring'): void {
+    // The durable prepared journal already contains the complete recovery
+    // context. These phases are live diagnostics, not additional commits:
+    // recovery always inspects actual Git state instead of trusting a phase.
+    this.current.journal!.phase = phase;
+    this.emit();
+  }
   private record(id: string): WorkspaceRecord {
     if (!Object.hasOwn(this.current.workspaces, id)) throw new Error('Workspace no longer exists.');
     return this.current.workspaces[id];
@@ -404,17 +411,13 @@ export class WorkspaceController {
         await this.commit(next);
         if (checkout) {
           await this.host.quiesce();
-          const switching = this.state;
-          switching.journal!.phase = 'checkout';
-          await this.commit(switching);
-          // Unloading views can save again. Revalidate immediately before checkout.
-          await repository!.assertCanSwitch(target.binding!.branch);
+          this.setTransitionPhase('checkout');
+          // Unloading views can save again. checkout() owns the authoritative
+          // fresh validation; duplicating it here adds a full Git preflight.
           const result = await repository!.checkout(target.binding!.branch);
           this.assertBinding(result, target.binding!);
         }
-        const restoring = this.state;
-        restoring.journal!.phase = 'restoring';
-        await this.commit(restoring);
+        this.setTransitionPhase('restoring');
         await this.host.waitForFiles(target.layout, source.layout);
         await this.host.restore(target.layout);
         if (target.binding && repository)
@@ -454,8 +457,8 @@ export class WorkspaceController {
     try {
       await this.commit(failed);
     } catch (storageError) {
-      // A failed write must not enable more captures in this process. The last durable
-      // prepared/checkout/restoring journal still causes recovery after a restart.
+      // A failed write must not enable more captures in this process. The last
+      // durable journal still causes recovery after a restart.
       this.current.journal = failed.journal;
       this.current.activeId = failed.activeId;
       this.emit();

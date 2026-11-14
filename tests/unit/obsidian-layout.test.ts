@@ -11,6 +11,31 @@ class FileView {
 }
 class TextFileView extends FileView {}
 
+class Modal {
+  static instances: Modal[] = [];
+  readonly containerEl: { ownerDocument: EventTarget };
+  readonly modalEl = { addClass: () => {} };
+  readonly contentEl = { createEl: () => {} };
+  opened = false;
+  opens = 0;
+  closes = 0;
+  constructor(app: { testDocument: EventTarget }) {
+    this.containerEl = { ownerDocument: app.testDocument };
+    Modal.instances.push(this);
+  }
+  setTitle() {}
+  onOpen() {}
+  open() {
+    this.opened = true;
+    this.opens += 1;
+    this.onOpen();
+  }
+  close() {
+    this.opened = false;
+    this.closes += 1;
+  }
+}
+
 interface ViewState {
   type: string;
   state?: { file?: string };
@@ -44,18 +69,21 @@ const Host = (async () => {
   runInNewContext(bundle.outputFiles[0]!.text, {
     module,
     exports: module.exports,
+    setTimeout: (callback: () => void, delay: number) => setTimeout(callback, delay),
+    clearTimeout: (timer: ReturnType<typeof setTimeout>) => clearTimeout(timer),
     require(name: string) {
       assert.equal(name, 'obsidian');
-      return { FileView, TextFileView, Modal: class {}, TFile: class {} };
+      return { FileView, TextFileView, Modal, TFile: class {} };
     },
   });
   return module.exports.ObsidianWorkspaceHost as typeof ObsidianWorkspaceHost;
 })();
 
-async function host(leaves: Leaf[]): Promise<ObsidianWorkspaceHost> {
+async function host(leaves: Leaf[], document = new EventTarget()): Promise<ObsidianWorkspaceHost> {
   const Constructor = await Host;
   return new Constructor(
     {
+      testDocument: document,
       workspace: { iterateAllLeaves: (visit: (leaf: Leaf) => void) => leaves.forEach(visit) },
     } as unknown as App,
     async () => true,
@@ -126,4 +154,51 @@ test('a core-looking type does not exempt an unknown file-backed non-FileView', 
   ]);
   await assert.rejects(workspace.quiesce(), /save lifecycle is not supported/);
   assert.equal(closed, false);
+});
+
+test('fast transitions block input in every window immediately without flashing progress', async (t) => {
+  const main = new EventTarget();
+  const floating = new EventTarget();
+  const workspace = await host(
+    [leaf('markdown', { containerEl: { ownerDocument: floating } }, async () => {})],
+    main,
+  );
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  const release = workspace.block('Opening Beta…');
+  const modal = Modal.instances.at(-1)!;
+  for (const document of [main, floating]) {
+    for (const type of ['keydown', 'beforeinput', 'pointerdown', 'drop', 'paste']) {
+      assert.equal(document.dispatchEvent(new Event(type, { cancelable: true })), false);
+    }
+  }
+  assert.equal(modal.opens, 0);
+  t.mock.timers.tick(499);
+  assert.equal(modal.opens, 0);
+  release();
+  for (const document of [main, floating]) {
+    assert.equal(document.dispatchEvent(new Event('keydown', { cancelable: true })), true);
+  }
+  t.mock.timers.tick(1000);
+  assert.equal(modal.opens, 0, 'A completed transition must cancel the pending progress modal');
+  assert.equal(modal.closes, 0, 'An unopened modal must not disturb the active native modal stack');
+});
+
+test('a slow transition shows progress without releasing input or allowing dismissal', async (t) => {
+  const document = new EventTarget();
+  const workspace = await host([], document);
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  const release = workspace.block('Opening Beta…');
+  const modal = Modal.instances.at(-1)!;
+  t.mock.timers.tick(500);
+  assert.equal(modal.opened, true);
+  assert.equal(document.dispatchEvent(new Event('beforeinput', { cancelable: true })), false);
+  modal.close();
+  assert.equal(modal.opened, true);
+  assert.equal(modal.closes, 0);
+  release();
+  assert.equal(modal.opened, false);
+  assert.equal(modal.closes, 1);
+  assert.equal(document.dispatchEvent(new Event('beforeinput', { cancelable: true })), true);
+  t.mock.timers.tick(1000);
+  assert.equal(modal.opens, 1);
 });

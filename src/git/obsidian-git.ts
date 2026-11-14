@@ -62,6 +62,17 @@ function message(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
 }
 
+/** Read-only queries may overlap, but must all settle before releasing the Git queue. */
+async function awaitReads<const T extends readonly unknown[]>(reads: {
+  [K in keyof T]: Promise<T[K]>;
+}): Promise<T> {
+  const results = await Promise.allSettled(reads);
+  for (const result of results) {
+    if (result.status === 'rejected') throw result.reason;
+  }
+  return results.map((result) => (result as PromiseFulfilledResult<unknown>).value) as unknown as T;
+}
+
 export class ObsidianGitBackend implements GitBackend {
   constructor(private readonly options: ObsidianGitBackendOptions) {}
 
@@ -320,7 +331,19 @@ class QueuedRepository implements GitRepository {
   }
 
   async inspect(): Promise<GitStatus> {
-    const reportedRoot = withoutFinalNewline(await this.raw(['rev-parse', '--show-toplevel']));
+    const [rootOutput, output] = await awaitReads([
+      this.raw(['rev-parse', '--show-toplevel']),
+      this.raw([
+        '--no-optional-locks',
+        'status',
+        '--porcelain=v2',
+        '--branch',
+        '-z',
+        '--untracked-files=all',
+        '--ignore-submodules=none',
+      ]),
+    ]);
+    const reportedRoot = withoutFinalNewline(rootOutput);
     const [root, providerRoot] = await Promise.all([
       this.canonicalRoot(this.native.resolve(reportedRoot)),
       this.canonicalRoot(this.expectedRoot),
@@ -332,15 +355,6 @@ class QueuedRepository implements GitRepository {
         "Obsidian Git's current directory does not match its repository root.",
       );
     }
-    const output = await this.raw([
-      '--no-optional-locks',
-      'status',
-      '--porcelain=v2',
-      '--branch',
-      '-z',
-      '--untracked-files=all',
-      '--ignore-submodules=none',
-    ]);
     let branch: string | null | undefined;
     let dirty = false;
     let conflicted = false;
@@ -388,33 +402,7 @@ class QueuedRepository implements GitRepository {
         'Choose an existing local branch by its exact name.',
       );
     }
-    let checked: string;
-    try {
-      checked = withoutFinalNewline(await this.raw(['check-ref-format', '--branch', branch]));
-    } catch (cause) {
-      throw new GitBackendError(
-        'invalid-branch',
-        'The saved branch name is not a valid local branch name.',
-        { cause },
-      );
-    }
-    if (checked !== branch)
-      throw new GitBackendError(
-        'invalid-branch',
-        'Branch aliases and revision expressions are not supported.',
-      );
     const ref = `refs/heads/${branch}`;
-    const refs = (await this.raw(['for-each-ref', '--format=%(refname)', ref])).split(/\r?\n/);
-    if (!refs.includes(ref))
-      throw new GitBackendError('branch-not-found', `Local branch '${branch}' does not exist.`);
-
-    const status = await this.inspect();
-    if (status.conflicted)
-      throw new GitBackendError(
-        'conflicted-worktree',
-        "Resolve the repository's conflicts before switching workspaces.",
-        { status },
-      );
     const markers = [
       'MERGE_HEAD',
       'CHERRY_PICK_HEAD',
@@ -425,8 +413,49 @@ class QueuedRepository implements GitRepository {
       'BISECT_LOG',
       'index.lock',
     ];
-    for (const marker of markers) {
-      const gitPath = withoutFinalNewline(await this.raw(['rev-parse', '--git-path', marker]));
+    const [checkedOutput, refsOutput, status, markerOutput, recurseOutput, ignoredOutput] =
+      await awaitReads([
+        this.raw(['check-ref-format', '--branch', branch]).catch((cause: unknown) => {
+          throw new GitBackendError(
+            'invalid-branch',
+            'The saved branch name is not a valid local branch name.',
+            { cause },
+          );
+        }),
+        this.raw(['for-each-ref', '--format=%(refname)', ref]),
+        this.inspect(),
+        this.raw(['rev-parse', ...markers.flatMap((marker) => ['--git-path', marker])]),
+        this.raw(['config', '--type=bool', '--default=false', '--get', 'submodule.recurse']),
+        this.raw(['ls-files', '--others', '--ignored', '--exclude-standard', '-z']),
+      ]);
+    const checked = withoutFinalNewline(checkedOutput);
+    if (checked !== branch)
+      throw new GitBackendError(
+        'invalid-branch',
+        'Branch aliases and revision expressions are not supported.',
+      );
+    const refs = refsOutput.split(/\r?\n/);
+    if (!refs.includes(ref))
+      throw new GitBackendError('branch-not-found', `Local branch '${branch}' does not exist.`);
+
+    if (status.conflicted)
+      throw new GitBackendError(
+        'conflicted-worktree',
+        "Resolve the repository's conflicts before switching workspaces.",
+        { status },
+      );
+    // Resolve all paths in one process, but check their current existence on
+    // every preflight. Git paths can contain newlines; keep the single-path
+    // fallback when the line-oriented batch cannot be parsed unambiguously.
+    let markerPaths = withoutFinalNewline(markerOutput).split(/\r?\n/);
+    if (markerPaths.length !== markers.length || markerPaths.some((path) => !path)) {
+      markerPaths = [];
+      for (const marker of markers) {
+        markerPaths.push(withoutFinalNewline(await this.raw(['rev-parse', '--git-path', marker])));
+      }
+    }
+    for (const [index, marker] of markers.entries()) {
+      const gitPath = markerPaths[index]!;
       const markerPath = this.native.resolve(status.root, gitPath);
       try {
         await this.native.access(markerPath);
@@ -449,7 +478,7 @@ class QueuedRepository implements GitRepository {
         'Check out a local branch before switching a Git-bound workspace.',
         { status },
       );
-    await this.assertRuntimeFilesStable(ref, status);
+    const targetTree = await this.assertRuntimeFilesStable(ref, status);
     if (status.dirty)
       throw new GitBackendError(
         'dirty-worktree',
@@ -464,9 +493,7 @@ class QueuedRepository implements GitRepository {
         { status },
       );
     }
-    const recurse = (
-      await this.raw(['config', '--type=bool', '--default=false', '--get', 'submodule.recurse'])
-    ).trim();
+    const recurse = recurseOutput.trim();
     if (recurse !== 'false') {
       throw new GitBackendError(
         'unsupported-submodules',
@@ -477,14 +504,13 @@ class QueuedRepository implements GitRepository {
 
     // Native checkout can overwrite ignored files without treating them as dirty.
     // Protect both direct path collisions and file/directory replacements.
-    const ignored = (
-      await this.raw(['ls-files', '--others', '--ignored', '--exclude-standard', '-z'])
-    )
-      .split('\0')
-      .filter(Boolean);
+    const ignored = ignoredOutput.split('\0').filter(Boolean);
     if (ignored.length > 0) {
       const targetPaths = new Set(
-        (await this.raw(['ls-tree', '-r', '--name-only', '-z', ref])).split('\0').filter(Boolean),
+        targetTree ??
+          (await this.raw(['ls-tree', '--full-tree', '-r', '--name-only', '-z', ref]))
+            .split('\0')
+            .filter(Boolean),
       );
       const targetParents = new Set<string>();
       for (const path of targetPaths) {
@@ -512,7 +538,10 @@ class QueuedRepository implements GitRepository {
     }
   }
 
-  private async assertRuntimeFilesStable(targetRef: string, status: GitStatus): Promise<void> {
+  private async assertRuntimeFilesStable(
+    targetRef: string,
+    status: GitStatus,
+  ): Promise<string[] | undefined> {
     const guard = this.checkoutGuard;
     if (!guard) return;
     const outside = (parent: string, candidate: string): boolean => {
@@ -606,13 +635,24 @@ class QueuedRepository implements GitRepository {
     const runtime = new Set([`${prefix}workspace.json`, `${prefix}workspace-mobile.json`]);
     // Avoid pathspec interpretation of configurable directory names. NUL-delimited
     // complete-tree paths also make additions, removals and unusual filenames exact.
-    const currentTree = (
-      await this.raw(['ls-tree', '--full-tree', '-r', '--name-only', '-z', 'HEAD'])
-    ).split('\0');
-    const targetTree = (
-      await this.raw(['ls-tree', '--full-tree', '-r', '--name-only', '-z', targetRef])
-    ).split('\0');
-    const index = (await this.raw(['ls-files', '-z'])).split('\0');
+    const [currentOutput, targetOutput, indexOutput, diffOutput] = await awaitReads([
+      this.raw(['ls-tree', '--full-tree', '-r', '--name-only', '-z', 'HEAD']),
+      this.raw(['ls-tree', '--full-tree', '-r', '--name-only', '-z', targetRef]),
+      this.raw(['ls-files', '-z']),
+      this.raw([
+        'diff',
+        '--no-ext-diff',
+        '--no-renames',
+        '--name-only',
+        '-z',
+        'HEAD',
+        targetRef,
+        '--',
+      ]),
+    ]);
+    const currentTree = currentOutput.split('\0');
+    const targetTree = targetOutput.split('\0');
+    const index = indexOutput.split('\0');
     const trackedRuntime = [...currentTree, ...targetTree, ...index].find((path) =>
       runtime.has(path),
     );
@@ -630,20 +670,7 @@ class QueuedRepository implements GitRepository {
     ];
     // Disable rename detection so a protected file moved elsewhere still reports
     // its removed source path. Ancestor symlink/gitlink changes are protected too.
-    const changes = (
-      await this.raw([
-        'diff',
-        '--no-ext-diff',
-        '--no-renames',
-        '--name-only',
-        '-z',
-        'HEAD',
-        targetRef,
-        '--',
-      ])
-    )
-      .split('\0')
-      .filter(Boolean);
+    const changes = diffOutput.split('\0').filter(Boolean);
     const changedRuntime = changes.find((path) =>
       protectedPaths.some(
         (protectedPath) =>
@@ -659,6 +686,9 @@ class QueuedRepository implements GitRepository {
         { status },
       );
     }
+    // Reuse only within this preflight. The final guard after view unload reads
+    // the target tree again, along with refs, index, configuration and status.
+    return targetTree.filter(Boolean);
   }
 
   private async refreshPresentation(): Promise<void> {

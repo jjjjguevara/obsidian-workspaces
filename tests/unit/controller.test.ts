@@ -67,6 +67,11 @@ class MemoryStore implements StateStore {
   }
   async save(state: WorkspaceState): Promise<void> {
     this.beforeSave?.(state);
+    assert.equal(
+      state.revision,
+      this.persisted.revision + 1,
+      'writes must advance durable CAS revision once',
+    );
     this.persisted = structuredClone(state);
     this.writes.push(structuredClone(state));
     this.afterSave?.(state);
@@ -109,6 +114,7 @@ class TestGit implements GitBackend, GitRepository {
       });
   }
   async checkout(branch: string): Promise<GitStatus> {
+    await this.assertCanSwitch(branch);
     this.checkouts.push(branch);
     this.status.branch = branch;
     return this.inspect();
@@ -296,6 +302,108 @@ test('same-branch layout switches retain dirty note edits without issuing checko
   assert.equal(f.controller.state.journal, null);
 });
 
+test('transitions durably prepare before side effects and commit completion with two consecutive revisions', async (t) => {
+  for (const scenario of [
+    { name: 'branch change', branches: ['alpha', 'beta'], device: 'desktop' },
+    { name: 'same branch', branches: ['alpha', 'alpha'], device: 'desktop' },
+    { name: 'unbound desktop', branches: [null, null], device: 'desktop' },
+    { name: 'unbound mobile', branches: [null, null], device: 'mobile' },
+  ] as const) {
+    await t.test(scenario.name, async () => {
+      const f = fixture([...scenario.branches], { device: scenario.device });
+      const observed: Array<{ phase: string | null; revision: number; activeId: string | null }> =
+        [];
+      f.controller.subscribe(() => {
+        const state = f.controller.state;
+        observed.push({
+          phase: state.journal?.phase ?? null,
+          revision: state.revision,
+          activeId: state.activeId,
+        });
+      });
+      f.store.beforeSave = (next) => {
+        if (next.journal) {
+          assert.equal(next.journal.phase, 'prepared');
+          assert.equal(next.activeId, f.ids[0]);
+          assert.deepEqual(f.host.restored, []);
+          assert.deepEqual(f.git.checkouts, []);
+          assert.equal(f.host.events.includes('quiesce'), false);
+        } else {
+          assert.equal(next.activeId, f.ids[1]);
+          assert.deepEqual(f.host.current, layout('B', scenario.device));
+          assert.deepEqual(f.host.restored, [layout('B', scenario.device)]);
+          if (scenario.branches[1]) assert.equal(f.git.status.branch, scenario.branches[1]);
+        }
+      };
+      const quiesce = f.host.quiesce.bind(f.host);
+      f.host.quiesce = async () => {
+        const persisted = await f.store.load();
+        assert.equal(persisted.journal?.phase, 'prepared');
+        assert.equal(persisted.activeId, f.ids[0]);
+        assert.equal(persisted.revision, 1);
+        await quiesce();
+      };
+      const waitForFiles = f.host.waitForFiles.bind(f.host);
+      f.host.waitForFiles = async () => {
+        const persisted = await f.store.load();
+        assert.equal(persisted.journal?.phase, 'prepared');
+        assert.equal(persisted.activeId, f.ids[0]);
+        assert.equal(persisted.revision, 1);
+        assert.equal(f.controller.state.journal?.phase, 'restoring');
+        assert.equal(
+          f.controller.state.revision,
+          1,
+          'live phase updates must not advance CAS revision',
+        );
+        await waitForFiles();
+      };
+      await f.controller.activate(f.ids[1]!);
+      assert.deepEqual(
+        f.store.writes.map((state) => [
+          state.revision,
+          state.journal?.phase ?? null,
+          state.activeId,
+        ]),
+        [
+          [1, 'prepared', f.ids[0]],
+          [2, null, f.ids[1]],
+        ],
+      );
+      assert.ok(
+        observed.some(
+          (state) =>
+            state.phase === 'restoring' && state.revision === 1 && state.activeId === f.ids[0],
+        ),
+      );
+      assert.equal(
+        observed.some((state) => state.phase === 'checkout'),
+        scenario.name === 'branch change',
+      );
+      assert.equal(f.controller.state.revision, 2);
+      assert.equal(f.controller.state.journal, null);
+      assert.equal((await f.store.load()).journal, null);
+      assert.equal(f.host.blocked, 0);
+    });
+  }
+});
+
+test('checkout rejects a view-unload write and retains recovery instead of loading the target', async () => {
+  const f = fixture();
+  const quiesce = f.host.quiesce.bind(f.host);
+  f.host.quiesce = async () => {
+    await quiesce();
+    f.git.status.dirty = true;
+  };
+  await assert.rejects(f.controller.activate(f.ids[1]!), /Uncommitted changes/);
+  assert.equal(f.git.status.branch, 'alpha');
+  assert.deepEqual(f.git.checkouts, []);
+  assert.deepEqual(f.host.restored, []);
+  assert.equal(f.controller.state.activeId, f.ids[0]);
+  assert.equal(f.controller.state.journal?.phase, 'recovery');
+  assert.deepEqual(f.controller.state.journal?.source.layout, layout('A'));
+  assert.equal(f.host.blocked, 0);
+});
+
 test('rapid activations remain serialized while the first restoration is unresolved', async () => {
   const f = fixture(['alpha', 'beta', 'gamma']);
   const started = deferred();
@@ -443,17 +551,22 @@ test('cancelling manual discard also cancels deletion of the active workspace', 
   assert.deepEqual(f.store.writes, []);
 });
 
-test('storage failure after checkout retains the durable journal and blocks in-memory mutation', async (t) => {
+test('readiness failure after checkout with unavailable storage retains the durable journal and blocks mutation', async (t) => {
   t.mock.method(console, 'error', () => {});
   const f = fixture();
   let fail = true;
   f.store.beforeSave = (next) => {
-    if (fail && (next.journal?.phase === 'restoring' || next.journal?.phase === 'recovery'))
-      throw new Error('Storage unavailable');
+    if (fail && next.journal?.phase === 'recovery') throw new Error('Storage unavailable');
   };
-  await assert.rejects(f.controller.activate(f.ids[1]!), /Storage unavailable/);
+  const waitForFiles = f.host.waitForFiles.bind(f.host);
+  f.host.waitForFiles = async () => {
+    if (fail) throw new Error('Vault observation failed');
+    await waitForFiles();
+  };
+  await assert.rejects(f.controller.activate(f.ids[1]!), /Vault observation failed/);
   assert.equal(f.git.status.branch, 'beta');
-  assert.equal((await f.store.load()).journal?.phase, 'checkout');
+  assert.equal((await f.store.load()).journal?.phase, 'prepared');
+  assert.equal((await f.store.load()).revision, 1);
   assert.equal(f.controller.state.journal?.phase, 'recovery');
   assert.equal(f.controller.state.journal?.originalBranch?.branch, 'alpha');
   assert.equal(f.controller.state.activeId, f.ids[0]);
@@ -466,6 +579,42 @@ test('storage failure after checkout retains the durable journal and blocks in-m
   assert.equal(f.git.status.branch, 'alpha');
   assert.deepEqual(f.host.current, layout('A'));
   assert.equal(f.controller.state.journal, null);
+});
+
+test('a failed final commit leaves the prepared journal durable after target restoration', async (t) => {
+  t.mock.method(console, 'error', () => {});
+  const f = fixture();
+  let fail = true;
+  f.store.beforeSave = (next) => {
+    if (fail && (next.journal === null || next.journal.phase === 'recovery'))
+      throw new Error('Storage unavailable');
+  };
+  await assert.rejects(f.controller.activate(f.ids[1]!), /Storage unavailable/);
+  assert.equal(f.git.status.branch, 'beta');
+  assert.deepEqual(f.host.current, layout('B'));
+  assert.deepEqual(f.host.restored, [layout('B')]);
+  const durable = await f.store.load();
+  assert.equal(durable.activeId, f.ids[0]);
+  assert.equal(durable.revision, 1);
+  assert.equal(durable.journal?.phase, 'prepared');
+  assert.deepEqual(durable.journal?.source.layout, layout('A'));
+  assert.deepEqual(durable.journal?.sourceSaved?.layout, layout('A'));
+  assert.deepEqual(durable.journal?.target.layout, layout('B'));
+  assert.deepEqual(durable.journal?.originalBranch, { root: '/repository', branch: 'alpha' });
+  assert.equal(f.controller.state.activeId, f.ids[0]);
+  assert.equal(f.controller.state.journal?.phase, 'recovery');
+  assert.equal(f.host.blocked, 0);
+  await assert.rejects(f.controller.saveActive(), /needs recovery/);
+  await assert.rejects(f.controller.update(f.ids[0]!, { name: 'Unsafe' }), /needs recovery/);
+  fail = false;
+  await f.controller.recover();
+  assert.equal(f.git.status.branch, 'alpha');
+  assert.deepEqual(f.host.current, layout('A'));
+  assert.equal(f.controller.state.journal, null);
+  assert.deepEqual(
+    f.store.writes.map((state) => state.revision),
+    [1, 2],
+  );
 });
 
 test('a committed write with uncertain durability retains a recovery path and correct revision', async () => {
@@ -484,7 +633,7 @@ test('a committed write with uncertain durability retains a recovery path and co
   assert.equal((await f.store.load()).journal?.phase, 'recovery');
   assert.deepEqual(
     f.store.writes.map((state) => state.revision),
-    [1, 2, 3, 4, 5],
+    [1, 2, 3],
   );
   await f.controller.recover();
   assert.equal(f.git.status.branch, 'alpha');

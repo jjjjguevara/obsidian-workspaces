@@ -18,6 +18,10 @@ Await supported text-backed editor saves and unload outgoing file views before c
 
 Suspend incidental layout captures and competing activation while the operation owns the transition. Validate branch/status, persist the journal, perform any required checkout, observe the target branch and vault files, restore the native layout, and persist the active identity only after successful restoration. Indicators follow committed state.
 
+A successful activation uses two durable state writes: the complete prepared journal before unloading views, and the completed target identity with the journal cleared after restoration and final branch verification. Checkout/restoration phases update in memory without advancing the persisted revision. After an interruption, the durable phase is a record of pending intent, not proof of which side effects completed; recovery always inspects Git and uses the saved source/target contexts. Errors may persist an additional recovery record. This avoids redundant full-catalog writes without weakening the crash boundary or conflict detection.
+
+Block input as soon as the transition owns the native views. Delay the visible progress modal by 500 ms and cancel it when the operation finishes sooner. A slow operation retains the same ownership and progress indicator. Vault create, delete, rename, and modify events wake readiness checks; the checks still compare indexed files, metadata, and cached bytes with disk, with bounded polling when no event arrives.
+
 A fixed elapsed timeout does not revoke ownership of a valid operation. Later requests are serialized or rejected explicitly. A failed checkout cannot fall through into target layout loading. If failure follows checkout, preserve the journal and report the actual branch and incomplete restoration. Report successful recovery only after verifying it.
 
 On startup, detect the incomplete journal and offer explicit recovery without automatic checkout. A crash or persistence failure must not be mistaken for a completed activation.

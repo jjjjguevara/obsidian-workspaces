@@ -44,9 +44,13 @@ Only one transition may own workspace activation at a time. A slow valid operati
 
 During activation, background capture, history snapshots, and competing layout changes must not save a partially updated view. The controller records the source and target context, performs the checkout when necessary, observes the resulting vault files, applies the target layout, and then persists the active workspace identity. UI indicators follow committed state.
 
+Short transitions do not open a progress modal. Input protection begins immediately; “Switching workspace” appears only if the protected operation remains active after 500 ms. File observation reacts to vault events and still verifies every readiness condition before loading the target.
+
 Failure must leave an accurate outcome. If failure occurs before checkout, retain the source context. If the branch changed but restoration failed, retain the recovery record and report the observed branch and incomplete target. Attempt only recovery that the implementation can verify; do not announce that the source was restored merely because a rollback was attempted.
 
 The journal survives a process interruption. On startup, an incomplete transition is surfaced for recovery without an automatic checkout. Explicit recovery is a controlled operation through the same lifecycle.
+
+The complete journal is durable before views are unloaded. A successful switch writes again only after the target has been restored and verified. An interrupted prepared journal may therefore describe a checkout that already happened; recovery checks the actual branch instead of inferring it from the journal phase.
 
 ## Persistence and transfer
 

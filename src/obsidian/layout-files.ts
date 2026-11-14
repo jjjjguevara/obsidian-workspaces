@@ -67,9 +67,11 @@ export interface VaultReadinessPort {
   cachedRead(path: string): Promise<string>;
   diskRead(path: string): Promise<string>;
   matchesStat?(path: string): Promise<boolean>;
+  /** Observation hints only: every notification must be followed by fresh probes. */
+  subscribe?(onChange: () => void): () => void;
 }
 
-/** Observed file/cache conditions are the barrier. Polling alone never establishes success. */
+/** File/cache probes establish readiness; events wake them early, with polling as a fallback. */
 export async function waitForVaultFiles(
   target: Layout,
   previous: Layout,
@@ -86,44 +88,85 @@ export async function waitForVaultFiles(
   const previousPaths = new Set(fileLeaves(previous).map((leaf) => leaf.path));
   const deadline = Date.now() + (options.timeoutMs ?? 15_000);
   let reason = 'files are still being observed';
-  while (true) {
-    let ready = true;
-    for (const path of targetPaths) {
-      if (!vault.hasFile(path) || !(await vault.exists(path))) {
-        ready = false;
-        reason = `“${path}” is not available in the vault`;
-        break;
+  let revision = 0;
+  let wake: (() => void) | undefined;
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  let unsubscribe: (() => void) | undefined;
+  const clearWait = (): void => {
+    if (timer !== undefined) clearTimeout(timer);
+    timer = undefined;
+    wake = undefined;
+  };
+  const onChange = (): void => {
+    revision += 1;
+    wake?.();
+  };
+  const wait = (observedRevision: number): Promise<void> =>
+    new Promise((resolve) => {
+      wake = () => {
+        clearWait();
+        resolve();
+      };
+      // A notification during an awaited probe must not be lost just because
+      // there was no sleeping waiter yet. Register the waiter before rechecking.
+      if (revision !== observedRevision) {
+        wake();
+        return;
       }
-      if (vault.matchesStat && !(await vault.matchesStat(path))) {
-        ready = false;
-        reason = `“${path}” still has stale file metadata`;
-        break;
-      }
-      if (textPaths.has(path)) {
-        try {
-          const [cached, disk] = await Promise.all([vault.cachedRead(path), vault.diskRead(path)]);
-          if (cached !== disk) {
+      timer = setTimeout(wake, Math.max(0, Math.min(options.pollMs ?? 100, deadline - Date.now())));
+    });
+  try {
+    // Subscribe before the first probe, including one that awaits file/cache I/O.
+    unsubscribe = vault.subscribe?.(onChange);
+    while (true) {
+      const observedRevision = revision;
+      let ready = true;
+      for (const path of targetPaths) {
+        if (!vault.hasFile(path) || !(await vault.exists(path))) {
+          ready = false;
+          reason = `“${path}” is not available in the vault`;
+          break;
+        }
+        if (vault.matchesStat && !(await vault.matchesStat(path))) {
+          ready = false;
+          reason = `“${path}” still has stale file metadata`;
+          break;
+        }
+        if (textPaths.has(path)) {
+          try {
+            const [cached, disk] = await Promise.all([
+              vault.cachedRead(path),
+              vault.diskRead(path),
+            ]);
+            if (cached !== disk) {
+              ready = false;
+              reason = `“${path}” still has cached content from another branch`;
+              break;
+            }
+          } catch {
             ready = false;
-            reason = `“${path}” still has cached content from another branch`;
+            reason = `“${path}” cannot be read yet`;
             break;
           }
-        } catch {
-          ready = false;
-          reason = `“${path}” cannot be read yet`;
-          break;
         }
       }
+      if (ready)
+        for (const path of previousPaths) {
+          if (!targetPaths.has(path) && !(await vault.exists(path)) && vault.hasFile(path)) {
+            ready = false;
+            reason = `the removed note “${path}” is still in the vault index`;
+            break;
+          }
+        }
+      // A change during an otherwise successful pass may invalidate an earlier
+      // file in that pass. Recheck all conditions before reporting success.
+      if (ready && revision === observedRevision) return;
+      if (Date.now() >= deadline)
+        throw new Error(`Workspace files did not become ready: ${reason}.`);
+      await wait(observedRevision);
     }
-    if (ready)
-      for (const path of previousPaths) {
-        if (!targetPaths.has(path) && !(await vault.exists(path)) && vault.hasFile(path)) {
-          ready = false;
-          reason = `the removed note “${path}” is still in the vault index`;
-          break;
-        }
-      }
-    if (ready) return;
-    if (Date.now() >= deadline) throw new Error(`Workspace files did not become ready: ${reason}.`);
-    await new Promise<void>((resolve) => setTimeout(resolve, options.pollMs ?? 100));
+  } finally {
+    clearWait();
+    unsubscribe?.();
   }
 }

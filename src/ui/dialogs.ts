@@ -592,7 +592,7 @@ export class RecoveryModal extends Modal {
       : 'previous layout';
     const targetName = state.workspaces[journal.targetId]?.name ?? 'target workspace';
     this.contentEl.createEl('p', {
-      text: `The switch from “${sourceName}” to “${targetName}” stopped during ${journal.phase}.`,
+      text: `The switch from “${sourceName}” to “${targetName}” did not finish. Recovery will check the current branch before restoring the previous workspace.`,
     });
     if (journal.error) this.contentEl.createEl('p', { text: journal.error });
     this.contentEl.createEl('p', {
