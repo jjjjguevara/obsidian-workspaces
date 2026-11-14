@@ -10,6 +10,11 @@ export interface FileLeaf {
 const object = (value: unknown): value is Record<string, unknown> =>
   !!value && typeof value === 'object' && !Array.isArray(value);
 
+// These core panes follow the active file. Obsidian saves them without an
+// explicit file while unfocused and resolves that file again during restore,
+// so a restored pane is not an extra file leaf.
+const FOLLOW_ACTIVE_FILE_VIEWS = new Set(['backlink', 'outgoing-link', 'outline']);
+
 /** Read only the leaf contract; retain all unknown native state in the original snapshot. */
 export function fileLeaves(layout: Layout): FileLeaf[] {
   const result: FileLeaf[] = [];
@@ -43,19 +48,34 @@ export function fileLeaves(layout: Layout): FileLeaf[] {
 }
 
 export function assertRestoredFiles(expected: Layout, actual: Layout): void {
+  // Obsidian resolves file-following panes against the restored active file, so
+  // their saved path is not a restoration guarantee. Compare those panes by
+  // presence, region, type and pin state only; compare real file views by path.
   const key = (leaf: FileLeaf): string =>
-    JSON.stringify([leaf.region, leaf.path, leaf.type, leaf.pinned]);
-  const counts = new Map<string, number>();
-  for (const leaf of fileLeaves(actual)) counts.set(key(leaf), (counts.get(key(leaf)) ?? 0) + 1);
+    JSON.stringify([
+      leaf.region,
+      leaf.type,
+      leaf.pinned,
+      FOLLOW_ACTIVE_FILE_VIEWS.has(leaf.type) ? '' : leaf.path,
+    ]);
+  const actualLeaves = fileLeaves(actual);
+  const matched = actualLeaves.map(() => false);
   for (const leaf of fileLeaves(expected)) {
-    const remaining = counts.get(key(leaf)) ?? 0;
-    if (!remaining)
+    const index = actualLeaves.findIndex(
+      (candidate, position) => !matched[position] && key(candidate) === key(leaf),
+    );
+    if (index === -1)
       throw new Error(
-        `Obsidian did not restore ${leaf.pinned ? 'the pinned note' : 'the note'} “${leaf.path}” in ${leaf.region}. The saved snapshot is retained for recovery.`,
+        FOLLOW_ACTIVE_FILE_VIEWS.has(leaf.type)
+          ? `Obsidian did not restore the ${leaf.type} pane in ${leaf.region}. The saved snapshot is retained for recovery.`
+          : `Obsidian did not restore ${leaf.pinned ? 'the pinned note' : 'the note'} “${leaf.path}” in ${leaf.region}. The saved snapshot is retained for recovery.`,
       );
-    counts.set(key(leaf), remaining - 1);
+    matched[index] = true;
   }
-  if ([...counts.values()].some((count) => count > 0))
+  const extra = actualLeaves.filter(
+    (leaf, position) => !matched[position] && !FOLLOW_ACTIVE_FILE_VIEWS.has(leaf.type),
+  );
+  if (extra.length)
     throw new Error(
       'Obsidian retained a file leaf outside the requested workspace. The saved snapshot is retained for recovery.',
     );
@@ -78,7 +98,11 @@ export async function waitForVaultFiles(
   vault: VaultReadinessPort,
   options: { timeoutMs?: number; pollMs?: number } = {},
 ): Promise<void> {
-  const targetLeaves = fileLeaves(target);
+  // A follower pane re-resolves to the restored active file. Its saved path may
+  // only exist on the outgoing branch, so it is not a readiness requirement.
+  const targetLeaves = fileLeaves(target).filter(
+    (leaf) => !FOLLOW_ACTIVE_FILE_VIEWS.has(leaf.type),
+  );
   const targetPaths = new Set(targetLeaves.map((leaf) => leaf.path));
   const textPaths = new Set(
     targetLeaves
