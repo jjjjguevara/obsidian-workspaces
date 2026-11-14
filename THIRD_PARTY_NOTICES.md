@@ -44,6 +44,12 @@ The complete original MIT license is retained verbatim in [LICENSES/obsidian-git
 
 ## Dependencies and modifications
 
+### Quick Switcher++ compatibility
+
+The original adapter in `src/obsidian/quick-switcher.ts` targets [Quick Switcher++ by darlal](https://github.com/darlal/obsidian-switcher-plus), version **6.3.0**, inspected at [`ca9d8745f8fb9920493f659aa09d2815eca3b82a`](https://github.com/darlal/obsidian-switcher-plus/tree/ca9d8745f8fb9920493f659aa09d2815eca3b82a). The inspected contracts are its `WorkspaceHandler`, command definitions, `HandlerRegistry`, and save-and-switch keymap. Quick Switcher++ is GPL-3.0-only and remains separately installed; no implementation or release asset is bundled here. Its source informed this compatibility boundary, added on **2026-11-14**. The native test fixture uses separately obtained official release assets.
+
+### Build dependencies
+
 The npm lockfile records build and test dependency versions. Those packages retain their respective licenses. Obsidian's runtime API is supplied by the host application and is not bundled as part of Workspaces.
 
 New product-specific modifications are maintained by jjjjguevara. Preserve original notices when copying or adapting additional source, and update this file when a new upstream baseline or component is incorporated.

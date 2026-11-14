@@ -16,6 +16,14 @@ The default restoration scope includes the main editor area and both sidebars. P
 
 If an unbound workspace lacks a layout for the current platform, its main area is applied over the current platform's sidebars and saved as a new platform slot. Full sidebar restoration then uses that slot. A branch-bound snapshot cannot use this cross-platform fallback.
 
+## Workspace selection integrations
+
+The status bar shows the committed workspace name without a branch suffix. Obsidian Git displays the live branch. Workspace selectors and settings may show saved branch associations to distinguish target contexts.
+
+With supported Quick Switcher++ 6.3.x enabled (tested with 6.3.0), **Open in Workspaces Mode** lists this product's catalog even when core Workspaces is disabled. Selecting a suggestion activates its stable ID through the transition controller, including branch checkout and pinned-layout restoration. Equal display names remain separate records. Search includes names, groups, branch associations, and descriptions.
+
+Quick Switcher++'s save-and-switch action explicitly saves the source and activates the target under one controller queue owner. It applies in manual-save mode and still saves when the target is already active. A failed save or changed queued source prevents activation. Its no-results create action creates a record in this product. Stale suggestions from a replaced provider are rejected; provider reload and plugin disable restore the relevant hooks. Unsupported versions or missing private capabilities produce an integration notice. Core commands retain their separate native behavior.
+
 ## Branch behavior
 
 Binding is optional and explicit. A bound record identifies the repository and an existing local branch; it does not infer a branch from the workspace name. Ordinary saves preserve the binding. Explicit rebinding associates the current observed branch with a newly captured layout, so that old branch context cannot silently acquire a new ref.
@@ -78,5 +86,9 @@ No source format enables live catalog synchronization, Modes, workspace-specific
 | Mobile without Git                             | Unbound workspaces can be saved and restored using the mobile layout slot.                                        |
 | Unsupported editable view                      | Branch checkout is blocked and the user is told which view to close; the saved context remains available.         |
 | Concurrent desktop writer                      | Lock or revision conflict is reported; neither instance silently overwrites the other's catalog.                  |
+| Quick Switcher++ selection                     | The product workspace, actual branch, and restored pins agree, including with core Workspaces disabled.            |
+| Quick Switcher++ save-and-switch               | The source is saved before target activation; save failure or a changed queued source prevents activation.         |
+| Duplicate display names in Quick Switcher++    | Suggestions activate their own stable IDs rather than a same-name core or product record.                          |
+| Workspace status indicator                     | Workspace name appears once; the active branch is left to Obsidian Git's indicator.                                |
 
 Custom interface work and automatic multi-device merge are later product decisions. They must preserve these context and transition guarantees.

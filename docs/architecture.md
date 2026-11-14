@@ -31,6 +31,7 @@ Native layouts remain opaque Obsidian state wherever possible. The product adds 
 | `src/obsidian/layout-files.ts`                               | Observe file/index/cache readiness and verify restored file leaves and pins.                                      |
 | `src/obsidian/layout-data.ts`, `clone-json.ts`               | Pure layout operations and independent JSON snapshots.                                                            |
 | `src/obsidian/plugins.ts`                                    | Isolate lookup of the installed Git plugin.                                                                       |
+| `src/obsidian/quick-switcher.ts`                             | Route Quick Switcher++ workspace suggestions and its save-and-switch shortcut to the catalog/controller.          |
 | `src/git/backend.ts`, `obsidian-git.ts`                      | Required Git operations and the installed-plugin compatibility adapter.                                           |
 | `src/ui/menu.ts`, `switcher.ts`, `settings.ts`, `dialogs.ts` | Native presentation and user requests.                                                                            |
 
@@ -95,6 +96,10 @@ The installed Obsidian Git plugin supplies the initial desktop backend. Workspac
 The host adapter handles native layout capture/restoration and file observation. It awaits `TextFileView.save()` and supports native media views and the built-in Backlinks, Outgoing links, and Outline panes when unloading; other editable views require closing before branch checkout. Node filesystem modules are loaded only inside desktop operations, so unbound mobile use does not resolve them at module load. Unavoidable private APIs stay isolated; native UI classes do not make every adjacent internal API public.
 
 Core Workspaces is a source format for explicit import. Workspaces owns its live catalog and does not keep a second writable core catalog in step with it. Native presentation and native layout restoration do not require a dependency on the core Workspaces plugin.
+
+Quick Switcher++ 6.3.x uses the product catalog through an optional handler adapter, tested with 6.3.0. Suggestions carry stable IDs and an adapter-generation marker; same-name core suggestions cannot accidentally activate a product record. The adapter replaces only workspace-mode methods and their static provider resolver. It wraps the community plugin manager's load/unload methods to attach before first use and reattach after a provider reload. Existing workspace modals close when the provider changes. Teardown restores the original descriptors only when those methods still belong to this adapter.
+
+Quick Switcher++ calls its save-and-switch provider synchronously. A fresh facade captures that request's source identity and save intent, then submits `saveAndActivate` as one controller queue operation. It never launches an independent save followed by an uncoordinated activation. A source changed by an earlier queued operation, a failed save, or a stale provider stops the request. The native core workspace catalog is neither written nor patched by this adapter. The status indicator renders the workspace name; Obsidian Git remains responsible for the live branch label.
 
 Imports convert source metadata into the product schema. Multiple Workspace++ groups become one label; Workspaces Plus Modes and global configuration overrides are excluded. Platform fallback applies an unbound layout's main area over current platform sidebars, then creates the missing platform slot. Ordinary activation of an existing slot restores its full saved layout.
 

@@ -183,20 +183,34 @@ export class WorkspaceController {
     );
   }
   saveActive(): Promise<void> {
-    return this.enqueue('Saving workspace', () =>
-      this.observeSource(async (repository) => {
-        if (!this.current.activeId) throw new Error('Create or activate a workspace first.');
-        await this.host.flush();
-        if (repository && this.activeContext()?.binding)
-          this.assertBinding(await repository.inspect(), this.activeContext()!.binding!);
-        const next = this.state;
-        remember(
-          next.workspaces[next.activeId!],
-          this.capture(this.activeContext()?.binding ?? null),
-        );
-        await this.commit(next);
-      }),
-    );
+    return this.enqueue('Saving workspace', () => this.saveCurrent());
+  }
+  private saveCurrent(): Promise<void> {
+    return this.observeSource(async (repository) => {
+      if (!this.current.activeId) throw new Error('Create or activate a workspace first.');
+      await this.host.flush();
+      if (repository && this.activeContext()?.binding)
+        this.assertBinding(await repository.inspect(), this.activeContext()!.binding!);
+      const next = this.state;
+      remember(
+        next.workspaces[next.activeId!],
+        this.capture(this.activeContext()?.binding ?? null),
+      );
+      await this.commit(next);
+    });
+  }
+  /** A switcher's explicit save-and-switch must retain one mutation owner. */
+  saveAndActivate(
+    id: string,
+    expectedSourceId: string | null = this.current.activeId,
+  ): Promise<void> {
+    return this.enqueue('Saving and switching workspace', async () => {
+      if (this.current.activeId !== expectedSourceId)
+        throw new Error('The active workspace changed. Choose the workspace again.');
+      this.record(id);
+      if (expectedSourceId !== null) await this.saveCurrent();
+      await this.transition(id);
+    });
   }
   bindActive(
     expectedId: string | null = this.current.activeId,
