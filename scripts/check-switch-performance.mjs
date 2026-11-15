@@ -6,10 +6,14 @@ import { gunzipSync } from 'node:zlib';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import endpoint from '../tests/obsidian/completion-endpoint.cjs';
+import recorder from '../tests/obsidian/sample-recorder.cjs';
+import measurementEnvironment from '../tests/obsidian/measurement-environment.cjs';
 
 export const CONTRACT = Object.freeze({
   schema: 'obsidian-workspaces-performance-closure-v1',
   benchmarkSchema: 'obsidian-workspaces-switch-benchmark-v2',
+  recorderSchema: recorder.SCHEMA,
+  recorderMode: recorder.MODE,
   minimumSessionsPerProfile: 3,
   minimumBranchSamplesPerSession: 100,
   minimumControlSamplesPerSession: 20,
@@ -129,6 +133,15 @@ function verifyReport(report, manifest, role, profile) {
     'Benchmark did not finish successfully.',
   );
   requireThat(
+    report.recorder?.schema === CONTRACT.recorderSchema &&
+      report.recorder.mode === CONTRACT.recorderMode &&
+      report.recorder.complete === true &&
+      report.recorder.runId === report.runId &&
+      report.recorder.finalAssembly === 'streamed-after-timing' &&
+      report.recorder.retainedDetailedSamplesBetweenSwitches === 0,
+    'Missing complete append-only recorder evidence; older observer protocols are diagnostic only.',
+  );
+  requireThat(
     report.manualStart === true &&
       report.deepTraceEnabled === false &&
       report.cpuProfileRequested === false &&
@@ -200,11 +213,26 @@ function verifyReport(report, manifest, role, profile) {
     'Shared-path content does not distinguish branches.',
   );
   requireThat(Array.isArray(report.samples) && report.samples.length > 0, 'No native samples.');
+  const validMemory = (value) =>
+    ['performanceMs', 'rss', 'heapTotal', 'heapUsed', 'external', 'arrayBuffers'].every(
+      (key) => finite(value?.[key]) && value[key] >= 0,
+    ) && value.heapUsed <= value.heapTotal;
+  requireThat(
+    validMemory(report.recorder.initialMemory) && validMemory(report.recorder.finalMemory),
+    'Missing renderer memory observations outside timing.',
+  );
   const groups = {};
   for (const sample of report.samples) {
     requireThat(
       sample.status === 'passed' && !sample.error && !sample.completionCaptureError,
       'A transition failed or lacks completion evidence.',
+    );
+    requireThat(
+      validMemory(sample.memory?.beforeTiming) &&
+        validMemory(sample.memory?.afterVerificationBeforePersistence) &&
+        validMemory(sample.recorderObservation?.memoryAfterAppend) &&
+        sample.recorderObservation.excludedFromSwitchTiming === true,
+      'Missing outside-timer sample memory/recorder observations.',
     );
     requireThat(
       sample.documentVisibility === 'visible' &&
@@ -213,6 +241,7 @@ function verifyReport(report, manifest, role, profile) {
         sample.nativeSettingsPresent === false,
       'A sample ran with hidden/unfocused workspace or Settings open.',
     );
+    measurementEnvironment.assertMeasurementEnvironment(sample);
     requireThat(
       sample.controllerCalls?.length === 1 &&
         sample.controllerCalls[0].name === 'controller.activate' &&
@@ -330,6 +359,23 @@ function verifyReport(report, manifest, role, profile) {
     report.samples.length === branch.length + 2 * same.length + fixture.warmups + 7,
     'Unexpected, missing, or omitted transition samples.',
   );
+  requireThat(
+    report.recorder.startedSamples === report.samples.length &&
+      report.recorder.completedSamples === report.samples.length &&
+      report.recorder.failedSamples === 0 &&
+      report.recorder.rawSampleSerializations === report.samples.length &&
+      sha256(report.recorder.journalSHA256) &&
+      report.samples.every(
+        (sample, index) => sample.index === index && sample.recorderObservation.index === index,
+      ),
+    'Recorder evidence has missing, duplicate or out-of-order attempts.',
+  );
+  const samplesHash = createHash('sha256');
+  for (const sample of report.samples) samplesHash.update(`${JSON.stringify(sample)}\n`);
+  requireThat(
+    samplesHash.digest('hex') === report.recorder.samplesSHA256,
+    'Raw samples differ from the completed recorder digest.',
+  );
   branch.forEach(({ sample }, index) => {
     const target = index % 2 === 0 ? 'beta' : 'alpha';
     const source = target === 'beta' ? 'alpha' : 'beta';
@@ -374,6 +420,7 @@ export function evaluateClosure(manifest, evidence) {
   const used = new Set();
   const usedRunIds = new Set();
   const nativeSessions = new Map();
+  const nativeProcesses = new Set();
   const pooledValues = {};
   const result = {
     schema: CONTRACT.schema,
@@ -445,7 +492,8 @@ export function evaluateClosure(manifest, evidence) {
         const a = pair.baseline.report;
         const b = pair.candidate.report;
         requireThat(
-          a.environment.nativeSession.id === b.environment.nativeSession.id,
+          a.environment.nativeSession.id === b.environment.nativeSession.id &&
+            a.environment.nativeSession.processId === b.environment.nativeSession.processId,
           'Pair was not observed in the same native session.',
         );
         requireThat(
@@ -453,6 +501,11 @@ export function evaluateClosure(manifest, evidence) {
           'A native session was reused for another pair; restart the fixture window.',
         );
         nativeSessions.set(b.environment.nativeSession.id, entry.profile);
+        requireThat(
+          !nativeProcesses.has(b.environment.nativeSession.processId),
+          'Renderer process was reused across independent pairs; quit and relaunch Obsidian.',
+        );
+        nativeProcesses.add(b.environment.nativeSession.processId);
         for (const key of [
           'platform',
           'architecture',
@@ -486,6 +539,7 @@ export function evaluateClosure(manifest, evidence) {
           label: entry.label,
           profile: entry.profile,
           nativeSession: b.environment.nativeSession.id,
+          nativeProcessId: b.environment.nativeSession.processId,
           baseline: pair.baseline.summary,
           candidate: pair.candidate.summary,
         });
@@ -555,7 +609,11 @@ export function evaluateClosure(manifest, evidence) {
       );
       requireThat(
         nativeSessions.get(setup.nativeSession?.id) === profile &&
-          integer(setup.nativeSession?.processId, 1),
+          sessions.some(
+            (session) =>
+              session.nativeSession === setup.nativeSession?.id &&
+              session.nativeProcessId === setup.nativeSession?.processId,
+          ),
         `${profile}: safety report belongs to an unobserved native session.`,
       );
       const paired = manifest.sessions.find(

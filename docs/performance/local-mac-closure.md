@@ -30,6 +30,16 @@ The independent `completion-endpoint.cjs` validator checks that saved snapshot l
 
 Snapshot duration is recorded separately. The controller interval ends before observation cost; the next-frame interval includes that synchronous observation. Input release is recorded separately. Modal observations, endpoint state and later Git/disk verification are distinct evidence, not interchangeable claims.
 
+### Recorder protocol and observer cost
+
+The required recorder is `obsidian-workspaces-sample-recorder-v1`, mode `append-only-streamed-final`. Preparation prints an external journal path of the form `REPORT.json.RUN_ID.samples.ndjson`. The run creates that journal exclusively, records each attempt before its timer starts, and appends its immutable completed raw sample once after verification. Failed samples and cleanup attempts remain in order. Between switches, the probe retains compact numeric summary data and releases the detailed sample and per-repository observer descriptors. It replaces only a small progress JSON at the selected report path while running; this file has `kind: "benchmark-progress"`, `complete: false`, and no sample array.
+
+After all timed work and fixture cleanup, the recorder seals the journal and streams the final original-schema JSON from it, processing one sample at a time with filesystem backpressure. It validates start/completion/observation order, exact counts and the journal hash before atomically publishing the complete report. The final `recorder` field identifies the protocol and raw-sample digest. An incomplete start, failed append, corrupt journal or interrupted final assembly cannot publish a successful final report. Retain both the final JSON and NDJSON journal; hash both in the validation record. Final JSON remains the closure manifest's primary raw evidence artifact.
+
+The raw sample records renderer `process.memoryUsage()` before timing and after verification, and its `recorderObservation` records memory after the append, serialization cost and append cost. Final recorder metadata includes initial/final memory and total compact-progress cost. These observations are outside the switch timers; they are not evidence that recording has zero subsequent effect on GC, process memory, scheduling or filesystem load. Do not force GC, add cooling sleeps or subtract an estimated observer cost from measured switch times. Compare memory and sample-order trends as well as the latency distribution.
+
+Earlier runs that repeatedly serialized and replaced the complete growing result are retained as observer diagnostics. Their cumulative allocation and writes grew quadratically with sample count. They are ineligible for performance closure even when their endpoint checks passed; the gate explicitly requires the append-only recorder. Rerun both product builds with the same final probe hash.
+
 ## 1. Prepare source, assets and report directories
 
 Use a new directory outside every personal vault. Never run the fixture preparers against the user's working vault. They create local branches and test files only in an identified disposable directory, without remotes. Do not use `--reset` on an open fixture.
@@ -105,7 +115,7 @@ The command prints its external report location and safety-probe hash. Enable **
 
 ## 3. Run matched native sessions
 
-For each profile, collect three paired sessions. Close and reopen that disposable vault window between pairs; the native session identity must change. Reloading the benchmark plugin alone does not create a new session. Keep the fixture window visible and focused, Settings closed, the viewport/theme/provider settings unchanged, and avoid concurrent builds or benchmarks. A session pair uses the same native renderer, fixture commits, plugin assets and benchmark hash for both builds.
+For each profile, collect three paired sessions. Close and reopen that disposable vault window between pairs; both the native session identity and renderer process ID must change. **Reload app** can change the session UUID while retaining the renderer process and its memory. If closing a vault window also leaves that process alive or reuses it, quit and relaunch Obsidian between pairs. The gate requires distinct renderer PIDs across independent pairs and the same PID/session within each pair. This establishes a fresh renderer, not an OS-cache-cold sample. Keep the fixture window visible and focused, Settings closed, the viewport/theme/provider settings unchanged, and avoid concurrent builds or benchmarks. A session pair uses the same fixture commits, plugin assets and benchmark hash for both builds.
 
 Alternate installation order to reduce order bias: baseline→candidate, candidate→baseline, baseline→candidate. For **each** report:
 
@@ -124,7 +134,11 @@ node scripts/prepare-switch-benchmark.mjs "$PERF_ROOT/vault-small" \
   --result "$PERF_REPORTS/small-s1-candidate.json"
 ```
 
-For baseline use `--product-commit "$PERF_BASELINE_COMMIT"` and a baseline report name. Enable **Workspaces Switch Latency Benchmark**, close Settings, and invoke **Workspaces Switch Latency Benchmark: Run switch benchmark** through the native command palette. The report runs the real Quick Switcher++ selection route automatically. It must finish with `status: "passed"`, `restoredAlpha: true`, an empty `finalGitStatus`, and every endpoint validated. Retain failed attempts too; never delete slow samples or edit a report into a pass.
+For baseline use `--product-commit "$PERF_BASELINE_COMMIT"` and a baseline report name. Enable **Workspaces Switch Latency Benchmark**, close Settings, and invoke **Workspaces Switch Latency Benchmark: Run switch benchmark** through the native command palette. The report runs the real Quick Switcher++ selection route automatically. While it runs, inspect the compact progress record's `startedSamples`, `completedSamples`, `currentSample`, `lastSample` and `journalFile`; the growing raw evidence is in NDJSON. A completed run must publish the final report with `status: "passed"`, `recorder.complete: true`, `restoredAlpha: true`, an empty `finalGitStatus`, and every endpoint validated. Retain failed attempts too; never delete slow samples or edit a report into a pass.
+
+Before every timed attempt, the probe requires both a focused document and a focused native window. On inspected Obsidian 1.15.1, it also checks Settings' own lifecycle, popout reference/window and actual `modalEl` connection. A main-document selector cannot establish that a separate Settings window is closed. An open Settings signal, false focus flag or unsupported capability records a failed attempt and stops before selection; the probe never closes Settings or focuses a window to repair the observation. Inspect `nativeSettingsObservation` and `nativeWindowFocus` in that failed report, close Settings completely, focus the workspace and prepare a new run. A different host capability needs a separately inspected probe revision and matched reruns, not an edited result.
+
+After a process crash, preserve the incomplete progress JSON, journal and any `.partial` output. They do not qualify as completed evidence. Confirm the disposable Obsidian process has exited, archive its progress JSON to a new filename ending in `.incomplete.json`, and prepare a new run with a new report name. Archiving the interrupted progress path also allows the preparer's stale `running` check to resolve; do not change its contents to `passed`. Inspect and recover the product's own transition journal explicitly before rearming if the fixture needs recovery.
 
 Record the benchmark bundle hash printed by preparation and the safety-probe hash printed by its preparer. Each must be identical across its respective closure reports. Any change to the benchmark invalidates comparisons made with the previous probe. Any product change requires a new exact candidate identity and new candidate evidence. Never reuse historical Linux results as Mac reports.
 
@@ -150,7 +164,7 @@ node scripts/check-switch-performance.mjs "$PERF_REPORTS/closure-manifest.json" 
 
 Paths in the manifest resolve relative to the manifest file. Hash the exact bytes supplied: for `.json.gz`, record the compressed file's SHA-256. The evaluator accepts JSON or gzip JSON and recomputes medians/percentiles from raw selection and completion timestamps. It reruns endpoint validation independently rather than trusting a summary's `passed` label. Choose a new closure output filename for each attempt: exclusive creation prevents overwriting manifests or raw evidence through ordinary paths, symlink aliases or hardlinks.
 
-Exit code **0** means the supplied local performance evidence meets this contract. Exit code **1** means closure is blocked. Missing Mac reports, old schemas, wrong hashes, missing controls, reused sessions, failed transitions, stale endpoint content, progress openings and exceeded budgets all block closure. A faster median with an unacceptable tail still fails. The gate is an evidence evaluator, not cryptographic attestation that a local operator actually followed the procedure.
+Exit code **0** means the supplied local performance evidence meets this contract. Exit code **1** means closure is blocked. Missing Mac reports, old schemas/recorders, incomplete or reordered attempts, wrong hashes, missing controls, reused renderer processes, failed transitions, stale endpoint content, progress openings and exceeded budgets all block closure. A faster median with an unacceptable tail still fails. The gate is an evidence evaluator, not cryptographic attestation that a local operator actually followed the procedure.
 
 ## 5. Document the final result before issue closure
 
@@ -160,6 +174,7 @@ Commit a validation report and the raw evidence under `docs/validation/`, then a
 - Explicit small and representative workload dimensions, saved layout sizes, and their relationship to normal use.
 - Baseline and candidate per-session and pooled sample counts, median/p95/p99, min/max, first-switch timings, frame opportunities and progress counts. Keep baseline and candidate builds separate.
 - Endpoint and native safety results, physical roundtrip observations, repository check results, raw report hashes, and the unedited closure result.
+- Recorder protocol, NDJSON journal hashes, renderer process/session identities, memory trends and outside-timer recorder costs; preserve superseded observer experiments separately.
 - Any remaining limitations or failed attempts and the final acceptance decision.
 
 Request an independent review of the final code and these exact local reports. Close the performance issue only after the result is published and the review accepts it. A blocked or unavailable Mac gate must be recorded as **pending**; the implementation PR may still describe a measured partial improvement without closing the issue.

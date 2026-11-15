@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
 import { createRequire } from 'node:module';
 import { mkdtemp, readFile, symlink, writeFile, rm } from 'node:fs/promises';
 import { execFileSync } from 'node:child_process';
@@ -45,6 +46,71 @@ for (const [name, mutate, message] of [
       delete e.get(m.sessions[0].candidate.path).report.benchmarkSchema;
     },
     /completion-aware/,
+  ],
+  [
+    'legacy whole-report recorder',
+    (m: any, e: any) => {
+      delete e.get(m.sessions[0].candidate.path).report.recorder;
+    },
+    /append-only recorder/,
+  ],
+  [
+    'incomplete sample journal',
+    (m: any, e: any) => {
+      e.get(m.sessions[0].candidate.path).report.recorder.complete = false;
+    },
+    /append-only recorder/,
+  ],
+  [
+    'wrong completed sample digest',
+    (m: any, e: any) => {
+      e.get(m.sessions[0].candidate.path).report.recorder.samplesSHA256 = '0'.repeat(64);
+    },
+    /recorder digest/,
+  ],
+  [
+    'duplicate ordered sample identity',
+    (m: any, e: any) => {
+      e.get(m.sessions[0].candidate.path).report.samples[12].index = 11;
+    },
+    /out-of-order attempts/,
+  ],
+  [
+    'unrecorded sample attempt',
+    (m: any, e: any) => {
+      e.get(m.sessions[0].candidate.path).report.recorder.startedSamples++;
+    },
+    /out-of-order attempts/,
+  ],
+  [
+    'missing outside-timer memory observation',
+    (m: any, e: any) => {
+      delete e.get(m.sessions[0].candidate.path).report.samples[10].memory;
+    },
+    /memory/,
+  ],
+  [
+    'Settings open in a separate native window',
+    (m: any, e: any) => {
+      e.get(
+        m.sessions[0].candidate.path,
+      ).report.samples[0].nativeSettingsObservation.livePopoutWindow = true;
+    },
+    /Settings must be fully closed/,
+  ],
+  [
+    'missing supported native Settings observation',
+    (m: any, e: any) => {
+      delete e.get(m.sessions[0].candidate.path).report.samples[0].nativeSettingsObservation;
+    },
+    /Settings observation is unsupported/,
+  ],
+  [
+    'native window unfocused during first switch',
+    (m: any, e: any) => {
+      e.get(m.sessions[0].candidate.path).report.samples[0].nativeWindowFocus.focused = false;
+    },
+    /unfocused or unsupported/,
   ],
   [
     'wrong installed bundle',
@@ -117,6 +183,21 @@ for (const [name, mutate, message] of [
     /reused/,
   ],
   [
+    'new app session UUID in a reused renderer process',
+    (m: any, e: any) => {
+      for (const role of ['baseline', 'candidate'])
+        e.get(m.sessions[1][role].path).report.environment.nativeSession.processId = 1;
+    },
+    /Renderer process was reused/,
+  ],
+  [
+    'pair roles in different renderer processes',
+    (m: any, e: any) => {
+      e.get(m.sessions[0].candidate.path).report.environment.nativeSession.processId = 99;
+    },
+    /same native session/,
+  ],
+  [
     'missing representative scope',
     (m: any) => {
       delete m.scope.representative;
@@ -177,6 +258,9 @@ test('closure rejects truthful slow candidate despite passing endpoint correctne
     s.timingsMs.selectionToControllerComplete = 140;
     s.timingsMs.selectionToNextFrame = 150;
   }
+  const digest = createHash('sha256');
+  for (const sample of report.samples) digest.update(`${JSON.stringify(sample)}\n`);
+  report.recorder.samplesSHA256 = digest.digest('hex');
   const result = evaluateClosure(manifest, evidence);
   assert.equal(result.closureAllowed, false);
   assert.match(result.failures.join('\n'), /median 140/);

@@ -1,11 +1,20 @@
 #!/usr/bin/env node
 /** Install/rearm a timing probe only in a completed disposable native fixture. */
-import { copyFile, mkdir, readFile, realpath, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, realpath, writeFile } from 'node:fs/promises';
 import { execFileSync } from 'node:child_process';
 import { createHash, randomUUID } from 'node:crypto';
-import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
+import { dirname, isAbsolute, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { build } from 'esbuild';
+import {
+  resolveEvidenceOutput,
+  publishPreparedReport,
+  archiveEvidenceOutput,
+} from './benchmark-output.mjs';
+import {
+  SCHEMA as RECORDER_SCHEMA,
+  MODE as RECORDER_MODE,
+} from '../tests/obsidian/sample-recorder.cjs';
 
 const args = process.argv.slice(2);
 const supplied = args.shift();
@@ -89,17 +98,10 @@ if (git('branch', '--show-current') !== 'alpha')
 for (const branch of ['alpha', 'beta']) git('show-ref', '--verify', `refs/heads/${branch}`);
 
 const phase = options['--phase'];
-const resultFile = resolve(
+const resultFile = await resolveEvidenceOutput(
+  vault,
   options['--result'] ?? join(dirname(marker.resultFile), `switch-benchmark-${phase}.json`),
 );
-const within = (parent, child) => {
-  const part = relative(parent, child);
-  return part === '' || (part !== '..' && !part.startsWith(`..${sep}`) && !isAbsolute(part));
-};
-if (within(vault, resultFile)) throw new Error('The report must be outside the vault.');
-await mkdir(dirname(resultFile), { recursive: true });
-if (within(vault, await realpath(dirname(resultFile))))
-  throw new Error('The report directory resolves inside the vault.');
 const pluginId = 'workspaces-switch-benchmark';
 const plugin = join(configDirectory, 'plugins', pluginId);
 try {
@@ -133,14 +135,12 @@ try {
   if (previous.status === 'running')
     throw new Error('The selected report belongs to a running benchmark.');
   // Always use a fresh suffix: repeated rearming must not replace an older archive.
-  await copyFile(
-    resultFile,
-    `${resultFile}.${new Date().toISOString().replaceAll(':', '-')}.${randomUUID()}.json`,
-  );
+  await archiveEvidenceOutput(resultFile);
 } catch (error) {
   if (error.code !== 'ENOENT') throw error;
 }
 const runId = randomUUID();
+const journalFile = `${resultFile}.${runId}.samples.ndjson`;
 await mkdir(plugin, { recursive: true });
 // Bundle the existing independent native verifier; no production helper is used
 // to decide whether branch, pins, indexed files, and editor contents are correct.
@@ -181,6 +181,8 @@ await writeFile(
       vaultPath: vault,
       resultFile,
       runId,
+      recorderSchema: RECORDER_SCHEMA,
+      recorderMode: RECORDER_MODE,
       phase,
       samples,
       warmups,
@@ -205,24 +207,20 @@ await writeFile(
 const enabledFile = join(configDirectory, 'community-plugins.json');
 const enabled = JSON.parse(await readFile(enabledFile, 'utf8'));
 await writeFile(enabledFile, JSON.stringify([...new Set([...enabled, pluginId])], null, 2));
-await writeFile(
-  resultFile,
-  JSON.stringify(
-    {
-      status: 'prepared',
-      phase,
-      vault,
-      runId,
-      deepTrace,
-      cpuProfile,
-      manualStart,
-      diagnosticOnly,
-      preparedAt: new Date().toISOString(),
-    },
-    null,
-    2,
-  ),
-);
+await publishPreparedReport(resultFile, {
+  status: 'prepared',
+  phase,
+  vault,
+  runId,
+  recorderSchema: RECORDER_SCHEMA,
+  recorderMode: RECORDER_MODE,
+  journalFile,
+  deepTrace,
+  cpuProfile,
+  manualStart,
+  diagnosticOnly,
+  preparedAt: new Date().toISOString(),
+});
 console.log(
   JSON.stringify(
     {
@@ -230,6 +228,7 @@ console.log(
       pluginId,
       phase,
       resultFile,
+      journalFile,
       samples,
       warmups,
       baselineSamples,

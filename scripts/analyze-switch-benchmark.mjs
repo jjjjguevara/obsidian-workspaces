@@ -75,6 +75,10 @@ for (const filename of process.argv.slice(2)) {
   const report = JSON.parse(
     (filename.endsWith('.gz') ? gunzipSync(bytes) : bytes).toString('utf8'),
   );
+  if (!Array.isArray(report.samples))
+    throw new Error(
+      `${filename}: no finalized raw report; preserve its journal and inspect compact progress first.`,
+    );
   const groups = {};
   for (const scenario of ['branch', 'same-branch', 'unbound']) {
     const samples = report.samples.filter(
@@ -107,6 +111,37 @@ for (const filename of process.argv.slice(2)) {
     };
   }
   console.log(
-    JSON.stringify({ filename, status: report.status, phase: report.phase, groups }, null, 2),
+    JSON.stringify(
+      {
+        filename,
+        status: report.status,
+        phase: report.phase,
+        recorder: report.recorder ?? {
+          mode: 'legacy whole-report writer; diagnostic evidence only',
+        },
+        memory: report.recorder
+          ? {
+              beforeTimingRssBytes: stats(
+                report.samples.map((sample) => sample.memory?.beforeTiming?.rss),
+              ),
+              afterAppendRssBytes: stats(
+                report.samples.map((sample) => sample.recorderObservation?.memoryAfterAppend?.rss),
+              ),
+              beforeTimingHeapUsedBytes: stats(
+                report.samples.map((sample) => sample.memory?.beforeTiming?.heapUsed),
+              ),
+              rawSerializationMs: stats(
+                report.samples.map((sample) => sample.recorderObservation?.serializationMs),
+              ),
+              sampleAppendMs: stats(
+                report.samples.map((sample) => sample.recorderObservation?.appendMs),
+              ),
+            }
+          : null,
+        groups,
+      },
+      null,
+      2,
+    ),
   );
 }

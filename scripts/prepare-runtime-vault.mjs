@@ -24,6 +24,11 @@ import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { homedir } from 'node:os';
 import { fileURLToPath } from 'node:url';
 import { generateWorkload, parseWorkload } from './runtime-workload.mjs';
+import {
+  archiveEvidenceOutput,
+  publishPreparedReport,
+  resolveEvidenceOutput,
+} from './benchmark-output.mjs';
 
 const repo = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const args = process.argv.slice(2);
@@ -65,6 +70,7 @@ if (gitManifest.id !== 'obsidian-git' || !/^2\.43\.\d+$/.test(gitManifest.versio
 
 await mkdir(vault, { recursive: true });
 const canonical = await realpath(vault);
+resultFile = await resolveEvidenceOutput(canonical, resultFile);
 const probeDirectory = join(vault, '.obsidian', 'plugins', 'workspaces-runtime-probe');
 const marker = join(probeDirectory, 'data.json');
 let existing;
@@ -87,6 +93,14 @@ if (isFixture) {
   throw new Error(
     'Refusing to replace a directory that is not this test fixture. A new vault may contain only .obsidian.',
   );
+}
+try {
+  const previous = JSON.parse(await readFile(resultFile, 'utf8'));
+  if (previous.status === 'running')
+    throw new Error('The previous native validation is running; close it before preparing.');
+  await archiveEvidenceOutput(resultFile);
+} catch (error) {
+  if (error.code !== 'ENOENT') throw error;
 }
 
 const base =
@@ -246,23 +260,15 @@ await writeFile(
 // Prevent a stale fixture layout from reopening notes before alpha is indexed.
 for (const file of ['workspace.json', 'workspace-mobile.json'])
   await rm(join(vault, '.obsidian', file), { force: true });
-await mkdir(dirname(resultFile), { recursive: true });
-await writeFile(
-  resultFile,
-  JSON.stringify(
-    {
-      status: 'prepared',
-      vault: canonical,
-      preparedAt: new Date().toISOString(),
-      gitVersion: gitManifest.version,
-      stateDirectory,
-      workload,
-      note: 'Open this vault in Obsidian and trust its three fixture plugins to run validation.',
-    },
-    null,
-    2,
-  ),
-);
+await publishPreparedReport(resultFile, {
+  status: 'prepared',
+  vault: canonical,
+  preparedAt: new Date().toISOString(),
+  gitVersion: gitManifest.version,
+  stateDirectory,
+  workload,
+  note: 'Open this vault in Obsidian and trust its three fixture plugins to run validation.',
+});
 console.log(
   JSON.stringify(
     {

@@ -15,7 +15,7 @@ Correctness did not establish a speed improvement. Normal-mode comparisons used 
 | Full native restore control | 20 | 61.85 ms | 70.54 ms | 355.07 ms | 473.85 ms | 0 |
 | Incremental restore, clean retest | 20 | 85.75 ms | 83.95 ms | 478.64 ms | 581.50 ms | 4 |
 
-The earlier incremental screening attempt also had slower restoration but a lower total because its Git intervals were faster. That attempt overlapped a short control-build preparation and remains labeled exploratory. Neither its total nor component medians are a substitute for matched final acceptance runs. Every attempt is retained with the validation evidence.
+The earlier incremental screening attempt also had slower restoration but a lower total because its Git intervals were faster. That attempt overlapped a short control-build preparation and remains labeled exploratory. These screening reports also predate the append-only recorder: the old observer repeatedly rewrote its growing result. Their totals and component medians are not final acceptance evidence or a precise estimate of the product's performance difference. Every attempt is retained with the validation evidence.
 
 ## Decision
 

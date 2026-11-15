@@ -1,5 +1,16 @@
 /* Synthetic data for gate unit tests only. Never native evidence. */
 const { SCHEMA, fileLeaves } = require('./completion-endpoint.cjs');
+const { SCHEMA: RECORDER_SCHEMA, MODE: RECORDER_MODE } = require('./sample-recorder.cjs');
+const { createHash } = require('node:crypto');
+const { SETTINGS_SCHEMA, FOCUS_SCHEMA } = require('./measurement-environment.cjs');
+const syntheticMemory = () => ({
+  performanceMs: 1,
+  rss: 2,
+  heapTotal: 2,
+  heapUsed: 1,
+  external: 0,
+  arrayBuffers: 0,
+});
 const hashes = {
   baseline: 'a'.repeat(64),
   candidate: 'b'.repeat(64),
@@ -154,6 +165,33 @@ function report(role, profile, index) {
   for (let n = 0; n < 20; n++)
     samples.push(sample('alpha', 'unbound', 'measured', duration, `unbound-${n % 2}`));
   samples.push(sample('alpha', 'cleanup', 'excluded', duration));
+  for (const [index, sample] of samples.entries()) {
+    sample.index = index;
+    sample.memory = {
+      beforeTiming: syntheticMemory(),
+      afterVerificationBeforePersistence: syntheticMemory(),
+    };
+    sample.nativeSettingsObservation = {
+      schema: SETTINGS_SCHEMA,
+      apiVersion: '1.15.1',
+      supported: true,
+      isOpen: false,
+      inPopoutWindow: false,
+      popoutReferencePresent: false,
+      popoutWindowPresent: false,
+      livePopoutWindow: false,
+      modalConnected: false,
+      modalInMainDocument: true,
+    };
+    sample.nativeWindowFocus = { schema: FOCUS_SCHEMA, supported: true, focused: true };
+    sample.recorderObservation = {
+      index,
+      memoryAfterAppend: syntheticMemory(),
+      excludedFromSwitchTiming: true,
+    };
+  }
+  const sampleHash = createHash('sha256');
+  for (const sample of samples) sampleHash.update(`${JSON.stringify(sample)}\n`);
   return {
     benchmarkSchema: 'obsidian-workspaces-switch-benchmark-v2',
     endpointSchema: SCHEMA,
@@ -173,7 +211,10 @@ function report(role, profile, index) {
       runtime: { node: 'synthetic' },
       viewport: { width: 1000, height: 800 },
       autoSave: true,
-      nativeSession: { id: `${profile}-${index}`, processId: index + 1 },
+      nativeSession: {
+        id: `${profile}-${index}`,
+        processId: index + (profile === 'small' ? 1 : 11),
+      },
       productReload: reload(hashes[role]),
       sourceWorktreeStatus: '',
       productSourceCommit: (role === 'baseline' ? '1' : '2').repeat(40),
@@ -198,6 +239,22 @@ function report(role, profile, index) {
       baselineSamples: 20,
     },
     samples,
+    recorder: {
+      schema: RECORDER_SCHEMA,
+      mode: RECORDER_MODE,
+      runId: `${profile}-${index}-${role}`,
+      complete: true,
+      startedSamples: samples.length,
+      completedSamples: samples.length,
+      failedSamples: 0,
+      rawSampleSerializations: samples.length,
+      journalSHA256: hashes.evidence,
+      samplesSHA256: sampleHash.digest('hex'),
+      retainedDetailedSamplesBetweenSwitches: 0,
+      finalAssembly: 'streamed-after-timing',
+      initialMemory: syntheticMemory(),
+      finalMemory: syntheticMemory(),
+    },
     restoredAlpha: true,
     final: { branch: 'alpha', activeId: 'runtime-alpha', journal: null },
     finalGitStatus: '',
@@ -255,7 +312,7 @@ function closure() {
             details: {
               platform: 'darwin',
               architecture: 'arm64',
-              nativeSession: { id: `${profile}-2`, processId: 3 },
+              nativeSession: { id: `${profile}-2`, processId: profile === 'small' ? 3 : 13 },
               productReload: reload(hashes.candidate),
               workload: { profile },
               bundleSHA256: {

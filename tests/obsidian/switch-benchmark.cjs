@@ -8,6 +8,11 @@ const { performance } = require('node:perf_hooks');
 const QuickSwitcherProbe = require('./quick-switcher-probe.cjs');
 const nativeSession = require('./native-session.cjs');
 const reloadProduct = require('./reload-product.cjs');
+const { SampleRecorder, memoryObservation } = require('./sample-recorder.cjs');
+const {
+  captureMeasurementEnvironment,
+  assertMeasurementEnvironment,
+} = require('./measurement-environment.cjs');
 const {
   SCHEMA: ENDPOINT_SCHEMA,
   captureCompletionEndpoint,
@@ -276,9 +281,9 @@ module.exports = class SwitchBenchmark extends QuickSwitcherProbe {
     }
     return returned;
   }
-  instrument(target, key, name, describe = () => ({}), observed) {
+  instrument(target, key, name, describe = () => ({}), observed, options) {
     const probe = this;
-    this.replace(
+    return this.replace(
       target,
       key,
       (original) =>
@@ -308,6 +313,7 @@ module.exports = class SwitchBenchmark extends QuickSwitcherProbe {
             throw error;
           }
         },
+      options,
     );
   }
 
@@ -558,18 +564,35 @@ module.exports = class SwitchBenchmark extends QuickSwitcherProbe {
               'refreshPresentation',
             ]) {
               if (typeof repository[key] === 'function')
-                probe.instrument(repository, key, `repository.${key}`, (values) =>
-                  ['checkout', 'assertCanSwitch', 'prepareSwitch'].includes(key)
-                    ? { branch: values[0] }
-                    : {},
+                sample.repositoryRestorers.push(
+                  probe.instrument(
+                    repository,
+                    key,
+                    `repository.${key}`,
+                    (values) =>
+                      ['checkout', 'assertCanSwitch', 'prepareSwitch'].includes(key)
+                        ? { branch: values[0] }
+                        : {},
+                    undefined,
+                    { register: false },
+                  ),
                 );
             }
             if (probe.config.deepTrace) {
               for (const key of ['raw', 'canonicalRoot', 'assertRuntimeFilesStable'])
                 if (typeof repository[key] === 'function')
-                  probe.instrument(repository, key, `repository.${key}`, (values) => ({
-                    argument: typeof values[0] === 'string' ? values[0] : undefined,
-                  }));
+                  sample.repositoryRestorers.push(
+                    probe.instrument(
+                      repository,
+                      key,
+                      `repository.${key}`,
+                      (values) => ({
+                        argument: typeof values[0] === 'string' ? values[0] : undefined,
+                      }),
+                      undefined,
+                      { register: false },
+                    ),
+                  );
             }
             return Reflect.apply(operation, this, [repository, ...args]);
           };
@@ -1655,7 +1678,7 @@ module.exports = class SwitchBenchmark extends QuickSwitcherProbe {
     assert(!this.switcher.activeModal?.isOpen, 'A native Quick Switcher modal is already open.');
     const source = this.controller.state;
     const sample = {
-      index: this.result.samples.length,
+      index: this.recorder.startedSamples,
       scenario,
       temperature,
       fromId: source.activeId,
@@ -1679,17 +1702,12 @@ module.exports = class SwitchBenchmark extends QuickSwitcherProbe {
       },
       status: 'running',
       startedAt: new Date().toISOString(),
-      documentVisibility: this.app.workspace.containerEl.ownerDocument.visibilityState,
-      documentHasFocus: this.app.workspace.containerEl.ownerDocument.hasFocus(),
-      settingsContainerConnected: !!this.app.setting?.containerEl?.isConnected,
-      nativeSettingsPresent: !!this.app.workspace.containerEl.ownerDocument.querySelector(
-        '.modal.mod-settings, .mod-settings .vertical-tab-container',
-      ),
       spans: [],
       controllerCalls: [],
       repositoryCalls: [],
       modals: [],
     };
+    Object.defineProperty(sample, 'repositoryRestorers', { value: [] });
     if (this.config.deepTrace) {
       sample.deepTrace = { events: [], eventLoopPulses: [], errors: [] };
       const watchedPaths = new Set([
@@ -1702,13 +1720,18 @@ module.exports = class SwitchBenchmark extends QuickSwitcherProbe {
       sample.deepTrace.watchedPaths = [...watchedPaths];
       await this.startCpuProfile(sample);
     }
+    // Journal the attempt before starting any measurement. A process crash
+    // leaves this start without a completion and can never produce a pass.
+    await this.recorder.startSample(sample);
+    Object.assign(sample, captureMeasurementEnvironment(this.app, apiVersion));
+    sample.memory = { beforeTiming: memoryObservation() };
     const clockStart = now();
     Object.defineProperty(sample, 'clockStart', { value: clockStart });
     if (sample.deepTrace) sample.deepTrace.clockStartPerformanceMs = clockStart;
-    this.result.samples.push(sample);
     if (this.config.deepTrace) await this.writeTraceCheckpoint('sample-start', sample, true);
     this.activeSample = sample;
     try {
+      assertMeasurementEnvironment(sample);
       this.startRuntimeTrace(sample);
       sample.commandStartMs = now() - sample.clockStart;
       assert(
@@ -1785,7 +1808,6 @@ module.exports = class SwitchBenchmark extends QuickSwitcherProbe {
       sample.verificationDurationMs = now() - verificationStart;
       sample.status = 'passed';
       this.expectedBranch = expectedBranch;
-      return sample;
     } catch (error) {
       sample.status = 'failed';
       sample.error = errorInfo(error);
@@ -1797,14 +1819,49 @@ module.exports = class SwitchBenchmark extends QuickSwitcherProbe {
       if (this.config.deepTrace) this.diagnostic(() => this.summarizeDeepTrace(sample), sample);
       sample.finishedAt = new Date().toISOString();
       if (this.config.deepTrace) await this.writeTraceCheckpoint('sample-finished', sample, true);
-      await this.writeResult();
+      // Repository adapters are per transition. Release observer closures after
+      // the unchanged controller/provider scope settles, outside its timer.
+      for (const restore of sample.repositoryRestorers.splice(0).reverse())
+        this.diagnostic(restore, sample);
+      sample.memory.afterVerificationBeforePersistence = memoryObservation();
+      this.retainStatistics(sample);
+      await this.recorder.completeSample(sample);
     }
+  }
+
+  retainStatistics(sample) {
+    if (sample.status !== 'passed') return;
+    const spanTotals = {};
+    for (const span of sample.spans)
+      spanTotals[span.name] = (spanTotals[span.name] ?? 0) + (span.durationMs ?? 0);
+    this.sampleStatistics.push({
+      scenario: sample.scenario,
+      temperature: sample.temperature,
+      direction: sample.direction,
+      timingsMs: { ...sample.timingsMs },
+      rawGitCommandCount: sample.rawGitCommandCount,
+      transitionModalOpened: sample.transitionModalOpened,
+      transitionModalAtFrameOpportunity: sample.transitionModalAtFrameOpportunity,
+      spanTotals,
+      repositoryQueueWaitMs: sample.spans
+        .filter((span) => span.name === 'git.queueTask' && span.owner === 'withRepository')
+        .map((span) => span.queueWaitMs),
+    });
+  }
+
+  async writeResult() {
+    // During a run this is a fixed-size progress record, never a growing report.
+    if (this.recorder)
+      await this.recorder.writeProgress(
+        this.result.status === 'failed'
+          ? (this.result.error ?? this.result.cleanupError)
+          : undefined,
+      );
   }
 
   summary() {
     const groups = {};
-    for (const sample of this.result.samples) {
-      if (sample.status !== 'passed') continue;
+    for (const sample of this.sampleStatistics) {
       const key = `${sample.scenario}/${sample.temperature}/${sample.direction}`;
       (groups[key] ??= []).push(sample);
     }
@@ -1825,25 +1882,15 @@ module.exports = class SwitchBenchmark extends QuickSwitcherProbe {
             (sample) => sample.transitionModalAtFrameOpportunity,
           ).length,
           spansMs: Object.fromEntries(
-            [...new Set(samples.flatMap((sample) => sample.spans.map((span) => span.name)))]
+            [...new Set(samples.flatMap((sample) => Object.keys(sample.spanTotals)))]
               .sort()
               .map((name) => [
                 name,
-                statistics(
-                  samples.map((sample) =>
-                    sample.spans
-                      .filter((span) => span.name === name)
-                      .reduce((total, span) => total + (span.durationMs ?? 0), 0),
-                  ),
-                ),
+                statistics(samples.map((sample) => sample.spanTotals[name] ?? 0)),
               ]),
           ),
           repositoryQueueWaitMs: statistics(
-            samples.flatMap((sample) =>
-              sample.spans
-                .filter((span) => span.name === 'git.queueTask' && span.owner === 'withRepository')
-                .map((span) => span.queueWaitMs),
-            ),
+            samples.flatMap((sample) => sample.repositoryQueueWaitMs),
           ),
         },
       ]),
@@ -1876,6 +1923,7 @@ module.exports = class SwitchBenchmark extends QuickSwitcherProbe {
   async run() {
     if (this.running) return;
     this.running = true;
+    this.sampleStatistics = [];
     this.result = {
       status: 'running',
       benchmarkSchema: 'obsidian-workspaces-switch-benchmark-v2',
@@ -1888,7 +1936,6 @@ module.exports = class SwitchBenchmark extends QuickSwitcherProbe {
       diagnosticOnly: !!this.config.diagnosticOnly,
       startedAt: new Date().toISOString(),
       vault: this.config.vaultPath,
-      samples: [],
       methodology: {
         clock:
           'node:perf_hooks performance.now(), monotonic milliseconds; unrounded individual samples',
@@ -1913,6 +1960,8 @@ module.exports = class SwitchBenchmark extends QuickSwitcherProbe {
           'state, full layout, active view, all editor buffers/deferred flags, native index, indicators and input-listener release captured before any await; snapshot overhead excluded from controller latency and recorded separately; next-frame interval includes that observation overhead',
         instrumentation:
           'observation only, Reflect.apply preserves receivers and unchanged original return values/promises; original input-release callbacks unchanged',
+        recorder:
+          'exclusive append-only per-run sample journal outside the vault; immutable raw sample serialized once after verification; only numeric summaries retained between switches; compact progress replacement and process.memoryUsage outside switch timers; original-schema final report streamed after all sampling',
         percentiles: 'median midpoint for even n; nearest-rank p95 and p99',
         baselines:
           'temporary independent duplicate Alpha layouts; same-branch remains bound, unbound pair has bindings explicitly removed through the controller; all temporary records removed',
@@ -1943,6 +1992,18 @@ module.exports = class SwitchBenchmark extends QuickSwitcherProbe {
       );
       const prior = JSON.parse(await fs.readFile(marker.resultFile, 'utf8'));
       assert(prior.status === 'passed', 'Original native fixture validation must have passed.');
+      this.recorder = await SampleRecorder.create({
+        resultFile: this.config.resultFile,
+        vaultPath: actualVault,
+        runId: this.config.runId,
+        phase: this.config.phase,
+        identity: {
+          benchmarkSchema: this.result.benchmarkSchema,
+          productSourceCommit: this.config.productSourceCommit,
+          productBundleSHA256: this.config.expectedProductSHA256,
+          probeSHA256: this.config.probeSHA256,
+        },
+      });
       await this.writeResult();
       this.controller = await this.waitFor(
         'Workspaces controller',
@@ -2114,7 +2175,7 @@ module.exports = class SwitchBenchmark extends QuickSwitcherProbe {
       };
       this.installInstrumentation();
       await this.installDeepTrace();
-      if (this.config.deepTrace) await this.writeResult();
+      await this.recorder.checkpoint(this.result);
       await this.sample('runtime-beta', 'beta', 'branch', 'cold');
       for (let index = 0; index < this.config.warmups; index++) {
         const branch = this.expectedBranch === 'alpha' ? 'beta' : 'alpha';
@@ -2155,11 +2216,29 @@ module.exports = class SwitchBenchmark extends QuickSwitcherProbe {
       }
       for (const restore of this.restorers.splice(0).reverse()) this.diagnostic(restore);
       this.result.summary = this.summary();
+      this.sampleStatistics = [];
       this.result.finishedAt = new Date().toISOString();
       try {
-        await this.writeResult();
-        await this.saveData({ ...this.config, completedAt: this.result.finishedAt });
+        assert(this.recorder, 'Recorder did not initialize; no final evidence can be published.');
+        this.result.recorder = await this.recorder.finalize(this.result);
+        // Complete evidence is already published. Failure to mark this test
+        // plugin completed must not mislabel its verified native observations.
+        await this.saveData({ ...this.config, completedAt: this.result.finishedAt }).catch(
+          (error) =>
+            console.error(
+              'Benchmark evidence saved, but its completed marker could not be saved',
+              error,
+            ),
+        );
       } catch (error) {
+        this.result.status = 'failed';
+        this.result.recorderError = errorInfo(error);
+        if (this.recorder)
+          await this.recorder
+            .closeIncomplete(error)
+            .catch((cause) =>
+              console.error('Could not preserve incomplete benchmark progress', cause),
+            );
         console.error('Could not save native switch benchmark results', error);
       }
       new Notice(
