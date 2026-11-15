@@ -1,0 +1,265 @@
+import assert from 'node:assert/strict';
+import { createRequire } from 'node:module';
+import { mkdtemp, readFile, symlink, writeFile, rm } from 'node:fs/promises';
+import { execFileSync } from 'node:child_process';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { before, test } from 'node:test';
+
+const require = createRequire(import.meta.url);
+const { closure } = require('../obsidian/benchmark-test-fixtures.cjs');
+let evaluateClosure: (...args: any[]) => any;
+let statistics: (values: number[]) => any;
+before(async () => {
+  ({ evaluateClosure, statistics } = await import(
+    new URL('../../scripts/check-switch-performance.mjs', import.meta.url).href
+  ));
+});
+
+test('complete paired synthetic Mac evidence satisfies the local evaluator', () => {
+  const { manifest, evidence } = closure();
+  const result = evaluateClosure(manifest, evidence);
+  assert.equal(result.closureAllowed, true, JSON.stringify(result.failures));
+  assert.equal(result.sessions.length, 6);
+  assert.equal(result.pooled.representative.candidate.branch.n, 300);
+});
+
+test('percentiles use nearest rank without rounding away an exceeded budget', () => {
+  const stats = statistics([...Array(98).fill(10), 300.00001, 400]);
+  assert.equal(stats.p99, 300.00001);
+  assert.throws(() => statistics([1, NaN]), /invalid timing/);
+});
+
+for (const [name, mutate, message] of [
+  [
+    'Linux report',
+    (m: any, e: any) => {
+      e.get(m.sessions[0].candidate.path).report.environment.platform = 'linux';
+    },
+    /Darwin/,
+  ],
+  [
+    'legacy timing schema',
+    (m: any, e: any) => {
+      delete e.get(m.sessions[0].candidate.path).report.benchmarkSchema;
+    },
+    /completion-aware/,
+  ],
+  [
+    'wrong installed bundle',
+    (m: any, e: any) => {
+      e.get(m.sessions[0].candidate.path).report.environment.plugins[
+        'obsidian-workspaces'
+      ].bundleSHA256 = '0'.repeat(64);
+    },
+    /exact build/,
+  ],
+  [
+    'wrong evidence hash',
+    (m: any) => {
+      m.sessions[0].candidate.sha256 = '0'.repeat(64);
+    },
+    /evidence bytes/,
+  ],
+  [
+    'diagnostic run',
+    (m: any, e: any) => {
+      e.get(m.sessions[0].candidate.path).report.deepTraceEnabled = true;
+    },
+    /normal runs/,
+  ],
+  [
+    'omitted failed sample',
+    (m: any, e: any) => {
+      e.get(m.sessions[0].candidate.path).report.samples[50].status = 'failed';
+    },
+    /transition failed/,
+  ],
+  [
+    'missing controls',
+    (m: any, e: any) => {
+      const r = e.get(m.sessions[0].candidate.path).report;
+      r.samples = r.samples.filter((s: any) => s.scenario !== 'unbound');
+    },
+    /controls/,
+  ],
+  [
+    'late editor hydration',
+    (m: any, e: any) => {
+      e.get(m.sessions[0].candidate.path).report.samples[10].completionEndpoint.views[3].deferred =
+        true;
+    },
+    /still deferred/,
+  ],
+  [
+    'unobserved input release',
+    (m: any, e: any) => {
+      e.get(m.sessions[0].candidate.path).report.samples[10].completionEndpoint.input.blocks = [];
+    },
+    /guard/,
+  ],
+  [
+    'modal during warmup',
+    (m: any, e: any) => {
+      const s = e.get(m.sessions[0].candidate.path).report.samples[1];
+      s.modals.push({ kind: 'transition-progress' });
+      s.transitionModalOpened = true;
+    },
+    /displayed transition progress/,
+  ],
+  [
+    'reused app session',
+    (m: any, e: any) => {
+      for (const role of ['baseline', 'candidate'])
+        e.get(m.sessions[1][role].path).report.environment.nativeSession.id = 'small-0';
+    },
+    /reused/,
+  ],
+  [
+    'missing representative scope',
+    (m: any) => {
+      delete m.scope.representative;
+    },
+    /representative workload scope/,
+  ],
+  [
+    'undersized representative editor workload',
+    (m: any) => {
+      m.scope.representative.minimumMarkdownLeaves = 12;
+    },
+    /smaller/,
+  ],
+  [
+    'wrong platform safety evidence',
+    (m: any, e: any) => {
+      e.get(m.safetyReports[0].path).report.checks[0].details.platform = 'linux';
+    },
+    /safety report platform/,
+  ],
+  [
+    'no safety evidence',
+    (m: any) => {
+      m.safetyReports = [];
+    },
+    /safety report/,
+  ],
+] as const) {
+  test(`closure blocks ${name}`, () => {
+    const { manifest, evidence } = closure();
+    mutate(manifest, evidence);
+    const result = evaluateClosure(manifest, evidence);
+    assert.equal(result.closureAllowed, false);
+    assert.match(result.failures.join('\n'), message);
+  });
+}
+
+test('closure independently recomputes durations and rejects a forged fast summary', () => {
+  const { manifest, evidence } = closure();
+  const report = evidence.get(manifest.sessions[0].candidate.path).report;
+  report.samples[5].timingsMs.selectionToControllerComplete = 1;
+  report.summary = { median: 1, p95: 1 };
+  const result = evaluateClosure(manifest, evidence);
+  assert.equal(result.closureAllowed, false);
+  assert.match(result.failures.join('\n'), /raw endpoints/);
+});
+
+test('closure rejects truthful slow candidate despite passing endpoint correctness', () => {
+  const { manifest, evidence } = closure();
+  const report = evidence.get(manifest.sessions[0].candidate.path).report;
+  for (const s of report.samples) {
+    s.controllerCalls[0].endMs = 150;
+    s.controllerCalls[0].durationMs = 140;
+    s.completionEndpoint.controllerCompleteMs = 150;
+    s.completionEndpoint.captureStartedMs = 150;
+    s.completionEndpoint.captureFinishedMs = 150.5;
+    s.nextFrameMs = 160;
+    s.timingsMs.selectionToControllerComplete = 140;
+    s.timingsMs.selectionToNextFrame = 150;
+  }
+  const result = evaluateClosure(manifest, evidence);
+  assert.equal(result.closureAllowed, false);
+  assert.match(result.failures.join('\n'), /median 140/);
+});
+
+for (const [name, mutate, reason] of [
+  [
+    'late snapshot after next frame',
+    (s: any) => {
+      s.completionEndpoint.captureStartedMs = s.nextFrameMs + 1000;
+      s.completionEndpoint.captureFinishedMs = s.nextFrameMs + 1000.5;
+    },
+    /after the next frame/,
+  ],
+  [
+    'nonexistent active layout leaf',
+    (s: any) => {
+      s.completionEndpoint.layout.active = 'missing';
+    },
+    /active leaf/,
+  ],
+  [
+    'different actual controller target',
+    (s: any) => {
+      s.controllerCalls[0].workspaceId = 'another-workspace';
+    },
+    /controller request/,
+  ],
+] as const) {
+  test(`closure rejects ${name}`, () => {
+    const { manifest, evidence } = closure();
+    mutate(evidence.get(manifest.sessions[0].candidate.path).report.samples[10]);
+    const result = evaluateClosure(manifest, evidence);
+    assert.equal(result.closureAllowed, false);
+    assert.match(result.failures.join('\n'), reason);
+  });
+}
+
+test('closure requires fresh loaded-product provenance rather than a disk hash alone', () => {
+  const { manifest, evidence } = closure();
+  delete evidence.get(manifest.sessions[0].candidate.path).report.environment.productReload;
+  const result = evaluateClosure(manifest, evidence);
+  assert.equal(result.closureAllowed, false);
+  assert.match(result.failures.join('\n'), /reload provenance/);
+});
+
+test('closure rejects invented safety scenarios and wrong safety-probe bytes', () => {
+  for (const modification of ['name', 'hash']) {
+    const { manifest, evidence } = closure();
+    const report = evidence.get(manifest.safetyReports[0].path).report;
+    if (modification === 'name') report.checks[3].name = 'synthetic check 3';
+    else report.checks[0].details.bundleSHA256['workspaces-quick-switcher-probe'] = '0'.repeat(64);
+    assert.equal(evaluateClosure(manifest, evidence).closureAllowed, false);
+  }
+});
+
+test('CLI cannot overwrite an input through a symlink output alias', async () => {
+  const directory = await mkdtemp(join(tmpdir(), 'workspaces-closure-'));
+  try {
+    const manifest = join(directory, 'manifest.json');
+    const output = join(directory, 'alias.json');
+    const original = '{"schema":"invalid-test-manifest"}\n';
+    await writeFile(manifest, original);
+    await symlink(manifest, output);
+    assert.throws(
+      () =>
+        execFileSync(
+          process.execPath,
+          [
+            fileURLToPath(new URL('../../scripts/check-switch-performance.mjs', import.meta.url)),
+            manifest,
+            '--output',
+            output,
+          ],
+          { stdio: 'pipe' },
+        ),
+      (error: any) =>
+        JSON.parse(error.stdout.toString()).failures.some((reason: string) =>
+          reason.includes('EEXIST'),
+        ),
+    );
+    assert.equal(await readFile(manifest, 'utf8'), original);
+  } finally {
+    await rm(directory, { recursive: true, force: true });
+  }
+});

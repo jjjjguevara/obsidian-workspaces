@@ -120,3 +120,4 @@ Imports convert source metadata into the product schema. Multiple Workspace++ gr
 2. [Obsidian integration and native interface](adr/0002-obsidian-integration-and-native-interface.md).
 3. [Git binding and backend](adr/0003-git-binding-and-backend.md).
 4. [Workspace transitions and recovery](adr/0004-workspace-transitions-and-recovery.md).
+5. [Performance measurement and closure](adr/0005-performance-measurement-and-closure.md).

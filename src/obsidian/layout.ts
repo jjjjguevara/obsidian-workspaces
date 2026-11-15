@@ -1,9 +1,19 @@
-import { App, FileView, Modal, TextFileView, TFile, type WorkspaceLeaf } from 'obsidian';
+import {
+  apiVersion,
+  App,
+  FileView,
+  Modal,
+  Platform,
+  TextFileView,
+  TFile,
+  type WorkspaceLeaf,
+} from 'obsidian';
 import type { WorkspaceHost } from '../workspaces/controller';
 import type { Layout } from '../workspaces/model';
 import { cloneJson } from './clone-json';
 import { assertRestoredFiles, fileLeaves, waitForVaultFiles } from './layout-files';
 import { reconcileVaultFiles } from './vault-reconcile';
+import { restoreInPlace } from './incremental-layout';
 
 // These core FileViews have no editable document buffer to flush. In particular,
 // backlinks, outgoing links, and outline follow the active file but are read-only.
@@ -45,6 +55,7 @@ class TransitionModal extends Modal {
 }
 
 export class ObsidianWorkspaceHost implements WorkspaceHost {
+  private quiesced = false;
   constructor(
     private readonly app: App,
     private readonly askDiscard: (name: string) => Promise<boolean>,
@@ -60,6 +71,7 @@ export class ObsidianWorkspaceHost implements WorkspaceHost {
     return cloneJson(this.app.workspace.getLayout()) as Layout;
   }
   async flush(): Promise<void> {
+    this.quiesced = false;
     for (const leaf of this.leaves()) {
       await leaf.loadIfDeferred();
       // requestSave() is a debounce, not a durability barrier. Use the awaited API.
@@ -90,6 +102,7 @@ export class ObsidianWorkspaceHost implements WorkspaceHost {
     }
   }
   async quiesce(): Promise<void> {
+    this.quiesced = false;
     await this.assertCanQuiesce();
     const textCloses = new Map<string, Promise<void>>();
     const closed = await Promise.allSettled(
@@ -118,6 +131,7 @@ export class ObsidianWorkspaceHost implements WorkspaceHost {
     for (const result of closed) {
       if (result.status === 'rejected') throw result.reason;
     }
+    this.quiesced = true;
   }
   async waitForFiles(
     target: Layout,
@@ -171,7 +185,14 @@ export class ObsidianWorkspaceHost implements WorkspaceHost {
     });
   }
   async restore(layout: Layout): Promise<void> {
-    await this.app.workspace.changeLayout(cloneJson(layout));
+    const quiesced = this.quiesced;
+    this.quiesced = false;
+    const restored =
+      quiesced &&
+      apiVersion === '1.15.1' &&
+      Platform?.isDesktopApp === true &&
+      (await restoreInPlace(this.app.workspace, layout));
+    if (!restored) await this.app.workspace.changeLayout(cloneJson(layout));
     // Native layout restoration already hydrates visible leaves concurrently.
     // Finish the remaining leaves together, retaining ownership until every
     // started hydration settles even when another leaf has already failed.
@@ -224,6 +245,7 @@ export class ObsidianWorkspaceHost implements WorkspaceHost {
     return () => {
       if (released) return;
       released = true;
+      this.quiesced = false;
       clearTimeout(timer);
       this.app.workspace.offref(openedWindow);
       for (const document of documents)

@@ -1,11 +1,19 @@
 /* Test-only native benchmark; bundled by prepare-switch-benchmark.mjs. */
-const { Modal, Notice, TextFileView, WorkspaceLeaf, apiVersion } = require('obsidian');
+const { Modal, Notice, TextFileView, TFile, WorkspaceLeaf, apiVersion } = require('obsidian');
 const fs = require('node:fs/promises');
 const path = require('node:path');
 const os = require('node:os');
 const { createHash } = require('node:crypto');
 const { performance } = require('node:perf_hooks');
 const QuickSwitcherProbe = require('./quick-switcher-probe.cjs');
+const nativeSession = require('./native-session.cjs');
+const reloadProduct = require('./reload-product.cjs');
+const {
+  SCHEMA: ENDPOINT_SCHEMA,
+  captureCompletionEndpoint,
+  assertCompletionEndpoint,
+  fileLeaves,
+} = require('./completion-endpoint.cjs');
 
 const clone = (value) => JSON.parse(JSON.stringify(value));
 const assert = (condition, message) => {
@@ -26,6 +34,7 @@ function statistics(values) {
     min: round(sorted[0]),
     median: round(sorted.length % 2 ? sorted[middle] : (sorted[middle - 1] + sorted[middle]) / 2),
     p95: round(sorted[Math.ceil(sorted.length * 0.95) - 1]),
+    p99: round(sorted[Math.ceil(sorted.length * 0.99) - 1]),
     max: round(sorted[sorted.length - 1]),
   };
 }
@@ -101,6 +110,23 @@ module.exports = class SwitchBenchmark extends QuickSwitcherProbe {
       snapshot.status.git === branch,
       `Obsidian Git's visible branch label did not settle to ${branch}.`,
     );
+    for (const [name, content] of Object.entries(this.expectedNotes?.[branch] ?? {})) {
+      assert(
+        this.app.vault.getAbstractFileByPath(name) instanceof TFile,
+        `${name} is not indexed.`,
+      );
+      assert(
+        (await fs.readFile(path.join(this.config.vaultPath, name), 'utf8')) === content,
+        `${name} disk content differs from the pinned fixture commit.`,
+      );
+      const editors = snapshot.views.filter(
+        (view) => view.state.type === 'markdown' && view.state.state?.file === name,
+      );
+      assert(
+        editors.length > 0 && editors.every((view) => !view.deferred && view.content === content),
+        `${name} native editor differs from the pinned fixture commit.`,
+      );
+    }
     return snapshot;
   }
   async onload() {
@@ -285,6 +311,60 @@ module.exports = class SwitchBenchmark extends QuickSwitcherProbe {
     );
   }
 
+  completionEndpoint(sample) {
+    return captureCompletionEndpoint({
+      now: () => now() - sample.clockStart,
+      read: () => {
+        const state = this.controller.state;
+        const views = this.leaves().map((leaf) => ({
+          id: leaf.id ?? null,
+          state: clone(leaf.getViewState()),
+          deferred: !!leaf.isDeferred,
+          content: leaf.view instanceof TextFileView ? leaf.view.getViewData() : null,
+        }));
+        const blocks = sample.spans
+          .filter((span) => span.name === 'host.blockInteraction')
+          .map((span) => ({
+            startMs: span.startMs,
+            endMs: span.endMs ?? null,
+            status: span.status,
+            listenerCount: span.listenerCount ?? null,
+            observedDocuments: span.observedDocuments ?? [],
+          }));
+        const watched = new Set([
+          ...referencedPaths(sample.sourceLayout),
+          ...referencedPaths(sample.endpointExpected.layout),
+          ...Object.keys(this.expectedNotes.alpha),
+          ...Object.keys(this.expectedNotes.beta),
+        ]);
+        return {
+          controllerCompleteMs: sample.controllerCompleteMs,
+          activeId: state.activeId,
+          revision: state.revision,
+          journal: state.journal,
+          busy: this.controller.busy,
+          layout: this.app.workspace.getLayout(),
+          activeFile: this.app.workspace.getActiveFile()?.path ?? null,
+          activeView: views.find((view) => view.id === this.app.workspace.activeLeaf?.id) ?? null,
+          views,
+          status: this.statusText(),
+          indexed: Object.fromEntries(
+            [...watched].map((name) => [
+              name,
+              this.app.vault.getAbstractFileByPath(name) instanceof TFile,
+            ]),
+          ),
+          input: {
+            released:
+              blocks.length === 1 &&
+              blocks.every((block) => block.status === 'fulfilled' && block.listenerCount === 0),
+            blocks,
+          },
+        };
+      },
+    });
+  }
+
   installInstrumentation() {
     const probe = this;
     for (const key of ['activate', 'saveAndActivate']) {
@@ -305,6 +385,14 @@ module.exports = class SwitchBenchmark extends QuickSwitcherProbe {
                 (error) => {
                   sample.controllerCompleteMs = span.endMs;
                   if (error) sample.controllerError = errorInfo(error);
+                  // This observer was attached before the original promise was
+                  // returned to Q++. Capture without awaiting a frame, Git read,
+                  // file read or verifier: later hydration cannot repair it.
+                  try {
+                    sample.completionEndpoint = probe.completionEndpoint(sample);
+                  } catch (cause) {
+                    sample.completionCaptureError = errorInfo(cause);
+                  }
                 },
               );
             } catch (error) {
@@ -359,10 +447,11 @@ module.exports = class SwitchBenchmark extends QuickSwitcherProbe {
         },
     );
     // Observe removal of the original input guard; never replace its release callback.
-    const documents = new Set(this.leaves().map((leaf) => leaf.view.containerEl.ownerDocument));
-    documents.add(this.app.workspace.containerEl.ownerDocument);
+    const documents = new Set();
     let documentIndex = 0;
-    for (const document of documents) {
+    const observeDocument = (document) => {
+      if (documents.has(document)) return;
+      documents.add(document);
       const documentId = documentIndex++;
       this.replace(
         document,
@@ -371,9 +460,20 @@ module.exports = class SwitchBenchmark extends QuickSwitcherProbe {
           function (...args) {
             const returned = Reflect.apply(original, this, args);
             const installing = probe.installingBlock;
+            const existing = typeof args[1] === 'function' && probe.inputBlocks.get(args[1]);
             if (
-              installing &&
-              ['keydown', 'beforeinput', 'pointerdown', 'drop', 'paste'].includes(args[0]) &&
+              (installing || existing) &&
+              [
+                'keydown',
+                'beforeinput',
+                'pointerdown',
+                'click',
+                'dblclick',
+                'auxclick',
+                'contextmenu',
+                'drop',
+                'paste',
+              ].includes(args[0]) &&
               typeof args[1] === 'function'
             ) {
               let block = probe.inputBlocks.get(args[1]);
@@ -386,6 +486,10 @@ module.exports = class SwitchBenchmark extends QuickSwitcherProbe {
                 probe.inputBlocks.set(args[1], block);
               }
               block.listeners.add(`${documentId}:${args[0]}`);
+              block.span.listenerCount = block.listeners.size;
+              block.span.observedDocuments = [
+                ...new Set([...block.listeners].map((value) => value.split(':')[0])),
+              ];
             }
             return returned;
           },
@@ -399,12 +503,19 @@ module.exports = class SwitchBenchmark extends QuickSwitcherProbe {
             const block = typeof args[1] === 'function' && probe.inputBlocks.get(args[1]);
             if (block) {
               block.listeners.delete(`${documentId}:${args[0]}`);
+              block.span.listenerCount = block.listeners.size;
               if (!block.listeners.size) probe.finishSpan(block.sample, block.span);
             }
             return returned;
           },
       );
-    }
+    };
+    for (const leaf of this.leaves()) observeDocument(leaf.view.containerEl.ownerDocument);
+    observeDocument(this.app.workspace.containerEl.ownerDocument);
+    const windowObservation = this.app.workspace.on('window-open', (_workspaceWindow, window) =>
+      observeDocument(window.document),
+    );
+    this.restorers.push(() => this.app.workspace.offref(windowObservation));
 
     this.replace(
       this.controller.git,
@@ -442,12 +553,15 @@ module.exports = class SwitchBenchmark extends QuickSwitcherProbe {
               'inspect',
               'inspectIdentity',
               'assertCanSwitch',
+              'prepareSwitch',
               'checkout',
               'refreshPresentation',
             ]) {
               if (typeof repository[key] === 'function')
                 probe.instrument(repository, key, `repository.${key}`, (values) =>
-                  key === 'checkout' || key === 'assertCanSwitch' ? { branch: values[0] } : {},
+                  ['checkout', 'assertCanSwitch', 'prepareSwitch'].includes(key)
+                    ? { branch: values[0] }
+                    : {},
                 );
             }
             if (probe.config.deepTrace) {
@@ -998,6 +1112,13 @@ module.exports = class SwitchBenchmark extends QuickSwitcherProbe {
         method,
         `workspace.${method}`,
         (args) => ({ nodeType: args[0]?.type, nodeId: args[0]?.id }),
+        method === 'getLayout'
+          ? (span, value) => {
+              // Diagnostic-only evidence for an incremental restore that later
+              // falls back; the final endpoint would hide the intermediate cause.
+              span.layoutSnapshot = clone(value);
+            }
+          : undefined,
       );
     const leafDetails = (args, leaf) => ({
       leafId: leaf.id ?? null,
@@ -1544,9 +1665,22 @@ module.exports = class SwitchBenchmark extends QuickSwitcherProbe {
           ? `${this.expectedBranch}->${expectedBranch}`
           : `${source.workspaces[source.activeId]?.name ?? source.activeId}->${source.workspaces[targetId]?.name ?? targetId}`,
       expectedBranch,
+      sourceLayout: clone(this.app.workspace.getLayout()),
+      endpointExpected: {
+        id: targetId,
+        name: source.workspaces[targetId].name,
+        branch: expectedBranch,
+        layout: clone(source.workspaces[targetId].contexts.desktop.layout),
+        activeFile: `${expectedBranch}-exclusive.md`,
+        notes: clone(this.expectedNotes[expectedBranch]),
+        absentPaths: Object.keys(
+          this.expectedNotes[expectedBranch === 'alpha' ? 'beta' : 'alpha'],
+        ).filter((name) => !this.expectedTrackedPaths[expectedBranch].has(name)),
+      },
       status: 'running',
       startedAt: new Date().toISOString(),
       documentVisibility: this.app.workspace.containerEl.ownerDocument.visibilityState,
+      documentHasFocus: this.app.workspace.containerEl.ownerDocument.hasFocus(),
       settingsContainerConnected: !!this.app.setting?.containerEl?.isConnected,
       nativeSettingsPresent: !!this.app.workspace.containerEl.ownerDocument.querySelector(
         '.modal.mod-settings, .mod-settings .vertical-tab-container',
@@ -1620,6 +1754,9 @@ module.exports = class SwitchBenchmark extends QuickSwitcherProbe {
         commandToControllerComplete: call.endMs - sample.commandStartMs,
         controllerCompleteToNextFrame: sample.nextFrameMs - call.endMs,
         selectionToNextFrame: sample.nextFrameMs - sample.selectionMs,
+        endpointCapture: sample.completionEndpoint?.captureDurationMs ?? null,
+        selectionToInputRelease:
+          sample.completionEndpoint?.input?.blocks[0]?.endMs - sample.selectionMs,
       };
       sample.transitionModalOpened = sample.modals.some(
         (entry) => entry.kind === 'transition-progress',
@@ -1636,6 +1773,14 @@ module.exports = class SwitchBenchmark extends QuickSwitcherProbe {
       if (this.config.deepTrace) this.diagnostic(() => this.summarizeDeepTrace(sample), sample);
       if (this.config.deepTrace) await this.writeTraceCheckpoint('sample-measured', sample, true);
       const verificationStart = now();
+      assert(
+        !sample.completionCaptureError,
+        `Completion capture failed: ${JSON.stringify(sample.completionCaptureError)}`,
+      );
+      sample.endpointValidation = assertCompletionEndpoint(
+        sample.completionEndpoint,
+        sample.endpointExpected,
+      );
       sample.verification = await this.verify(expectedBranch, targetId);
       sample.verificationDurationMs = now() - verificationStart;
       sample.status = 'passed';
@@ -1733,6 +1878,8 @@ module.exports = class SwitchBenchmark extends QuickSwitcherProbe {
     this.running = true;
     this.result = {
       status: 'running',
+      benchmarkSchema: 'obsidian-workspaces-switch-benchmark-v2',
+      endpointSchema: ENDPOINT_SCHEMA,
       phase: this.config.phase,
       runId: this.config.runId,
       deepTraceEnabled: !!this.config.deepTrace,
@@ -1761,10 +1908,12 @@ module.exports = class SwitchBenchmark extends QuickSwitcherProbe {
         queue:
           'actual provider addTask enqueue to task invocation; withRepository callback wait additionally includes backend setup and repository initialization',
         verification:
-          'existing independent native QuickSwitcherProbe verifier after timing; actual branch, journal, disk, index, active note, all editors, main/sidebar pins, and status; no target repair',
+          'immutable native snapshot synchronously in the first controller-settlement observer, independently validated after timing; later QuickSwitcherProbe checks actual Git, disk and live state without repairing views',
+        endpoint:
+          'state, full layout, active view, all editor buffers/deferred flags, native index, indicators and input-listener release captured before any await; snapshot overhead excluded from controller latency and recorded separately; next-frame interval includes that observation overhead',
         instrumentation:
           'observation only, Reflect.apply preserves receivers and unchanged original return values/promises; original input-release callbacks unchanged',
-        percentiles: 'median midpoint for even n; nearest-rank p95',
+        percentiles: 'median midpoint for even n; nearest-rank p95 and p99',
         baselines:
           'temporary independent duplicate Alpha layouts; same-branch remains bound, unbound pair has bindings explicitly removed through the controller; all temporary records removed',
       },
@@ -1831,6 +1980,25 @@ module.exports = class SwitchBenchmark extends QuickSwitcherProbe {
         'Start with a clean fixture worktree.',
       );
       assert(!this.controller.busy, 'Another controller operation is already active.');
+      const reloaded = await reloadProduct({
+        app: this.app,
+        apiVersion,
+        expectedHash: this.config.expectedProductSHA256,
+        readBundleHash: async () =>
+          createHash('sha256')
+            .update(
+              await fs.readFile(
+                path.join(actualVault, '.obsidian/plugins/obsidian-workspaces/main.js'),
+              ),
+            )
+            .digest('hex'),
+        waitFor: this.waitFor.bind(this),
+      });
+      this.controller = reloaded.plugin.controller;
+      assert(
+        (await this.branch()) === 'alpha' && !(await this.gitRaw(['status', '--porcelain'])).trim(),
+        'Fixture changed during pre-timing product reload.',
+      );
       this.expectedBranch = 'alpha';
       for (const branch of ['alpha', 'beta']) {
         const record = this.controller.state.workspaces[`runtime-${branch}`];
@@ -1839,6 +2007,39 @@ module.exports = class SwitchBenchmark extends QuickSwitcherProbe {
           `Missing bound ${branch} fixture.`,
         );
         this.assertPins(record.contexts.desktop.layout, branch);
+      }
+      // Independent expected editor bytes come from immutable fixture commits
+      // before timing, including any additional representative Markdown panes.
+      // This warms object reads; the first sample remains probe-cold, not OS-cold.
+      this.fixtureCommits = {};
+      this.expectedNotes = clone(this.config.notes);
+      this.expectedTrackedPaths = {};
+      for (const branch of ['alpha', 'beta']) {
+        const commit = (await this.gitRaw(['rev-parse', `refs/heads/${branch}`])).trim();
+        assert(
+          /^(?:[a-f0-9]{40}|[a-f0-9]{64})$/.test(commit),
+          'Fixture branch did not resolve to a full commit.',
+        );
+        this.fixtureCommits[branch] = commit;
+        this.expectedTrackedPaths[branch] = new Set(
+          (await this.gitRaw(['ls-tree', '-r', '--name-only', '-z', commit]))
+            .split('\0')
+            .filter(Boolean),
+        );
+        const names = new Set(
+          fileLeaves(this.controller.state.workspaces[`runtime-${branch}`].contexts.desktop.layout)
+            .filter((leaf) => leaf.type === 'markdown')
+            .map((leaf) => leaf.path),
+        );
+        for (const name of names) {
+          const content = await this.gitRaw(['show', `${commit}:${name}`]);
+          if (Object.hasOwn(this.config.notes[branch], name))
+            assert(
+              content === this.config.notes[branch][name],
+              'Primary fixture contents differ from their committed expectations.',
+            );
+          this.expectedNotes[branch][name] = content;
+        }
       }
       for (const leaf of this.leaves()) await leaf.loadIfDeferred();
       this.result.initialObservation = await this.snapshot();
@@ -1854,9 +2055,12 @@ module.exports = class SwitchBenchmark extends QuickSwitcherProbe {
         cpus: os.cpus().map((cpu) => cpu.model),
         totalMemoryBytes: os.totalmem(),
         runtime: process.versions,
+        nativeSession: nativeSession(),
+        productReload: reloaded.evidence,
         controlStore: this.controller.storageLocation,
         sourceCommit: this.config.preparedFromCommit,
         sourceWorktreeStatus: this.config.sourceWorktreeStatus,
+        productSourceCommit: this.config.productSourceCommit ?? null,
         autoSave: this.controller.state.autoSave,
         viewport: { width: innerWidth, height: innerHeight, devicePixelRatio },
       };
@@ -1877,13 +2081,36 @@ module.exports = class SwitchBenchmark extends QuickSwitcherProbe {
             .digest('hex'),
         };
       }
+      assert(
+        this.result.environment.plugins[this.manifest.id].bundleSHA256 === this.config.probeSHA256,
+        'Installed benchmark differs from its prepared hash.',
+      );
+      assert(
+        this.result.environment.plugins['obsidian-workspaces'].bundleSHA256 ===
+          this.config.expectedProductSHA256,
+        'Install the intended Workspaces build before preparing this benchmark; its bundle changed after prepare.',
+      );
       this.result.fixture = {
-        alphaCommit: (await this.gitRaw(['rev-parse', 'alpha'])).trim(),
-        betaCommit: (await this.gitRaw(['rev-parse', 'beta'])).trim(),
+        alphaCommit: this.fixtureCommits.alpha,
+        betaCommit: this.fixtureCommits.beta,
         catalogSize: this.controller.state.order.length,
         measuredSwitches: this.config.samples,
         warmups: this.config.warmups,
         baselineSamples: this.config.baselineSamples,
+        expectedNotes: clone(this.expectedNotes),
+        workload: marker.workload ?? {
+          profile: 'small',
+          declaration: 'Original fixed Alpha/Beta fixture',
+        },
+        trackedFiles: (await this.gitRaw(['ls-files', '-z'])).split('\0').filter(Boolean).length,
+        changedPaths: (
+          await this.gitRaw(['diff', '--name-only', '--no-renames', '-z', 'alpha', 'beta', '--'])
+        )
+          .split('\0')
+          .filter(Boolean).length,
+        markdownLeaves: fileLeaves(
+          this.controller.state.workspaces['runtime-alpha'].contexts.desktop.layout,
+        ).filter((leaf) => leaf.type === 'markdown').length,
       };
       this.installInstrumentation();
       await this.installDeepTrace();

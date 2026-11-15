@@ -533,6 +533,10 @@ class QueuedRepository implements GitRepository {
   }
 
   async assertCanSwitch(branch: string): Promise<void> {
+    await this.prepareSwitch(branch);
+  }
+
+  async prepareSwitch(branch: string): Promise<GitIdentity> {
     this.assertActive();
     if (
       typeof branch !== 'string' ||
@@ -689,6 +693,10 @@ class QueuedRepository implements GitRepository {
         }
       }
     }
+    // The controller can use this observation at the same post-flush boundary
+    // instead of issuing another identity query immediately before preflight.
+    // checkout() still runs a new preflight after outgoing views unload.
+    return { root: status.root, branch: status.branch };
   }
 
   private async assertRuntimeFilesStable(

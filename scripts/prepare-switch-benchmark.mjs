@@ -11,7 +11,7 @@ const args = process.argv.slice(2);
 const supplied = args.shift();
 const options = {};
 const usage =
-  'Usage: prepare-switch-benchmark.mjs ABS_VAULT --phase baseline|optimized [--result ABS_JSON] [--samples EVEN_AT_LEAST_20 | --diagnostic-samples EVEN_AT_LEAST_2] [--warmups ODD_AT_LEAST_1] [--baseline-samples EVEN_OR_ZERO] [--manual-start] [--deep-trace [--cpu-profile]]';
+  'Usage: prepare-switch-benchmark.mjs ABS_VAULT --phase baseline|optimized [--product-commit FULL_SHA] [--result ABS_JSON] [--samples EVEN_AT_LEAST_20 | --diagnostic-samples EVEN_AT_LEAST_2] [--warmups ODD_AT_LEAST_1] [--baseline-samples EVEN_OR_ZERO] [--manual-start] [--deep-trace [--cpu-profile]]';
 while (args.length) {
   const name = args.shift();
   if (Object.hasOwn(options, name)) throw new Error(`Repeated option: ${name}`);
@@ -27,6 +27,7 @@ while (args.length) {
       '--diagnostic-samples',
       '--warmups',
       '--baseline-samples',
+      '--product-commit',
     ].includes(name) ||
     !args.length ||
     args[0].startsWith('--')
@@ -47,6 +48,11 @@ if (diagnosticOnly && (!deepTrace || options['--samples'] !== undefined))
   );
 if (options['--result'] && !isAbsolute(options['--result']))
   throw new Error('--result requires an absolute path.');
+if (
+  options['--product-commit'] &&
+  !/^(?:[a-f0-9]{40}|[a-f0-9]{64})$/.test(options['--product-commit'])
+)
+  throw new Error('--product-commit requires the full source commit for the installed product.');
 const integer = (option, fallback, minimum, parity) => {
   const value = Number(options[option] ?? fallback);
   if (!Number.isSafeInteger(value) || value < minimum || value > 1000 || value % 2 !== parity)
@@ -105,6 +111,7 @@ try {
   if (error.code !== 'ENOENT') throw error;
 }
 const versions = {};
+let expectedProductSHA256;
 for (const [id, expected] of [
   ['obsidian-git', '2.43.0'],
   ['darlal-switcher-plus', '6.3.0'],
@@ -116,6 +123,10 @@ for (const [id, expected] of [
   if (manifest.id !== id || (expected && manifest.version !== expected))
     throw new Error(`Expected installed ${id}${expected ? ` ${expected}` : ''}.`);
   versions[id] = manifest.version;
+  if (id === 'obsidian-workspaces')
+    expectedProductSHA256 = createHash('sha256')
+      .update(await readFile(join(configDirectory, 'plugins', id, 'main.js')))
+      .digest('hex');
 }
 try {
   const previous = JSON.parse(await readFile(resultFile, 'utf8'));
@@ -182,6 +193,8 @@ await writeFile(
       expectedGitVersion: versions['obsidian-git'],
       expectedSwitcherVersion: versions['darlal-switcher-plus'],
       probeSHA256,
+      expectedProductSHA256,
+      productSourceCommit: options['--product-commit'] ?? null,
       preparedFromCommit: gitFromSource('rev-parse', 'HEAD'),
       sourceWorktreeStatus: gitFromSource('status', '--porcelain'),
     },
@@ -225,7 +238,8 @@ console.log(
       manualStart,
       diagnosticOnly,
       probeSHA256,
-      next: `While the benchmark is disabled, install the intended Workspaces bundle. Enable/reload Workspaces and Quick Switcher++, then enable this benchmark. ${manualStart ? 'Close Settings, then run the benchmark plugin command “Run switch benchmark” from the command palette.' : 'The benchmark starts automatically when the layout is ready.'} Rearming requires disabling the benchmark first. Workspaces assets were not changed. Deep tracing adds diagnostic observation; CPU profiling is optional, requires deep tracing, and depends on native runtime capability.`,
+      expectedProductSHA256,
+      next: `The currently installed Workspaces bundle is pinned by SHA-256. Enable/reload Workspaces and Quick Switcher++, then enable this benchmark. ${manualStart ? 'Close Settings, then run the benchmark plugin command “Run switch benchmark” from the command palette.' : 'The benchmark starts automatically when the layout is ready.'} Rearming requires disabling the benchmark first. Install a different Workspaces bundle BEFORE preparing again. Workspaces assets were not changed. Deep tracing adds diagnostic observation; CPU profiling is optional, requires deep tracing, and depends on native runtime capability.`,
     },
     null,
     2,

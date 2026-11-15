@@ -1,9 +1,10 @@
 #!/usr/bin/env node
 /** Install/rearm the Q++ probe only in a completed, disposable native test fixture. */
 import { copyFile, mkdir, readFile, realpath, writeFile } from 'node:fs/promises';
+import { build } from 'esbuild';
 import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { randomUUID } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 
 const args = process.argv.slice(2);
@@ -75,7 +76,19 @@ for (const file of ['main.js', 'manifest.json', 'styles.css'])
   await copyFile(join(assets, file), join(configDirectory, 'plugins', manifest.id, file));
 const runId = randomUUID();
 await mkdir(plugin, { recursive: true });
-await copyFile(join(repo, 'tests/obsidian/quick-switcher-probe.cjs'), join(plugin, 'main.js'));
+await build({
+  entryPoints: [join(repo, 'tests/obsidian/quick-switcher-probe.cjs')],
+  outfile: join(plugin, 'main.js'),
+  bundle: true,
+  platform: 'node',
+  target: 'es2022',
+  format: 'cjs',
+  external: ['obsidian'],
+  logLevel: 'warning',
+});
+const probeSHA256 = createHash('sha256')
+  .update(await readFile(join(plugin, 'main.js')))
+  .digest('hex');
 await writeFile(
   join(plugin, 'manifest.json'),
   JSON.stringify(
@@ -132,6 +145,7 @@ console.log(
       phase,
       resultFile,
       next: 'Enable Quick Switcher++ and this probe in the disposable native app. If already enabled, disable/re-enable the probe to load its new phase. The installed Workspaces bundle is unchanged.',
+      probeSHA256,
     },
     null,
     2,

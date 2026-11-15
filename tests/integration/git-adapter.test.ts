@@ -1079,6 +1079,33 @@ test('a clean guarded preflight uses six fresh reads with ignored files included
   });
 });
 
+test('preparation returns its guarded source identity and checkout does not reuse its mutable observations', async (t) => {
+  const f = await fixture(t);
+  const calls: string[][] = [];
+  f.manager.git.raw = async (args) => {
+    calls.push([...args]);
+    return f.git(args);
+  };
+  await guardedAdapter(f).withRepository(async (repository) => {
+    assert.ok(repository.prepareSwitch);
+    assert.deepEqual(await repository.prepareSwitch('beta'), { root: f.root, branch: 'alpha' });
+    assert.equal(calls.length, 6, 'Returning preflight identity launches no additional query');
+    assert.equal(
+      calls.some((args) => args.includes('--symbolic-full-name')),
+      false,
+    );
+    await writeFile(join(f.root, 'common.md'), 'Saved by a view after preparation\n');
+    calls.length = 0;
+    await assert.rejects(repository.checkout('beta'), hasCode('dirty-worktree'));
+    assert.equal(
+      calls.some((args) => args.includes('status')),
+      true,
+    );
+    assert.deepEqual(f.checkouts, []);
+    assert.equal((await f.git(['branch', '--show-current'])).trim(), 'alpha');
+  });
+});
+
 test('source commit paths remain protected if another client removes index entries after status', async (t) => {
   for (const scenario of ['source-layout', 'unchanged-layout', 'ignored-ancestor']) {
     await t.test(scenario, async (subtest) => {
