@@ -38,11 +38,19 @@
       "profile": "small",
       "baseline": {
         "path": "small-s1-baseline.json",
-        "sha256": "REPLACE_WITH_SHA256_OF_REPORT_BYTES"
+        "sha256": "REPLACE_WITH_SHA256_OF_REPORT_BYTES",
+        "journal": {
+          "path": "small-s1-baseline.json.REPLACE_WITH_RUN_ID.samples.ndjson",
+          "sha256": "REPLACE_WITH_SHA256_OF_JOURNAL_FILE_BYTES"
+        }
       },
       "candidate": {
         "path": "small-s1-candidate.json",
-        "sha256": "REPLACE_WITH_SHA256_OF_REPORT_BYTES"
+        "sha256": "REPLACE_WITH_SHA256_OF_REPORT_BYTES",
+        "journal": {
+          "path": "small-s1-candidate.json.REPLACE_WITH_RUN_ID.samples.ndjson",
+          "sha256": "REPLACE_WITH_SHA256_OF_JOURNAL_FILE_BYTES"
+        }
       }
     },
     {
@@ -50,11 +58,19 @@
       "profile": "small",
       "baseline": {
         "path": "small-s2-baseline.json",
-        "sha256": "REPLACE_WITH_SHA256_OF_REPORT_BYTES"
+        "sha256": "REPLACE_WITH_SHA256_OF_REPORT_BYTES",
+        "journal": {
+          "path": "small-s2-baseline.json.REPLACE_WITH_RUN_ID.samples.ndjson",
+          "sha256": "REPLACE_WITH_SHA256_OF_JOURNAL_FILE_BYTES"
+        }
       },
       "candidate": {
         "path": "small-s2-candidate.json",
-        "sha256": "REPLACE_WITH_SHA256_OF_REPORT_BYTES"
+        "sha256": "REPLACE_WITH_SHA256_OF_REPORT_BYTES",
+        "journal": {
+          "path": "small-s2-candidate.json.REPLACE_WITH_RUN_ID.samples.ndjson",
+          "sha256": "REPLACE_WITH_SHA256_OF_JOURNAL_FILE_BYTES"
+        }
       }
     },
     {
@@ -62,11 +78,19 @@
       "profile": "small",
       "baseline": {
         "path": "small-s3-baseline.json",
-        "sha256": "REPLACE_WITH_SHA256_OF_REPORT_BYTES"
+        "sha256": "REPLACE_WITH_SHA256_OF_REPORT_BYTES",
+        "journal": {
+          "path": "small-s3-baseline.json.REPLACE_WITH_RUN_ID.samples.ndjson",
+          "sha256": "REPLACE_WITH_SHA256_OF_JOURNAL_FILE_BYTES"
+        }
       },
       "candidate": {
         "path": "small-s3-candidate.json",
-        "sha256": "REPLACE_WITH_SHA256_OF_REPORT_BYTES"
+        "sha256": "REPLACE_WITH_SHA256_OF_REPORT_BYTES",
+        "journal": {
+          "path": "small-s3-candidate.json.REPLACE_WITH_RUN_ID.samples.ndjson",
+          "sha256": "REPLACE_WITH_SHA256_OF_JOURNAL_FILE_BYTES"
+        }
       }
     },
     {
@@ -74,11 +98,19 @@
       "profile": "representative",
       "baseline": {
         "path": "representative-s1-baseline.json",
-        "sha256": "REPLACE_WITH_SHA256_OF_REPORT_BYTES"
+        "sha256": "REPLACE_WITH_SHA256_OF_REPORT_BYTES",
+        "journal": {
+          "path": "representative-s1-baseline.json.REPLACE_WITH_RUN_ID.samples.ndjson",
+          "sha256": "REPLACE_WITH_SHA256_OF_JOURNAL_FILE_BYTES"
+        }
       },
       "candidate": {
         "path": "representative-s1-candidate.json",
-        "sha256": "REPLACE_WITH_SHA256_OF_REPORT_BYTES"
+        "sha256": "REPLACE_WITH_SHA256_OF_REPORT_BYTES",
+        "journal": {
+          "path": "representative-s1-candidate.json.REPLACE_WITH_RUN_ID.samples.ndjson",
+          "sha256": "REPLACE_WITH_SHA256_OF_JOURNAL_FILE_BYTES"
+        }
       }
     },
     {
@@ -86,11 +118,19 @@
       "profile": "representative",
       "baseline": {
         "path": "representative-s2-baseline.json",
-        "sha256": "REPLACE_WITH_SHA256_OF_REPORT_BYTES"
+        "sha256": "REPLACE_WITH_SHA256_OF_REPORT_BYTES",
+        "journal": {
+          "path": "representative-s2-baseline.json.REPLACE_WITH_RUN_ID.samples.ndjson",
+          "sha256": "REPLACE_WITH_SHA256_OF_JOURNAL_FILE_BYTES"
+        }
       },
       "candidate": {
         "path": "representative-s2-candidate.json",
-        "sha256": "REPLACE_WITH_SHA256_OF_REPORT_BYTES"
+        "sha256": "REPLACE_WITH_SHA256_OF_REPORT_BYTES",
+        "journal": {
+          "path": "representative-s2-candidate.json.REPLACE_WITH_RUN_ID.samples.ndjson",
+          "sha256": "REPLACE_WITH_SHA256_OF_JOURNAL_FILE_BYTES"
+        }
       }
     },
     {
@@ -98,11 +138,19 @@
       "profile": "representative",
       "baseline": {
         "path": "representative-s3-baseline.json",
-        "sha256": "REPLACE_WITH_SHA256_OF_REPORT_BYTES"
+        "sha256": "REPLACE_WITH_SHA256_OF_REPORT_BYTES",
+        "journal": {
+          "path": "representative-s3-baseline.json.REPLACE_WITH_RUN_ID.samples.ndjson",
+          "sha256": "REPLACE_WITH_SHA256_OF_JOURNAL_FILE_BYTES"
+        }
       },
       "candidate": {
         "path": "representative-s3-candidate.json",
-        "sha256": "REPLACE_WITH_SHA256_OF_REPORT_BYTES"
+        "sha256": "REPLACE_WITH_SHA256_OF_REPORT_BYTES",
+        "journal": {
+          "path": "representative-s3-candidate.json.REPLACE_WITH_RUN_ID.samples.ndjson",
+          "sha256": "REPLACE_WITH_SHA256_OF_JOURNAL_FILE_BYTES"
+        }
       }
     }
   ],

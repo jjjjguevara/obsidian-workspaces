@@ -168,6 +168,7 @@ function report(role, profile, index) {
   samples.push(sample('alpha', 'cleanup', 'excluded', duration));
   for (const [index, sample] of samples.entries()) {
     sample.index = index;
+    sample.startedAt = '2026-01-01T00:00:01.000Z';
     sample.memory = {
       beforeTiming: syntheticMemory(),
       afterVerificationBeforePersistence: syntheticMemory(),
@@ -198,6 +199,9 @@ function report(role, profile, index) {
     endpointSchema: SCHEMA,
     status: 'passed',
     runId: `${profile}-${index}-${role}`,
+    phase: `${profile}-${index}-${role}`,
+    startedAt: '2026-01-01T00:00:00.000Z',
+    methodology: { fixture: 'synthetic unit data, never native evidence' },
     vault: `/synthetic/${profile}`,
     manualStart: true,
     deepTraceEnabled: false,
@@ -261,6 +265,80 @@ function report(role, profile, index) {
     finalGitStatus: '',
   };
 }
+
+/** Re-seal deliberately changed synthetic data, never native evidence. */
+function attachJournal(reference, evidence) {
+  const value = evidence.get(reference.path).report;
+  const { samples, recorder, ...metadata } = value;
+  const rows = [
+    {
+      kind: 'header',
+      schema: RECORDER_SCHEMA,
+      mode: RECORDER_MODE,
+      runId: value.runId,
+      phase: value.phase,
+      startedAt: value.startedAt,
+      identity: {
+        benchmarkSchema: value.benchmarkSchema,
+        productSourceCommit: value.environment.productSourceCommit,
+        productBundleSHA256: value.environment.plugins['obsidian-workspaces'].bundleSHA256,
+        probeSHA256: value.environment.plugins['workspaces-switch-benchmark'].bundleSHA256,
+      },
+    },
+  ];
+  const checkpoint = { ...metadata, status: 'running' };
+  for (const key of [
+    'final',
+    'finalGitStatus',
+    'restoredAlpha',
+    'finishedAt',
+    'summary',
+    'error',
+    'cleanupError',
+  ])
+    delete checkpoint[key];
+  rows.push({ kind: 'metadata', metadata: checkpoint });
+  let rawSampleBytes = 0;
+  const sampleHash = createHash('sha256');
+  for (const sample of samples) {
+    const { recorderObservation, ...raw } = sample;
+    const identity = Object.fromEntries(
+      ['index', 'scenario', 'temperature', 'fromId', 'toId', 'direction', 'startedAt'].map(
+        (key) => [key, sample[key]],
+      ),
+    );
+    const sampleBytes = Buffer.byteLength(JSON.stringify(raw));
+    Object.assign(recorderObservation, { sampleBytes, serializationMs: 0, appendMs: 0 });
+    rawSampleBytes += sampleBytes;
+    rows.push(
+      { kind: 'sample-start', ...identity },
+      { kind: 'sample', sample: raw },
+      { kind: 'sample-recorded', observation: recorderObservation },
+    );
+    sampleHash.update(`${JSON.stringify(sample)}\n`);
+  }
+  rows.push({
+    kind: 'run-complete',
+    counts: {
+      startedSamples: samples.length,
+      completedSamples: samples.length,
+      failedSamples: samples.filter((sample) => sample.status === 'failed').length,
+    },
+    metadata,
+  });
+  const journalBytes = Buffer.from(`${rows.map((row) => JSON.stringify(row)).join('\n')}\n`);
+  const journalHash = createHash('sha256').update(journalBytes).digest('hex');
+  const path = reference.journal?.path ?? `${reference.path}.${value.runId}.samples.ndjson`;
+  reference.journal = { path, sha256: journalHash };
+  Object.assign(recorder, {
+    journalFile: `/original-native-path/${value.runId}.samples.ndjson`,
+    journalBytes: journalBytes.length,
+    journalSHA256: journalHash,
+    rawSampleBytes,
+    samplesSHA256: sampleHash.digest('hex'),
+  });
+  evidence.set(path, { sha256: journalHash, journalBytes });
+}
 function closure() {
   const manifest = {
     schema: 'obsidian-workspaces-performance-closure-v1',
@@ -294,6 +372,7 @@ function closure() {
         const path = `${profile}-${index}-${role}.json`;
         pair[role] = { path, sha256: hashes.evidence };
         evidence.set(path, { sha256: hashes.evidence, report: report(role, profile, index) });
+        attachJournal(pair[role], evidence);
       }
       manifest.sessions.push(pair);
     }
@@ -347,4 +426,4 @@ function closure() {
   }
   return { manifest, evidence };
 }
-module.exports = { hashes, notes, layout, sample, report, closure };
+module.exports = { hashes, notes, layout, sample, report, closure, attachJournal };

@@ -3,11 +3,12 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import { gunzipSync } from 'node:zlib';
-import { dirname, resolve } from 'node:path';
+import { dirname, isAbsolute, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import endpoint from '../tests/obsidian/completion-endpoint.cjs';
 import recorder from '../tests/obsidian/sample-recorder.cjs';
 import measurementEnvironment from '../tests/obsidian/measurement-environment.cjs';
+import { verifySwitchJournal } from './verify-switch-journal.mjs';
 
 export const CONTRACT = Object.freeze({
   schema: 'obsidian-workspaces-performance-closure-v1',
@@ -23,6 +24,14 @@ export const CONTRACT = Object.freeze({
   normalSwitchCeilingMs: 500,
 });
 const sha256 = (value) => /^[a-f0-9]{64}$/.test(value ?? '');
+const portableJournal = (reference) =>
+  reference &&
+  typeof reference.path === 'string' &&
+  reference.path.length > 0 &&
+  !isAbsolute(reference.path) &&
+  !reference.path.includes('\\') &&
+  !/^[a-zA-Z]:/.test(reference.path) &&
+  sha256(reference.sha256);
 const commit = (value) => /^(?:[a-f0-9]{40}|[a-f0-9]{64})$/.test(value ?? '');
 const integer = (value, minimum = 0) => Number.isSafeInteger(value) && value >= minimum;
 const finite = (value) => typeof value === 'number' && Number.isFinite(value);
@@ -120,6 +129,25 @@ function getEvidence(reference, evidence, used, label) {
     `${label}: evidence bytes do not match the manifest SHA-256.`,
   );
   return item.report;
+}
+
+function getJournalEvidence(reference, report, evidence, used, label) {
+  requireThat(
+    portableJournal(reference),
+    `${label}: missing portable journal path/hash reference.`,
+  );
+  requireThat(!used.has(reference.path), `${label}: journal evidence file reused.`);
+  used.add(reference.path);
+  const item = evidence.get(reference.path);
+  requireThat(
+    item && item.sha256 === reference.sha256 && Buffer.isBuffer(item.journalBytes),
+    `${label}: journal file is missing or its bytes do not match the manifest SHA-256.`,
+  );
+  return {
+    path: reference.path,
+    fileSHA256: item.sha256,
+    ...verifySwitchJournal(report, item.journalBytes),
+  };
 }
 
 function pairedLayoutEvidence(report) {
@@ -562,6 +590,14 @@ export function evaluateClosure(manifest, evidence) {
           equal(pairedLayoutEvidence(a), pairedLayoutEvidence(b)),
           'Pair differs in source/target file leaves, regions, types, pins or editor multiplicities.',
         );
+        for (const role of ['baseline', 'candidate'])
+          pair[role].journal = getJournalEvidence(
+            entry[role].journal,
+            pair[role].report,
+            evidence,
+            used,
+            `${label} ${role}`,
+          );
         sessions.push({
           label: entry.label,
           profile: entry.profile,
@@ -569,6 +605,7 @@ export function evaluateClosure(manifest, evidence) {
           nativeProcessId: b.environment.nativeSession.processId,
           baseline: pair.baseline.summary,
           candidate: pair.candidate.summary,
+          journals: { baseline: pair.baseline.journal, candidate: pair.candidate.journal },
         });
         const pool = (pooledValues[entry.profile] ??= { baseline: {}, candidate: {} });
         for (const role of ['baseline', 'candidate'])
@@ -704,13 +741,21 @@ export async function loadEvidence(manifest, manifestDirectory) {
     ...(manifest.sessions ?? []).flatMap((session) => [session.baseline, session.candidate]),
     ...(manifest.safetyReports ?? []),
   ];
-  for (const ref of refs) {
+  const files = refs.flatMap((ref) => [
+    { ref, kind: 'report' },
+    ...(ref?.journal ? [{ ref: ref.journal, kind: 'journal' }] : []),
+  ]);
+  for (const { ref, kind } of files) {
+    if (kind === 'journal')
+      requireThat(portableJournal(ref), 'Missing portable journal path/hash reference.');
     if (!ref?.path || evidence.has(ref.path)) continue;
     const bytes = await readFile(resolve(manifestDirectory, ref.path));
     const content = ref.path.endsWith('.gz') ? gunzipSync(bytes) : bytes;
     evidence.set(ref.path, {
       sha256: createHash('sha256').update(bytes).digest('hex'),
-      report: JSON.parse(content.toString('utf8')),
+      ...(kind === 'journal'
+        ? { journalBytes: content }
+        : { report: JSON.parse(content.toString('utf8')) }),
     });
   }
   return evidence;
@@ -737,10 +782,12 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
     ];
     if (
       destination &&
-      refs.some(
-        (ref) =>
-          ref?.path && resolve(dirname(resolve(filename)), ref.path) === resolve(destination),
-      )
+      refs
+        .flatMap((ref) => [ref, ...(ref?.journal ? [ref.journal] : [])])
+        .some(
+          (ref) =>
+            ref?.path && resolve(dirname(resolve(filename)), ref.path) === resolve(destination),
+        )
     ) {
       outputPath = undefined;
       throw new Error('The closure output must not overwrite a raw evidence report.');

@@ -9,7 +9,7 @@ import { fileURLToPath } from 'node:url';
 import { before, test } from 'node:test';
 
 const require = createRequire(import.meta.url);
-const { closure } = require('../obsidian/benchmark-test-fixtures.cjs');
+const { closure, attachJournal } = require('../obsidian/benchmark-test-fixtures.cjs');
 let evaluateClosure: (...args: any[]) => any;
 let statistics: (values: number[]) => any;
 before(async () => {
@@ -91,6 +91,7 @@ test('paired workload comparison ignores generated IDs and tab metadata', () => 
     }
   }
   resealSamples(report);
+  attachJournal(manifest.sessions[0].candidate, evidence);
   const result = evaluateClosure(manifest, evidence);
   assert.equal(result.closureAllowed, true, JSON.stringify(result.failures));
 });
