@@ -1,0 +1,229 @@
+{
+  "source": "/workspace/scratch/0a8d9baba8ea/repos/workspaces-benchmark-framework",
+  "sha": "1baf59ed89f733af5972524d11033ef84118d447",
+  "trackedWorktreeStatus": "",
+  "semanticCases": 28,
+  "results": [
+    {
+      "name": "wrong header run",
+      "helperRejected": true,
+      "gateBlocked": true,
+      "reason": "Sample journal: header identifies a different run.",
+      "gateFailure": "Session small-0: Sample journal: header identifies a different run."
+    },
+    {
+      "name": "wrong header phase",
+      "helperRejected": true,
+      "gateBlocked": true,
+      "reason": "Sample journal: header identifies a different run.",
+      "gateFailure": "Session small-0: Sample journal: header identifies a different run."
+    },
+    {
+      "name": "wrong header product hash",
+      "helperRejected": true,
+      "gateBlocked": true,
+      "reason": "Sample journal: header artifact identities differ from the finalized report.",
+      "gateFailure": "Session small-0: Sample journal: header artifact identities differ from the finalized report."
+    },
+    {
+      "name": "wrong header probe hash",
+      "helperRejected": true,
+      "gateBlocked": true,
+      "reason": "Sample journal: header artifact identities differ from the finalized report.",
+      "gateFailure": "Session small-0: Sample journal: header artifact identities differ from the finalized report."
+    },
+    {
+      "name": "wrong header source commit",
+      "helperRejected": true,
+      "gateBlocked": true,
+      "reason": "Sample journal: header artifact identities differ from the finalized report.",
+      "gateFailure": "Session small-0: Sample journal: header artifact identities differ from the finalized report."
+    },
+    {
+      "name": "missing checkpoint",
+      "helperRejected": true,
+      "gateBlocked": true,
+      "reason": "Sample journal: missing pre-timing metadata checkpoint.",
+      "gateFailure": "Session small-0: Sample journal: missing pre-timing metadata checkpoint."
+    },
+    {
+      "name": "duplicate checkpoint",
+      "helperRejected": true,
+      "gateBlocked": true,
+      "reason": "Sample journal: unexpected metadata while expecting start-or-seal.",
+      "gateFailure": "Session small-0: Sample journal: unexpected metadata while expecting start-or-seal."
+    },
+    {
+      "name": "checkpoint omits fixture",
+      "helperRejected": true,
+      "gateBlocked": true,
+      "reason": "Sample journal: metadata checkpoint omits fixture.",
+      "gateFailure": "Session small-0: Sample journal: metadata checkpoint omits fixture."
+    },
+    {
+      "name": "checkpoint artifact differs",
+      "helperRejected": true,
+      "gateBlocked": true,
+      "reason": "Sample journal: metadata checkpoint differs in environment.",
+      "gateFailure": "Session small-0: Sample journal: metadata checkpoint differs in environment."
+    },
+    {
+      "name": "checkpoint final data inserted",
+      "helperRejected": true,
+      "gateBlocked": true,
+      "reason": "Sample journal: metadata checkpoint contains final or sample data.",
+      "gateFailure": "Session small-0: Sample journal: metadata checkpoint contains final or sample data."
+    },
+    {
+      "name": "reordered complete attempt triples",
+      "helperRejected": true,
+      "gateBlocked": true,
+      "reason": "Sample journal: missing, additional or out-of-order attempt.",
+      "gateFailure": "Session small-0: Sample journal: missing, additional or out-of-order attempt."
+    },
+    {
+      "name": "omitted complete attempt triple",
+      "helperRejected": true,
+      "gateBlocked": true,
+      "reason": "Sample journal: missing, additional or out-of-order attempt.",
+      "gateFailure": "Session small-0: Sample journal: missing, additional or out-of-order attempt."
+    },
+    {
+      "name": "omitted sample body",
+      "helperRejected": true,
+      "gateBlocked": true,
+      "reason": "Sample journal: missing or out-of-order raw sample.",
+      "gateFailure": "Session small-0: Sample journal: missing or out-of-order raw sample."
+    },
+    {
+      "name": "omitted observation",
+      "helperRejected": true,
+      "gateBlocked": true,
+      "reason": "Sample journal: missing or out-of-order sample observation.",
+      "gateFailure": "Session small-0: Sample journal: missing or out-of-order sample observation."
+    },
+    {
+      "name": "start identity differs",
+      "helperRejected": true,
+      "gateBlocked": true,
+      "reason": "Sample journal: start identity differs from its finalized sample.",
+      "gateFailure": "Session small-0: Sample journal: start identity differs from its finalized sample."
+    },
+    {
+      "name": "raw sample differs from report",
+      "helperRejected": true,
+      "gateBlocked": true,
+      "reason": "Sample journal: raw sample or observation differs from the finalized sample.",
+      "gateFailure": "Session small-0: Sample journal: raw sample or observation differs from the finalized sample."
+    },
+    {
+      "name": "raw status disagrees with report",
+      "helperRejected": true,
+      "gateBlocked": true,
+      "reason": "Sample journal: raw sample or observation differs from the finalized sample.",
+      "gateFailure": "Session small-0: Sample journal: raw sample or observation differs from the finalized sample."
+    },
+    {
+      "name": "observation differs from report",
+      "helperRejected": true,
+      "gateBlocked": true,
+      "reason": "Sample journal: raw sample or observation differs from the finalized sample.",
+      "gateFailure": "Session small-0: Sample journal: raw sample or observation differs from the finalized sample."
+    },
+    {
+      "name": "footer wrong status",
+      "helperRejected": true,
+      "gateBlocked": true,
+      "reason": "Sample journal: seal metadata/status differs from the finalized report.",
+      "gateFailure": "Session small-0: Sample journal: seal metadata/status differs from the finalized report."
+    },
+    {
+      "name": "footer wrong count",
+      "helperRejected": true,
+      "gateBlocked": true,
+      "reason": "Sample journal: seal counts differ from observed attempts.",
+      "gateFailure": "Session small-0: Sample journal: seal counts differ from observed attempts."
+    },
+    {
+      "name": "footer metadata differs",
+      "helperRejected": true,
+      "gateBlocked": true,
+      "reason": "Sample journal: seal metadata/status differs from the finalized report.",
+      "gateFailure": "Session small-0: Sample journal: seal metadata/status differs from the finalized report."
+    },
+    {
+      "name": "missing seal",
+      "helperRejected": true,
+      "gateBlocked": true,
+      "reason": "Sample journal: incomplete record sequence or missing final seal.",
+      "gateFailure": "Session small-0: Sample journal: incomplete record sequence or missing final seal."
+    },
+    {
+      "name": "trailing record",
+      "helperRejected": true,
+      "gateBlocked": true,
+      "reason": "Sample journal: trailing or empty records after the complete seal.",
+      "gateFailure": "Session small-0: Sample journal: trailing or empty records after the complete seal."
+    },
+    {
+      "name": "report-only nonsemantic sample disagreement",
+      "helperRejected": true,
+      "gateBlocked": true,
+      "reason": "Sample journal: raw sample or observation differs from the finalized sample.",
+      "gateFailure": "Session small-0: Sample journal: raw sample or observation differs from the finalized sample."
+    },
+    {
+      "name": "trailing blank line",
+      "helperRejected": true,
+      "gateBlocked": true,
+      "reason": "Sample journal: trailing or empty records after the complete seal.",
+      "gateFailure": "Session small-0: Sample journal: trailing or empty records after the complete seal."
+    },
+    {
+      "name": "truncated final newline",
+      "helperRejected": true,
+      "gateBlocked": true,
+      "reason": "Sample journal: truncated final line.",
+      "gateFailure": "Session small-0: Sample journal: truncated final line."
+    },
+    {
+      "name": "invalid UTF8",
+      "helperRejected": true,
+      "gateBlocked": true,
+      "reason": "The encoded data was not valid for encoding utf-8",
+      "gateFailure": "Session small-0: The encoded data was not valid for encoding utf-8"
+    },
+    {
+      "name": "duplicate JSON key",
+      "helperRejected": true,
+      "gateBlocked": true,
+      "reason": "Sample journal: record is not the original compact recorder JSON.",
+      "gateFailure": "Session small-0: Sample journal: record is not the original compact recorder JSON."
+    },
+    {
+      "name": "valid synthetic positive control",
+      "gateAllowed": true,
+      "sessions": 6
+    },
+    {
+      "name": "actual native scale journal",
+      "status": "passed",
+      "runId": "402d45ac-4caa-4f1f-9c4e-d3c1947465f4",
+      "rawSHA256": "67f79c8824d256334060733a4ede0ab93f270b032c091d4bc136126f83610a7e",
+      "rawBytes": 1247289,
+      "started": 34,
+      "completed": 34,
+      "failed": 0
+    },
+    {
+      "name": "actual native small journal",
+      "status": "passed",
+      "runId": "a7296751-985b-4ce7-92b8-b4e1b5f87470",
+      "rawSHA256": "e28abeac097a9551188deebe05c5c4992b1c5eb685537c02781fe3a8af411755",
+      "rawBytes": 1247941,
+      "started": 34,
+      "completed": 34,
+      "failed": 0
+    }
+  ]
+}

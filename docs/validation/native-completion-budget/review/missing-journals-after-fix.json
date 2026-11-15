@@ -1,0 +1,49 @@
+{
+  "schema": "obsidian-workspaces-performance-closure-v1",
+  "status": "blocked",
+  "closureAllowed": false,
+  "contract": {
+    "schema": "obsidian-workspaces-performance-closure-v1",
+    "benchmarkSchema": "obsidian-workspaces-switch-benchmark-v2",
+    "recorderSchema": "obsidian-workspaces-sample-recorder-v1",
+    "recorderMode": "append-only-streamed-final",
+    "minimumSessionsPerProfile": 3,
+    "minimumBranchSamplesPerSession": 100,
+    "minimumControlSamplesPerSession": 20,
+    "medianMs": 100,
+    "p95Ms": 200,
+    "p99Ms": 300,
+    "normalSwitchCeilingMs": 500
+  },
+  "workloadScope": {
+    "small": {
+      "description": "Synthetic small workload for automated negative tests only",
+      "basis": "Synthetic counts are not evidence for any actual user vault.",
+      "suitabilityConfirmed": true,
+      "minimumTrackedFiles": 4,
+      "minimumChangedPaths": 5,
+      "minimumMarkdownLeaves": 4
+    },
+    "representative": {
+      "description": "Synthetic representative workload for automated negative tests only",
+      "basis": "Synthetic counts are not evidence for any actual user vault.",
+      "suitabilityConfirmed": true,
+      "minimumTrackedFiles": 4,
+      "minimumChangedPaths": 5,
+      "minimumMarkdownLeaves": 4
+    }
+  },
+  "sessions": [],
+  "pooled": {},
+  "failures": [
+    "Session small-0: Session small-0 baseline: missing portable journal path/hash reference.",
+    "Session small-1: Session small-1 baseline: missing portable journal path/hash reference.",
+    "Session small-2: Session small-2 baseline: missing portable journal path/hash reference.",
+    "Session representative-0: Session representative-0 baseline: missing portable journal path/hash reference.",
+    "Session representative-1: Session representative-1 baseline: missing portable journal path/hash reference.",
+    "Session representative-2: Session representative-2 baseline: missing portable journal path/hash reference.",
+    "small: fewer than three valid paired native sessions."
+  ],
+  "nextAction": "Keep the performance issue open. Supply missing evidence or optimize and rerun against the final installed bundle.",
+  "generatedAt": "2026-11-15T22:12:55.189Z"
+}

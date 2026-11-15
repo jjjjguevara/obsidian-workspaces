@@ -1,0 +1,668 @@
+﻿2026-11-15T22:11:18.2753066Z Current runner version: '2.338.2'
+2026-11-15T22:11:18.2821407Z ##[group]Runner Image Provisioner
+2026-11-15T22:11:18.2822765Z Hosted Compute Agent
+2026-11-15T22:11:18.2823731Z Version: 20261103.629
+2026-11-15T22:11:18.2824716Z Commit: 15dbd9ccb5dbf34fae002b6ed1a2670f52df37bc
+2026-11-15T22:11:18.2826048Z Build Date: 2026-11-03T17:26:59Z
+2026-11-15T22:11:18.2847635Z Worker ID: {ffe4cea4-d265-4ed0-bbed-466d125604a1}
+2026-11-15T22:11:18.2849059Z Region: northcentralus
+2026-11-15T22:11:18.2849972Z Cloud: Azure
+2026-11-15T22:11:18.2850899Z ##[endgroup]
+2026-11-15T22:11:18.2853188Z ##[group]Operating System
+2026-11-15T22:11:18.2854170Z Ubuntu
+2026-11-15T22:11:18.2855142Z 26.04.1
+2026-11-15T22:11:18.2855958Z LTS
+2026-11-15T22:11:18.2856923Z ##[endgroup]
+2026-11-15T22:11:18.2857897Z ##[group]Runner Image
+2026-11-15T22:11:18.2858891Z Image: ubuntu-26.04
+2026-11-15T22:11:18.2859886Z Version: 20261111.196.1
+2026-11-15T22:11:18.2861868Z Included Software: https://github.com/actions/runner-images/blob/ubuntu26/20261111.196/images/ubuntu/Ubuntu2604-Readme.md
+2026-11-15T22:11:18.2864510Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu26%2F20261111.196
+2026-11-15T22:11:18.2866099Z ##[endgroup]
+2026-11-15T22:11:18.2888398Z ##[group]GITHUB_TOKEN Permissions
+2026-11-15T22:11:18.2891755Z Contents: read
+2026-11-15T22:11:18.2892769Z Metadata: read
+2026-11-15T22:11:18.2893659Z ##[endgroup]
+2026-11-15T22:11:18.2917157Z Secret source: Actions
+2026-11-15T22:11:18.2918781Z Cache mode: write
+2026-11-15T22:11:18.2920155Z Prepare workflow directory
+2026-11-15T22:11:18.3801250Z Prepare all required actions
+2026-11-15T22:11:18.3958239Z Getting action download info
+2026-11-15T22:11:18.6574529Z Download action repository 'actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1' (SHA:3d3c42e5aac5ba805825da76410c181273ba90b1)
+2026-11-15T22:11:18.7791385Z Download action repository 'actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1' (SHA:949feb2413d6458794dcd2491c4babbbce0c15c1)
+2026-11-15T22:11:18.9613541Z Complete job name: check
+2026-11-15T22:11:19.0481021Z ##[group]Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+2026-11-15T22:11:19.0482135Z with:
+2026-11-15T22:11:19.0482641Z   repository: jjjjguevara/obsidian-workspaces
+2026-11-15T22:11:19.0486731Z   token: ***
+2026-11-15T22:11:19.0487183Z   ssh-strict: true
+2026-11-15T22:11:19.0487641Z   ssh-user: git
+2026-11-15T22:11:19.0488111Z   persist-credentials: true
+2026-11-15T22:11:19.0488620Z   clean: true
+2026-11-15T22:11:19.0489095Z   sparse-checkout-cone-mode: true
+2026-11-15T22:11:19.0489629Z   fetch-depth: 1
+2026-11-15T22:11:19.0490069Z   fetch-tags: false
+2026-11-15T22:11:19.0490516Z   show-progress: true
+2026-11-15T22:11:19.0490979Z   lfs: false
+2026-11-15T22:11:19.0491399Z   submodules: false
+2026-11-15T22:11:19.0491856Z   set-safe-directory: true
+2026-11-15T22:11:19.0492364Z   allow-unsafe-pr-checkout: false
+2026-11-15T22:11:19.0493065Z ##[endgroup]
+2026-11-15T22:11:19.3006682Z Syncing repository: jjjjguevara/obsidian-workspaces
+2026-11-15T22:11:19.4335702Z ##[group]Getting Git version info
+2026-11-15T22:11:19.4390266Z Working directory is '/home/runner/work/obsidian-workspaces/obsidian-workspaces'
+2026-11-15T22:11:19.4392016Z [command]/usr/bin/git version
+2026-11-15T22:11:19.4392815Z git version 2.56.1
+2026-11-15T22:11:19.4404871Z ##[endgroup]
+2026-11-15T22:11:19.4413845Z Temporarily overriding HOME='/home/runner/work/_temp/29d18dca-999e-4b5a-8153-d812b2c7ed17' before making global git config changes
+2026-11-15T22:11:19.4416145Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-15T22:11:19.4418709Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/obsidian-workspaces/obsidian-workspaces
+2026-11-15T22:11:19.4422207Z Deleting the contents of '/home/runner/work/obsidian-workspaces/obsidian-workspaces'
+2026-11-15T22:11:19.4424241Z ##[group]Determining repository object format
+2026-11-15T22:11:19.4425761Z ##[endgroup]
+2026-11-15T22:11:19.4427526Z ##[group]Initializing the repository
+2026-11-15T22:11:19.4429454Z [command]/usr/bin/git init /home/runner/work/obsidian-workspaces/obsidian-workspaces
+2026-11-15T22:11:19.4431267Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-11-15T22:11:19.4432867Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-11-15T22:11:19.4434427Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-11-15T22:11:19.4435681Z hint: call:
+2026-11-15T22:11:19.4436600Z hint:
+2026-11-15T22:11:19.4437530Z hint: 	git config --global init.defaultBranch <name>
+2026-11-15T22:11:19.4438613Z hint:
+2026-11-15T22:11:19.4439612Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-11-15T22:11:19.4441190Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-11-15T22:11:19.4442659Z hint:
+2026-11-15T22:11:19.4443428Z hint: 	git branch -m <name>
+2026-11-15T22:11:19.4444306Z hint:
+2026-11-15T22:11:19.4445410Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-11-15T22:11:19.4447751Z Initialized empty Git repository in /home/runner/work/obsidian-workspaces/obsidian-workspaces/.git/
+2026-11-15T22:11:19.4451011Z [command]/usr/bin/git remote add origin https://github.com/jjjjguevara/obsidian-workspaces
+2026-11-15T22:11:19.4453963Z ##[endgroup]
+2026-11-15T22:11:19.4455227Z ##[group]Disabling automatic garbage collection
+2026-11-15T22:11:19.4456546Z [command]/usr/bin/git config --local gc.auto 0
+2026-11-15T22:11:19.4459084Z ##[endgroup]
+2026-11-15T22:11:19.4460534Z ##[group]Setting up auth
+2026-11-15T22:11:19.4461458Z Removing SSH command configuration
+2026-11-15T22:11:19.4462733Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-15T22:11:19.4466817Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-15T22:11:19.4510706Z Removing HTTP extra header
+2026-11-15T22:11:19.4519730Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-15T22:11:19.4559618Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-15T22:11:19.4893901Z Removing includeIf entries pointing to credentials config files
+2026-11-15T22:11:19.4906638Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-15T22:11:19.4939665Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-15T22:11:19.5348110Z [command]/usr/bin/git config --file /home/runner/work/_temp/git-credentials-1bcdfc77-c2aa-43ac-8506-29739501d971.config http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-11-15T22:11:19.5358170Z [command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/obsidian-workspaces/obsidian-workspaces/.git.path /home/runner/work/_temp/git-credentials-1bcdfc77-c2aa-43ac-8506-29739501d971.config
+2026-11-15T22:11:19.5397930Z [command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/obsidian-workspaces/obsidian-workspaces/.git/worktrees/*.path /home/runner/work/_temp/git-credentials-1bcdfc77-c2aa-43ac-8506-29739501d971.config
+2026-11-15T22:11:19.5437488Z [command]/usr/bin/git config --local includeIf.gitdir:/github/workspace/.git.path /github/runner_temp/git-credentials-1bcdfc77-c2aa-43ac-8506-29739501d971.config
+2026-11-15T22:11:19.5474827Z [command]/usr/bin/git config --local includeIf.gitdir:/github/workspace/.git/worktrees/*.path /github/runner_temp/git-credentials-1bcdfc77-c2aa-43ac-8506-29739501d971.config
+2026-11-15T22:11:19.5512875Z ##[endgroup]
+2026-11-15T22:11:19.5514167Z ##[group]Fetching the repository
+2026-11-15T22:11:19.5521638Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +469944d4b1f6f9876c4854d1473c686233ceda65:refs/remotes/pull/5/merge
+2026-11-15T22:11:20.0718239Z From https://github.com/jjjjguevara/obsidian-workspaces
+2026-11-15T22:11:20.0720556Z  * [new ref]         469944d4b1f6f9876c4854d1473c686233ceda65 -> pull/5/merge
+2026-11-15T22:11:20.0736245Z ##[endgroup]
+2026-11-15T22:11:20.0748119Z ##[group]Determining the checkout info
+2026-11-15T22:11:20.0758310Z ##[endgroup]
+2026-11-15T22:11:20.0767921Z [command]/usr/bin/git sparse-checkout disable
+2026-11-15T22:11:20.0797960Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-11-15T22:11:20.0836705Z ##[group]Checking out the ref
+2026-11-15T22:11:20.0841061Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/5/merge
+2026-11-15T22:11:20.1107246Z Note: switching to 'refs/remotes/pull/5/merge'.
+2026-11-15T22:11:20.1117446Z 
+2026-11-15T22:11:20.1119055Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-11-15T22:11:20.1122820Z changes and commit them, and you can discard any commits you make in this
+2026-11-15T22:11:20.1125804Z state without impacting any branches by switching back to a branch.
+2026-11-15T22:11:20.1128241Z 
+2026-11-15T22:11:20.1129562Z If you want to create a new branch to retain commits you create, you may
+2026-11-15T22:11:20.1132631Z do so (now or later) by using -c with the switch command. Example:
+2026-11-15T22:11:20.1134456Z 
+2026-11-15T22:11:20.1135651Z   git switch -c <new-branch-name>
+2026-11-15T22:11:20.1136960Z 
+2026-11-15T22:11:20.1138134Z Or undo this operation with:
+2026-11-15T22:11:20.1139425Z 
+2026-11-15T22:11:20.1140634Z   git switch -
+2026-11-15T22:11:20.1144088Z 
+2026-11-15T22:11:20.1145382Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-11-15T22:11:20.1147510Z 
+2026-11-15T22:11:20.1149409Z HEAD is now at 469944d Merge 3f0c0ed8df50efb1fb29b6bf402ad1084b2e9939 into 6b3ae45589132a7c37da14e94a20a4668b2f28b9
+2026-11-15T22:11:20.1155415Z ##[endgroup]
+2026-11-15T22:11:20.1185770Z [command]/usr/bin/git log -1 --format=%H
+2026-11-15T22:11:20.1219583Z 469944d4b1f6f9876c4854d1473c686233ceda65
+2026-11-15T22:11:20.1639043Z ##[group]Run actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+2026-11-15T22:11:20.1640666Z with:
+2026-11-15T22:11:20.1641473Z   node-version: 24
+2026-11-15T22:11:20.1642342Z   cache: npm
+2026-11-15T22:11:20.1643184Z   check-latest: false
+2026-11-15T22:11:20.1652572Z   token: ***
+2026-11-15T22:11:20.1738599Z   package-manager-cache: true
+2026-11-15T22:11:20.1740476Z ##[endgroup]
+2026-11-15T22:11:20.3211749Z Found in cache @ /opt/hostedtoolcache/node/24.22.2/x64
+2026-11-15T22:11:20.4328180Z ##[group]Environment details
+2026-11-15T22:11:20.8788576Z node: v24.22.2
+2026-11-15T22:11:20.8836844Z npm: 11.19.1
+2026-11-15T22:11:20.8839213Z yarn: 1.22.22
+2026-11-15T22:11:20.8851668Z ##[endgroup]
+2026-11-15T22:11:20.8852869Z [command]/opt/hostedtoolcache/node/24.22.2/x64/bin/npm config get cache
+2026-11-15T22:11:21.0000346Z /home/runner/.npm
+2026-11-15T22:11:21.1258791Z Cache hit for: node-cache-Linux-x64-npm-9b7cf11278bdf95a5c8914833e1f02975e557633d21851a63347d4450ddbe44a
+2026-11-15T22:11:21.7363781Z Received 20113969 of 20113969 (100.0%), 38.2 MBs/sec
+2026-11-15T22:11:21.7365091Z Cache Size: ~19 MB (20113969 B)
+2026-11-15T22:11:21.7445247Z [command]/usr/bin/tar -xf /home/runner/work/_temp/e8181974-68a8-4347-b939-efa9372e0f49/cache.tzst -P -C /home/runner/work/obsidian-workspaces/obsidian-workspaces --use-compress-program unzstd
+2026-11-15T22:11:21.7877848Z Cache restored successfully
+2026-11-15T22:11:21.7898614Z Cache restored from key: node-cache-Linux-x64-npm-9b7cf11278bdf95a5c8914833e1f02975e557633d21851a63347d4450ddbe44a
+2026-11-15T22:11:21.8106720Z ##[group]Run npm ci
+2026-11-15T22:11:21.8107070Z [36;1mnpm ci[0m
+2026-11-15T22:11:21.8172401Z shell: /usr/bin/bash -e {0}
+2026-11-15T22:11:21.8172721Z ##[endgroup]
+2026-11-15T22:11:23.2777905Z 
+2026-11-15T22:11:23.2783810Z added 19 packages, and audited 20 packages in 1s
+2026-11-15T22:11:23.2787213Z 
+2026-11-15T22:11:23.2788409Z 1 package is looking for funding
+2026-11-15T22:11:23.2789157Z   run `npm fund` for details
+2026-11-15T22:11:23.2807660Z npm warn install-scripts 1 package has install scripts not yet covered by allowScripts:
+2026-11-15T22:11:23.2808295Z 
+2026-11-15T22:11:23.2808843Z npm warn install-scripts   esbuild@0.28.2 (postinstall: node install.js)
+2026-11-15T22:11:23.2809531Z npm warn install-scripts
+2026-11-15T22:11:23.2810555Z npm warn install-scripts Run `npm install-scripts ls` to review, or `npm install-scripts approve <pkg>` to allow.
+2026-11-15T22:11:23.2811366Z found 0 vulnerabilities
+2026-11-15T22:11:23.3326016Z ##[group]Run npm run check
+2026-11-15T22:11:23.3326559Z [36;1mnpm run check[0m
+2026-11-15T22:11:23.3383396Z shell: /usr/bin/bash -e {0}
+2026-11-15T22:11:23.3383718Z ##[endgroup]
+2026-11-15T22:11:23.4475409Z 
+2026-11-15T22:11:23.4476814Z > obsidian-workspaces@0.1.0 check
+2026-11-15T22:11:23.4478036Z > npm run typecheck && npm test && npm run build
+2026-11-15T22:11:23.4478772Z 
+2026-11-15T22:11:23.5924483Z 
+2026-11-15T22:11:23.5925538Z > obsidian-workspaces@0.1.0 typecheck
+2026-11-15T22:11:23.5926727Z > tsc --noEmit
+2026-11-15T22:11:23.5927190Z 
+2026-11-15T22:11:24.1559889Z 
+2026-11-15T22:11:24.1561018Z > obsidian-workspaces@0.1.0 test
+2026-11-15T22:11:24.1562246Z > node --import tsx --test tests/**/*.test.ts
+2026-11-15T22:11:24.1570195Z 
+2026-11-15T22:11:24.7082838Z ✔ round trips branch-exclusive files through the installed provider (186.678572ms)
+2026-11-15T22:11:24.7983684Z ✔ successful checkout verifies identity without a redundant post-checkout status scan (89.007886ms)
+2026-11-15T22:11:24.8644864Z ✔ identity reads report attached and detached roots without claiming cleanliness (67.367368ms)
+2026-11-15T22:11:24.9327671Z ▶ identity reads fall back to full status for unborn HEAD and unrecognized ref output
+2026-11-15T22:11:24.9329149Z   ✔ unborn (69.189255ms)
+2026-11-15T22:11:24.9915549Z   ✔ unrecognized-ref (56.438486ms)
+2026-11-15T22:11:25.0585000Z   ✔ missing-ref (68.361381ms)
+2026-11-15T22:11:25.1239089Z   ✔ truncated-output (63.3265ms)
+2026-11-15T22:11:25.1247950Z ✔ identity reads fall back to full status for unborn HEAD and unrecognized ref output (258.585989ms)
+2026-11-15T22:11:25.2327972Z ▶ identity and marker paths preserve embedded and trailing POSIX line terminators
+2026-11-15T22:11:25.2330253Z   ✔ embedded-newline (108.476764ms)
+2026-11-15T22:11:25.3467899Z   ✔ trailing-newline (113.844335ms)
+2026-11-15T22:11:25.4637123Z   ✔ trailing-carriage-return (117.953305ms)
+2026-11-15T22:11:25.4658674Z ✔ identity and marker paths preserve embedded and trailing POSIX line terminators (341.280164ms)
+2026-11-15T22:11:25.5862208Z ✔ a vault opened through a directory alias keeps canonical identity through checkout (121.389836ms)
+2026-11-15T22:11:25.7163681Z ✔ repository identity is pinned before the callback so an alias cannot retarget it (131.365187ms)
+2026-11-15T22:11:25.7693026Z ✔ an unresolved provider root rejects before the transaction callback can run (52.711309ms)
+2026-11-15T22:11:25.8477153Z ✔ checkout awaits the provider branch label and refreshes its views after Git changes branch (77.911803ms)
+2026-11-15T22:11:25.9321971Z ▶ overlapping presentation permits caller work but drains before success or failure releases the queue
+2026-11-15T22:11:25.9323353Z   ✔ success (83.024621ms)
+2026-11-15T22:11:26.0151337Z   ✔ callback-failure (83.803792ms)
+2026-11-15T22:11:26.0986793Z   ✔ checkout-failure (83.189769ms)
+2026-11-15T22:11:26.0990831Z ✔ overlapping presentation permits caller work but drains before success or failure releases the queue (251.090072ms)
+2026-11-15T22:11:26.1993963Z ✔ a second checkout in one scope cannot overtake pending presentation (101.176601ms)
+2026-11-15T22:11:26.2889071Z ✔ checkout remains available when optional provider presentation hooks are absent or unavailable (88.832052ms)
+2026-11-15T22:11:26.3919762Z ✔ provider presentation failures cannot turn successful checkout into failure or obscure a partial checkout failure (103.434892ms)
+2026-11-15T22:11:26.4621442Z ✔ keeps the queue occupied through caller restoration, including successful void results (69.73227ms)
+2026-11-15T22:11:26.5267129Z ▶ failed parallel reads drain their siblings before releasing the provider queue
+2026-11-15T22:11:26.5276773Z   ✔ preflight (64.236766ms)
+2026-11-15T22:11:26.6097465Z   ✔ marker-fallback (83.453656ms)
+2026-11-15T22:11:26.6814701Z   ✔ runtime-comparison (70.95135ms)
+2026-11-15T22:11:26.7389494Z   ✔ inspection (57.470205ms)
+2026-11-15T22:11:26.7391184Z ✔ failed parallel reads drain their siblings before releasing the provider queue (277.088645ms)
+2026-11-15T22:11:26.8196169Z ▶ blocks untracked, unstaged and staged changes across the whole repository
+2026-11-15T22:11:26.8197482Z   ✔ untracked (34.010315ms)
+2026-11-15T22:11:26.8552474Z   ✔ unstaged (34.278297ms)
+2026-11-15T22:11:26.8910423Z   ✔ staged (37.201387ms)
+2026-11-15T22:11:26.8943995Z ✔ blocks untracked, unstaged and staged changes across the whole repository (155.831779ms)
+2026-11-15T22:11:26.9561228Z ✔ parses staged renames without interpreting their second pathname as status (60.871544ms)
+2026-11-15T22:11:27.0423664Z ✔ identifies real merge conflicts and refuses checkout (85.176573ms)
+2026-11-15T22:11:27.1145917Z ✔ refuses an unfinished merge even without unmerged paths (73.6348ms)
+2026-11-15T22:11:27.1972349Z ✔ refuses a paused rebase even with a clean working tree (82.185481ms)
+2026-11-15T22:11:27.2893478Z ▶ checks every operation marker in ordinary repositories and linked worktrees
+2026-11-15T22:11:27.2895675Z   ▶ repository
+2026-11-15T22:11:27.2897190Z     ✔ MERGE_HEAD (21.285375ms)
+2026-11-15T22:11:27.3064647Z     ✔ CHERRY_PICK_HEAD (17.381723ms)
+2026-11-15T22:11:27.3214429Z     ✔ REVERT_HEAD (15.492796ms)
+2026-11-15T22:11:27.3372614Z     ✔ rebase-merge (15.40861ms)
+2026-11-15T22:11:27.3530328Z     ✔ rebase-apply (15.989372ms)
+2026-11-15T22:11:27.3695614Z     ✔ sequencer (16.002722ms)
+2026-11-15T22:11:27.3854859Z     ✔ BISECT_LOG (16.152967ms)
+2026-11-15T22:11:27.4021870Z     ✔ index.lock (16.797115ms)
+2026-11-15T22:11:27.4102942Z   ✔ repository (213.12358ms)
+2026-11-15T22:11:27.5053364Z   ▶ linked-worktree
+2026-11-15T22:11:27.5054495Z     ✔ MERGE_HEAD (15.933126ms)
+2026-11-15T22:11:27.5220977Z     ✔ CHERRY_PICK_HEAD (16.440688ms)
+2026-11-15T22:11:27.5392309Z     ✔ REVERT_HEAD (17.079939ms)
+2026-11-15T22:11:27.5549274Z     ✔ rebase-merge (15.783701ms)
+2026-11-15T22:11:27.5708159Z     ✔ rebase-apply (15.821057ms)
+2026-11-15T22:11:27.5870762Z     ✔ sequencer (16.551735ms)
+2026-11-15T22:11:27.6044989Z     ✔ BISECT_LOG (16.733168ms)
+2026-11-15T22:11:27.6198248Z     ✔ index.lock (16.134638ms)
+2026-11-15T22:11:27.6297899Z   ✔ linked-worktree (218.615735ms)
+2026-11-15T22:11:27.7180498Z   ▶ nested-provider-cwd
+2026-11-15T22:11:27.7181507Z     ✔ MERGE_HEAD (21.993841ms)
+2026-11-15T22:11:27.7350791Z     ✔ CHERRY_PICK_HEAD (16.821079ms)
+2026-11-15T22:11:27.7530224Z     ✔ REVERT_HEAD (17.359899ms)
+2026-11-15T22:11:27.7700867Z     ✔ rebase-merge (16.705095ms)
+2026-11-15T22:11:27.7871582Z     ✔ rebase-apply (17.193589ms)
+2026-11-15T22:11:27.8033364Z     ✔ sequencer (16.585065ms)
+2026-11-15T22:11:27.8198035Z     ✔ BISECT_LOG (16.330733ms)
+2026-11-15T22:11:27.8366130Z     ✔ index.lock (16.612356ms)
+2026-11-15T22:11:27.8452388Z   ✔ nested-provider-cwd (215.437561ms)
+2026-11-15T22:11:27.8458672Z ✔ checks every operation marker in ordinary repositories and linked worktrees (647.981324ms)
+2026-11-15T22:11:28.0413426Z ▶ marker checks handle newline repository paths and fall back for newline Git directories
+2026-11-15T22:11:28.0414500Z   ✔ repository (195.970998ms)
+2026-11-15T22:11:28.2423515Z   ✔ external-git-directory (201.026001ms)
+2026-11-15T22:11:28.4371056Z   ✔ nested-provider-cwd (193.964813ms)
+2026-11-15T22:11:28.4388043Z ✔ marker checks handle newline repository paths and fall back for newline Git directories (591.933802ms)
+2026-11-15T22:11:28.5251655Z ▶ checkout rechecks edits and operation markers created after successful preflight
+2026-11-15T22:11:28.5273742Z   ✔ tracked-edit (87.626718ms)
+2026-11-15T22:11:28.6095014Z   ✔ untracked-file (84.505218ms)
+2026-11-15T22:11:28.6954037Z   ✔ operation-marker (84.88593ms)
+2026-11-15T22:11:28.6955665Z ✔ checkout rechecks edits and operation markers created after successful preflight (257.977185ms)
+2026-11-15T22:11:28.8295383Z ▶ checkout rechecks target trees when the target ref moves after preflight
+2026-11-15T22:11:28.8307798Z   ✔ integration-code (134.142185ms)
+2026-11-15T22:11:28.9697042Z   ✔ ignored-collision (139.656018ms)
+2026-11-15T22:11:28.9701544Z ✔ checkout rechecks target trees when the target ref moves after preflight (274.583182ms)
+2026-11-15T22:11:29.1289107Z ✔ allows only exact existing local branches, rejecting options and reflog expressions (158.739897ms)
+2026-11-15T22:11:29.2689657Z ✔ exact local refs with shell metacharacters stay literal and avoid redundant syntax reads (140.532004ms)
+2026-11-15T22:11:29.3698347Z ✔ a clean guarded preflight uses six fresh reads with ignored files included in status (100.32292ms)
+2026-11-15T22:11:29.4634975Z ✔ preparation returns its guarded source identity and checkout does not reuse its mutable observations (93.184887ms)
+2026-11-15T22:11:29.5861352Z ▶ source commit paths remain protected if another client removes index entries after status
+2026-11-15T22:11:29.5867085Z   ✔ source-layout (121.732402ms)
+2026-11-15T22:11:29.7098395Z   ✔ unchanged-layout (124.288392ms)
+2026-11-15T22:11:29.8414610Z   ✔ ignored-ancestor (130.604981ms)
+2026-11-15T22:11:29.8438072Z ✔ source commit paths remain protected if another client removes index entries after status (377.684576ms)
+2026-11-15T22:11:29.9218600Z ▶ malformed index and raw diff responses fail closed before checkout
+2026-11-15T22:11:29.9245636Z   ✔ missing terminal NUL (27.613032ms)
+2026-11-15T22:11:29.9485179Z   ✔ missing path (27.44543ms)
+2026-11-15T22:11:29.9771306Z   ✔ unknown mode (26.924948ms)
+2026-11-15T22:11:30.0038519Z   ✔ abbreviated object (28.085882ms)
+2026-11-15T22:11:30.0321473Z   ✔ unexpected rename (28.311811ms)
+2026-11-15T22:11:30.0598279Z   ✔ unexpected unmerged path (27.28576ms)
+2026-11-15T22:11:30.0876148Z   ✔ mode and zero object disagree (27.137327ms)
+2026-11-15T22:11:30.1209154Z   ✔ duplicate change (32.81792ms)
+2026-11-15T22:11:30.1485448Z   ✔ outside relative path (28.405913ms)
+2026-11-15T22:11:30.1760454Z   ✔ truncated index (27.67838ms)
+2026-11-15T22:11:30.2037033Z   ✔ unexpanded sparse index (27.384829ms)
+2026-11-15T22:11:30.2239145Z ✔ malformed index and raw diff responses fail closed before checkout (380.906907ms)
+2026-11-15T22:11:30.3035411Z ✔ reports detached HEAD without pretending it is a branch (81.676229ms)
+2026-11-15T22:11:30.3823204Z ✔ re-reads the real branch when a provider fails after changing it (77.930511ms)
+2026-11-15T22:11:30.4538744Z ✔ detects a provider that resolves without activating the target branch (71.417226ms)
+2026-11-15T22:11:30.5443697Z ✔ rejects recursive submodule checkout from both plugin and Git configuration (91.686987ms)
+2026-11-15T22:11:30.6261004Z ✔ protects ignored local files that Git checkout would otherwise overwrite (80.937368ms)
+2026-11-15T22:11:30.7546544Z ▶ retains unchanged target paths when ignored files hide skip-worktree or assumed-unchanged entries
+2026-11-15T22:11:30.7564271Z   ✔ --skip-worktree (128.90008ms)
+2026-11-15T22:11:30.8907270Z   ✔ --assume-unchanged (135.28387ms)
+2026-11-15T22:11:30.8908671Z ✔ retains unchanged target paths when ignored files hide skip-worktree or assumed-unchanged entries (264.897291ms)
+2026-11-15T22:11:31.0067518Z ✔ ignored nested repository directories collide with destination tracked descendants (115.670165ms)
+2026-11-15T22:11:31.1217030Z ▶ full index reconstruction covers excluded sparse directories and tracked native layouts
+2026-11-15T22:11:31.1220467Z   ✔ safe sparse checkout (115.291697ms)
+2026-11-15T22:11:31.2330426Z   ✔ excluded tracked layout (110.329913ms)
+2026-11-15T22:11:31.2332053Z ✔ full index reconstruction covers excluded sparse directories and tracked native layouts (226.27411ms)
+2026-11-15T22:11:31.3212075Z ▶ a nested provider cwd cannot hide source runtime paths or target ignored collisions
+2026-11-15T22:11:31.3219627Z   ✔ source-layout (88.592888ms)
+2026-11-15T22:11:31.3978914Z   ✔ target-collision (76.320743ms)
+2026-11-15T22:11:31.3981715Z ✔ a nested provider cwd cannot hide source runtime paths or target ignored collisions (165.560383ms)
+2026-11-15T22:11:31.4479120Z ✔ rejects repository replacement and use after the queue scope ends (49.070426ms)
+2026-11-15T22:11:31.5071623Z ✔ propagates controller failures while allowing the next queued transaction (59.082597ms)
+2026-11-15T22:11:31.6118845Z ▶ checkout guard refuses native layout runtime files tracked on the source or target branch
+2026-11-15T22:11:31.6120431Z   ✔ alpha: workspace.json (104.469819ms)
+2026-11-15T22:11:31.7205120Z   ✔ beta: workspace-mobile.json (108.468166ms)
+2026-11-15T22:11:31.7207137Z ✔ checkout guard refuses native layout runtime files tracked on the source or target branch (213.854332ms)
+2026-11-15T22:11:31.8379425Z ▶ checkout guard refuses changed integration manifests and plugin enablement
+2026-11-15T22:11:31.8384145Z   ✔ plugins/obsidian-workspaces/manifest.json (117.041014ms)
+2026-11-15T22:11:31.9569345Z   ✔ plugins/obsidian-git/manifest.json (118.490403ms)
+2026-11-15T22:11:32.0722157Z   ✔ community-plugins.json (115.454692ms)
+2026-11-15T22:11:32.0729461Z ✔ checkout guard refuses changed integration manifests and plugin enablement (351.890678ms)
+2026-11-15T22:11:32.1805913Z ▶ raw diff type changes preserve safe note switches and protect integration paths
+2026-11-15T22:11:32.1806995Z   ✔ ordinary-note (108.155907ms)
+2026-11-15T22:11:32.2949187Z   ✔ integration-file (114.351775ms)
+2026-11-15T22:11:32.3995475Z   ✔ integration-ancestor-gitlink (104.186103ms)
+2026-11-15T22:11:32.3997116Z ✔ raw diff type changes preserve safe note switches and protect integration paths (327.544774ms)
+2026-11-15T22:11:32.5198976Z ✔ checkout guard allows identical tracked plugin code with a custom vault config and plugin ID (120.165899ms)
+2026-11-15T22:11:32.5884773Z ✔ checkout guard requires the vault to be inside the inspected repository (68.59753ms)
+2026-11-15T22:11:32.6825944Z ✔ checkout guard resolves runtime paths relative to a vault nested in its repository (93.970988ms)
+2026-11-15T22:11:32.7517178Z ✔ checkout guard refuses configuration symlinks that hide their real runtime paths (69.332384ms)
+2026-11-15T22:11:33.3178399Z ✔ controller round trips exclusive pinned notes and waits for changed same-size shared content (260.754618ms)
+2026-11-15T22:11:33.3918594Z ✔ dirty editor content is flushed and blocks the transition before checkout or journaling (75.193439ms)
+2026-11-15T22:11:33.5608428Z ✔ failed restoration retains a durable journal and explicit recovery survives controller restart (167.170522ms)
+2026-11-15T22:11:33.8688933Z ▶ the prepared journal recovers actual process interruptions at every checkout/commit boundary
+2026-11-15T22:11:33.8689629Z   ✔ before-checkout, autoSave=true (309.079985ms)
+2026-11-15T22:11:34.1715253Z   ✔ before-checkout, autoSave=false (302.406921ms)
+2026-11-15T22:11:34.5067787Z   ✔ after-checkout, autoSave=true (334.980734ms)
+2026-11-15T22:11:34.8549038Z   ✔ after-checkout, autoSave=false (348.124901ms)
+2026-11-15T22:11:35.2102551Z   ✔ before-final-commit, autoSave=true (355.04783ms)
+2026-11-15T22:11:35.5678488Z   ✔ before-final-commit, autoSave=false (357.152219ms)
+2026-11-15T22:11:35.5680233Z ✔ the prepared journal recovers actual process interruptions at every checkout/commit boundary (2008.795448ms)
+2026-11-15T22:11:54.7178674Z ✔ complete paired synthetic Mac evidence satisfies the local evaluator (612.585651ms)
+2026-11-15T22:11:54.7196842Z ✔ paired evidence rejects different target sidebar ownership despite valid completion endpoints (478.610662ms)
+2026-11-15T22:11:54.7217924Z ✔ paired evidence rejects different target duplicate editor multiplicity despite valid completion endpoints (451.764308ms)
+2026-11-15T22:11:54.7262255Z ✔ paired evidence rejects different source-only sidebar ownership despite valid completion endpoints (447.31679ms)
+2026-11-15T22:11:54.7294860Z ✔ paired workload comparison ignores generated IDs and tab metadata (550.6912ms)
+2026-11-15T22:11:54.7317605Z ✔ percentiles use nearest rank without rounding away an exceeded budget (0.838952ms)
+2026-11-15T22:11:54.7318623Z ✔ closure blocks Linux report (422.390074ms)
+2026-11-15T22:11:54.7351834Z ✔ closure blocks legacy timing schema (434.771464ms)
+2026-11-15T22:11:54.7359423Z ✔ closure blocks legacy whole-report recorder (417.849356ms)
+2026-11-15T22:11:54.7373674Z ✔ closure blocks incomplete sample journal (429.154377ms)
+2026-11-15T22:11:54.7390716Z ✔ closure blocks wrong completed sample digest (405.164389ms)
+2026-11-15T22:11:54.7408001Z ✔ closure blocks duplicate ordered sample identity (423.02587ms)
+2026-11-15T22:11:54.7421970Z ✔ closure blocks unrecorded sample attempt (442.315389ms)
+2026-11-15T22:11:54.7431643Z ✔ closure blocks missing outside-timer memory observation (419.041379ms)
+2026-11-15T22:11:54.7438099Z ✔ closure blocks Settings open in a separate native window (412.941495ms)
+2026-11-15T22:11:54.7439492Z ✔ closure blocks missing supported native Settings observation (447.96804ms)
+2026-11-15T22:11:54.7440812Z ✔ closure blocks native window unfocused during first switch (555.184277ms)
+2026-11-15T22:11:54.7441993Z ✔ closure blocks wrong installed bundle (653.572908ms)
+2026-11-15T22:11:54.7442952Z ✔ closure blocks wrong evidence hash (689.254494ms)
+2026-11-15T22:11:54.7443862Z ✔ closure blocks diagnostic run (660.801531ms)
+2026-11-15T22:11:54.7444788Z ✔ closure blocks omitted failed sample (660.000768ms)
+2026-11-15T22:11:54.7445725Z ✔ closure blocks missing controls (729.855798ms)
+2026-11-15T22:11:54.7446887Z ✔ closure blocks late editor hydration (701.803887ms)
+2026-11-15T22:11:54.7447899Z ✔ closure blocks unobserved input release (677.425734ms)
+2026-11-15T22:11:54.7448861Z ✔ closure blocks modal during warmup (589.648982ms)
+2026-11-15T22:11:54.7449787Z ✔ closure blocks reused app session (417.302333ms)
+2026-11-15T22:11:54.7450929Z ✔ closure blocks new app session UUID in a reused renderer process (410.21061ms)
+2026-11-15T22:11:54.7452199Z ✔ closure blocks pair roles in different renderer processes (461.241291ms)
+2026-11-15T22:11:54.7453373Z ✔ closure blocks missing representative scope (166.779525ms)
+2026-11-15T22:11:54.7454557Z ✔ closure blocks undersized representative editor workload (315.611448ms)
+2026-11-15T22:11:54.7455712Z ✔ closure blocks wrong platform safety evidence (448.337586ms)
+2026-11-15T22:11:54.7456841Z ✔ closure blocks no safety evidence (446.311923ms)
+2026-11-15T22:11:54.7458188Z ✔ closure independently recomputes durations and rejects a forged fast summary (404.065527ms)
+2026-11-15T22:11:54.7459832Z ✔ closure rejects truthful slow candidate despite passing endpoint correctness (436.33624ms)
+2026-11-15T22:11:54.7461094Z ✔ closure rejects late snapshot after next frame (434.615896ms)
+2026-11-15T22:11:54.7462174Z ✔ closure rejects nonexistent active layout leaf (422.133873ms)
+2026-11-15T22:11:54.7463295Z ✔ closure rejects different actual controller target (422.856869ms)
+2026-11-15T22:11:54.7464682Z ✔ closure requires fresh loaded-product provenance rather than a disk hash alone (439.656057ms)
+2026-11-15T22:11:54.7466237Z ✔ closure rejects invented safety scenarios and wrong safety-probe bytes (929.064661ms)
+2026-11-15T22:11:54.8508287Z ✔ CLI cannot overwrite an input through a symlink output alias (136.136014ms)
+2026-11-15T22:11:55.1265845Z ✔ completion capture is synchronous, copied and deeply immutable before later hydration (2.45578ms)
+2026-11-15T22:11:55.1273947Z ✔ completion capture rejects an asynchronous observation callback (0.188363ms)
+2026-11-15T22:11:55.1277562Z ✔ complete native endpoint verifies all required pins, duplicate editors and current text (0.364698ms)
+2026-11-15T22:11:55.1281157Z ✔ endpoint rejects extra source sidebar leaf even if later verification passes (0.440031ms)
+2026-11-15T22:11:55.1299624Z ✔ endpoint rejects missing second sidebar editor even if later verification passes (0.322084ms)
+2026-11-15T22:11:55.1301466Z ✔ endpoint rejects hidden deferred editor even if later verification passes (0.308673ms)
+2026-11-15T22:11:55.1303642Z ✔ endpoint rejects same-size stale shared bytes even if later verification passes (0.323226ms)
+2026-11-15T22:11:55.1305206Z ✔ endpoint rejects retained input listener even if later verification passes (0.294413ms)
+2026-11-15T22:11:55.1306944Z ✔ endpoint rejects late input release even if later verification passes (0.414142ms)
+2026-11-15T22:11:55.1308355Z ✔ endpoint rejects stale Git label even if later verification passes (0.485649ms)
+2026-11-15T22:11:55.1309827Z ✔ endpoint rejects removed sidebar still indexed even if later verification passes (0.33935ms)
+2026-11-15T22:11:55.1315244Z ✔ endpoint rejects incomplete durable state even if later verification passes (0.221503ms)
+2026-11-15T22:11:55.3488831Z ✔ inspected closed Settings and both focused document/window qualify without changing UI (1.443738ms)
+2026-11-15T22:11:55.3490830Z ✔ separate Settings window rejects even when legacy main-document checks are false (0.478999ms)
+2026-11-15T22:11:55.3492448Z ✔ closed flag cannot hide a retained popout or connected native Settings modal (1.255887ms)
+2026-11-15T22:11:55.3494049Z ✔ unsupported Settings shape/version refuses timing with observable failure details (0.33246ms)
+2026-11-15T22:11:55.3495542Z ✔ unfocused or unsupported native window cannot be masked by document.hasFocus (0.384498ms)
+2026-11-15T22:11:55.3496991Z ✔ a false document focus flag refuses the first sample immediately (0.215784ms)
+2026-11-15T22:11:56.5250568Z ✔ CLI verifies complete portable plain journals and reports (955.584502ms)
+2026-11-15T22:11:57.4688743Z ✔ CLI verifies complete portable gzip journals and reports (943.19516ms)
+2026-11-15T22:11:57.8109532Z ✔ CLI blocks an absent journal file instead of accepting its declared hash (342.274246ms)
+2026-11-15T22:11:58.6678865Z ✔ CLI blocks an omitted portable journal reference (855.818809ms)
+2026-11-15T22:11:59.4722513Z ✔ CLI blocks a journal file hash mismatch (805.360976ms)
+2026-11-15T22:12:00.3748593Z ✔ CLI verifies the raw journal hash independently of its supplied file hash (902.281545ms)
+2026-11-15T22:12:01.2255549Z ✔ CLI blocks truncated final line even with recomputed artifact hashes (850.449373ms)
+2026-11-15T22:12:02.0961108Z ✔ CLI blocks omitted final attempt even with recomputed artifact hashes (870.765405ms)
+2026-11-15T22:12:02.9373468Z ✔ CLI blocks different header artifact identity even with recomputed artifact hashes (841.137071ms)
+2026-11-15T22:12:03.7707293Z ✔ CLI blocks different raw sample even with recomputed artifact hashes (833.350783ms)
+2026-11-15T22:12:04.5830370Z ✔ CLI blocks reordered sample observation even with recomputed artifact hashes (812.161177ms)
+2026-11-15T22:12:05.4321148Z ✔ CLI blocks wrong sealed final metadata even with recomputed artifact hashes (848.971322ms)
+2026-11-15T22:12:06.3120561Z ✔ CLI blocks trailing unrecognized record even with recomputed artifact hashes (879.700229ms)
+2026-11-15T22:12:07.1228878Z ✔ CLI refuses one journal reused by a different run (809.814982ms)
+2026-11-15T22:12:07.4137291Z ✔ CLI cannot publish its closure output over a referenced journal (291.902631ms)
+2026-11-15T22:12:07.6835594Z ✔ preparation rejects an outside report symlink before changing its fixture target (15.941767ms)
+2026-11-15T22:12:07.6866602Z ✔ preparation resolves directory aliases before creating missing report directories (2.860156ms)
+2026-11-15T22:12:07.6918444Z ✔ atomic prepared publication replaces an external hardlink without changing linked vault data (6.208907ms)
+2026-11-15T22:12:07.6950776Z ✔ a nonregular selected report is refused without mutation (1.922978ms)
+2026-11-15T22:12:07.6989603Z ✔ an existing archive symlink never overwrites its target (5.008574ms)
+2026-11-15T22:12:07.7075016Z ✔ an existing archive hardlink never overwrites its target (4.230415ms)
+2026-11-15T22:12:07.7167192Z ✔ archives use fresh names and reject path-bearing supplied suffixes (12.791064ms)
+2026-11-15T22:12:07.9581647Z ✔ streaming final assembly preserves original schema, every ordered attempt and immutable raw snapshots (33.472081ms)
+2026-11-15T22:12:08.0597664Z ✔ compact progress does not accumulate detailed earlier samples (101.500572ms)
+2026-11-15T22:12:08.0675414Z ✔ failed attempts and successful cleanup remain evidence and cannot be finalized as passed (8.191345ms)
+2026-11-15T22:12:08.0715709Z ✔ a crash after start preserves an incomplete journal and cannot publish a pass (4.934382ms)
+2026-11-15T22:12:08.0778995Z ✔ duplicate completion and noncontiguous starts are rejected without losing prior evidence (6.955428ms)
+2026-11-15T22:12:08.0902559Z ✔ reusing a run identity cannot overwrite its exclusive journal or final report (11.893005ms)
+2026-11-15T22:12:08.0970436Z ✔ a tampered journal cannot replace progress with a complete report (6.819504ms)
+2026-11-15T22:12:08.1064177Z ✔ streamed final publication rejects reordered-start and retains incomplete evidence (9.584688ms)
+2026-11-15T22:12:08.1120927Z ✔ streamed final publication rejects truncated-footer and retains incomplete evidence (5.392701ms)
+2026-11-15T22:12:08.1187749Z ✔ recorder rejects a report directory alias into the vault and a symlink output (6.8297ms)
+2026-11-15T22:12:08.1217257Z ✔ memory observations describe this process without garbage collection or timers (0.245919ms)
+2026-11-15T22:12:08.3078662Z ✔ fixture reload replaces loaded code through native lifecycle without replacing providers (2.134717ms)
+2026-11-15T22:12:08.3080185Z ✔ busy controller is never unloaded for benchmark provenance (0.602064ms)
+2026-11-15T22:12:08.3081285Z ✔ wrong prepared bytes reject before mutating plugin lifecycle (1.292702ms)
+2026-11-15T22:12:08.3082771Z ✔ a loader retaining an old instance cannot certify a new running build (0.265739ms)
+2026-11-15T22:12:08.3084027Z ✔ bytes changing while native load runs cannot certify provenance (0.352489ms)
+2026-11-15T22:12:08.6498162Z ✔ the complete shipping bundle loads and saves an unbound mobile context without Node or browser imports (126.178493ms)
+2026-11-15T22:12:08.6774322Z ✔ desktop onload uses CommonJS Node loading and an isolated filesystem control store (28.980334ms)
+2026-11-15T22:12:08.9958838Z ✔ fresh identity checks retain branch validation without treating identity as clean status (6.075907ms)
+2026-11-15T22:12:08.9970692Z ✔ a complete post-flush preparation replaces only the adjacent cross-branch identity read (2.15702ms)
+2026-11-15T22:12:08.9974759Z ▶ prepared identity rejects source drift before journaling or unload
+2026-11-15T22:12:08.9981588Z   ✔ branch (1.318641ms)
+2026-11-15T22:12:08.9984639Z   ✔ root (0.646491ms)
+2026-11-15T22:12:08.9988858Z ✔ prepared identity rejects source drift before journaling or unload (2.600126ms)
+2026-11-15T22:12:08.9995528Z ▶ preparation capability preserves the initial drift check and final unload-time safeguard
+2026-11-15T22:12:09.0004297Z   ✔ before-flush (0.73236ms)
+2026-11-15T22:12:09.0021283Z   ✔ during-unload (1.307434ms)
+2026-11-15T22:12:09.0054525Z ✔ preparation capability preserves the initial drift check and final unload-time safeguard (2.42314ms)
+2026-11-15T22:12:09.0055977Z ▶ same-branch and unbound paths do not opt into cross-branch preparation
+2026-11-15T22:12:09.0067029Z   ✔ ["alpha","alpha"] (1.229387ms)
+2026-11-15T22:12:09.0107619Z   ✔ [null,null] (1.163598ms)
+2026-11-15T22:12:09.0108283Z   ✔ ["alpha",null] (1.166752ms)
+2026-11-15T22:12:09.0108885Z   ✔ [null,"alpha"] (0.76565ms)
+2026-11-15T22:12:09.0109915Z ✔ same-branch and unbound paths do not opt into cross-branch preparation (6.349107ms)
+2026-11-15T22:12:09.0111322Z ✔ a branch change during flush is rejected by the identity observation before unload (0.694003ms)
+2026-11-15T22:12:09.0112811Z ✔ identity mismatch after native restoration retains recovery rather than completing (1.503889ms)
+2026-11-15T22:12:09.0114251Z ✔ readiness accelerates only a completed checkout, including explicit recovery (3.846148ms)
+2026-11-15T22:12:09.0115647Z ✔ a malformed imported workspace ID cannot mutate the catalog or disable saving (1.942758ms)
+2026-11-15T22:12:09.0117176Z ✔ save-and-switch saves in manual mode before activating with one mutation owner (2.241968ms)
+2026-11-15T22:12:09.0118541Z ✔ save-and-switch stops on a failed save before attempting activation (0.52584ms)
+2026-11-15T22:12:09.0120240Z ✔ save-and-switch on the active workspace still performs its explicit save (0.475945ms)
+2026-11-15T22:12:09.0121614Z ✔ save-and-switch refuses a source that changed while the request was queued (0.640171ms)
+2026-11-15T22:12:09.0123034Z ✔ same-branch layout switches retain dirty note edits without issuing checkout (0.754413ms)
+2026-11-15T22:12:09.0124579Z ▶ transitions durably prepare before side effects and commit completion with two consecutive revisions
+2026-11-15T22:12:09.0125831Z   ✔ branch change (3.094299ms)
+2026-11-15T22:12:09.0126563Z   ✔ same branch (1.201044ms)
+2026-11-15T22:12:09.0127112Z   ✔ unbound desktop (0.933703ms)
+2026-11-15T22:12:09.0127665Z   ✔ unbound mobile (0.961945ms)
+2026-11-15T22:12:09.0128850Z ✔ transitions durably prepare before side effects and commit completion with two consecutive revisions (6.645473ms)
+2026-11-15T22:12:09.0130467Z ✔ checkout rejects a view-unload write and retains recovery instead of loading the target (1.09148ms)
+2026-11-15T22:12:09.0699831Z Workspaces could not update the recovery journal Error: Storage unavailable
+2026-11-15T22:12:09.0791440Z     at MemoryStore.f.store.beforeSave (/home/runner/work/obsidian-workspaces/obsidian-workspaces/tests/unit/controller.test.ts:1127:42)
+2026-11-15T22:12:09.0793606Z     at MemoryStore.save (/home/runner/work/obsidian-workspaces/obsidian-workspaces/tests/unit/controller.test.ts:69:10)
+2026-11-15T22:12:09.0795493Z     at WorkspaceController.commit (/home/runner/work/obsidian-workspaces/obsidian-workspaces/src/workspaces/controller.ts:109:24)
+2026-11-15T22:12:09.0797724Z     at WorkspaceController.markRecovery (/home/runner/work/obsidian-workspaces/obsidian-workspaces/src/workspaces/controller.ts:487:18)
+2026-11-15T22:12:09.0799648Z     at async <anonymous> (/home/runner/work/obsidian-workspaces/obsidian-workspaces/src/workspaces/controller.ts:461:23)
+2026-11-15T22:12:09.0801507Z     at async TestGit.withRepository (/home/runner/work/obsidian-workspaces/obsidian-workspaces/tests/unit/controller.test.ts:101:14)
+2026-11-15T22:12:09.0803513Z     at async WorkspaceController.transition (/home/runner/work/obsidian-workspaces/obsidian-workspaces/src/workspaces/controller.ts:376:5)
+2026-11-15T22:12:09.0805360Z     at async <anonymous> (/home/runner/work/obsidian-workspaces/obsidian-workspaces/src/workspaces/controller.ts:96:16)
+2026-11-15T22:12:09.0807534Z ✔ rapid activations remain serialized while the first restoration is unresolved (28.210748ms)
+2026-11-15T22:12:09.0809834Z ✔ history restores its branch binding and preserves the displaced context for another restoration (2.668319ms)
+2026-11-15T22:12:09.0811721Z ✔ external branch drift blocks saving before the workspace snapshot can be overwritten (0.522364ms)
+2026-11-15T22:12:09.0837558Z ✔ activating the already active workspace still detects external branch drift (0.42563ms)
+2026-11-15T22:12:09.0839005Z ▶ source validation is repeated after flushing before save and create
+2026-11-15T22:12:09.0857112Z   ✔ save (0.561013ms)
+2026-11-15T22:12:09.0877015Z   ✔ create (0.541072ms)
+2026-11-15T22:12:09.0878176Z ✔ source validation is repeated after flushing before save and create (1.473594ms)
+2026-11-15T22:12:09.0898012Z ✔ duplicate preserves metadata and branch/history values without sharing mutable nested objects (1.153653ms)
+2026-11-15T22:12:09.0917680Z ✔ cancelling manual discard also cancels deletion of the active workspace (2.317001ms)
+2026-11-15T22:12:09.0937640Z ✔ readiness failure after checkout with unavailable storage retains the durable journal and blocks mutation (2.466865ms)
+2026-11-15T22:12:09.0957570Z ✔ a failed final commit leaves the prepared journal durable after target restoration (2.024691ms)
+2026-11-15T22:12:09.0959214Z ✔ a committed write with uncertain durability retains a recovery path and correct revision (2.049969ms)
+2026-11-15T22:12:09.0974435Z ▶ same-workspace history recovery restores the source binding and honors the autosave policy after a committed-write failure
+2026-11-15T22:12:09.0979108Z   ✔ autoSave=true (2.829952ms)
+2026-11-15T22:12:09.0979816Z   ✔ autoSave=false (2.466636ms)
+2026-11-15T22:12:09.0988718Z ✔ same-workspace history recovery restores the source binding and honors the autosave policy after a committed-write failure (5.676357ms)
+2026-11-15T22:12:09.1007844Z ✔ a committed-write failure while finishing recovery retains a durable journal until a successful retry (2.934478ms)
+2026-11-15T22:12:09.1027598Z ▶ disposing while waiting for the provider queue prevents all later workspace side effects
+2026-11-15T22:12:09.1047096Z   ✔ save (0.894774ms)
+2026-11-15T22:12:09.1063028Z   ✔ create (0.586371ms)
+2026-11-15T22:12:09.1063738Z   ✔ activate (0.560763ms)
+2026-11-15T22:12:09.1064408Z   ✔ bind (0.714814ms)
+2026-11-15T22:12:09.1065040Z   ✔ recover (0.768084ms)
+2026-11-15T22:12:09.1066300Z ✔ disposing while waiting for the provider queue prevents all later workspace side effects (4.164045ms)
+2026-11-15T22:12:09.1068145Z ✔ unbound mobile contexts work without Git and a bound import requires explicit unbinding (3.518786ms)
+2026-11-15T22:12:09.1069666Z ✔ a confirmed binding cannot follow an earlier queued activation to another identity (1.219703ms)
+2026-11-15T22:12:09.1070899Z ▶ confirmation revisions are checked inside the mutation queue
+2026-11-15T22:12:09.1071777Z   ✔ delete (3.057803ms)
+2026-11-15T22:12:09.1072472Z   ✔ details (0.583747ms)
+2026-11-15T22:12:09.1073135Z   ✔ unbind (0.568373ms)
+2026-11-15T22:12:09.1074109Z ✔ confirmation revisions are checked inside the mutation queue (4.618337ms)
+2026-11-15T22:12:09.1075613Z ✔ history selection retains its snapshot while an earlier save prepends history (1.588246ms)
+2026-11-15T22:12:09.1077453Z ✔ a failed recovery write after target replacement keeps valid in-memory source identity (10.373383ms)
+2026-11-15T22:12:09.3582303Z ✔ the bundled adapter can be evaluated on mobile without resolving Node modules (29.041625ms)
+2026-11-15T22:12:09.3600365Z ✔ fails before executing a transaction when plugin, desktop, version or native capabilities are unavailable (1.242476ms)
+2026-11-15T22:12:09.3618758Z ✔ never mistakes the provider queue's undefined error callback for a successful void operation (0.988435ms)
+2026-11-15T22:12:09.6088882Z ✔ fails a pending operation if the Git plugin unloads and drops its queued callback (250.863563ms)
+2026-11-15T22:12:09.6107755Z ✔ does not release a running transaction merely because provider availability changes (1.954035ms)
+2026-11-15T22:12:09.8231650Z ✔ readiness subscribes before probes and latches an event before the first sleep (10.770119ms)
+2026-11-15T22:12:09.8256122Z ✔ an event invalidates an otherwise successful pass when an earlier file changed (3.135369ms)
+2026-11-15T22:12:09.8309629Z ✔ event wakeups revalidate index, disk, metadata, cached bytes and removed source notes (3.279607ms)
+2026-11-15T22:12:09.8371860Z ✔ eventless readiness retains the polling fallback and releases its subscription (5.43234ms)
+2026-11-15T22:12:09.8393320Z ✔ eventless timeout bounds the last poll and cleans up the timer and subscription (2.753095ms)
+2026-11-15T22:12:09.8408843Z ✔ probe errors after an event wakeup release the timer and subscription (1.913324ms)
+2026-11-15T22:12:09.8410427Z ✔ already-ready files release their subscription without creating a timer (0.403867ms)
+2026-11-15T22:12:09.8426622Z ✔ same-size stale text cannot pass readiness until cached bytes match disk (2.912435ms)
+2026-11-15T22:12:09.8448096Z ✔ a source-only deleted note must disappear from the Vault index before readiness (1.973284ms)
+2026-11-15T22:12:09.8618365Z ✔ a missing target fails within the configured readiness budget (15.741066ms)
+2026-11-15T22:12:09.8679268Z ✔ binary readiness waits on matching file metadata without using text reads (1.808056ms)
+2026-11-15T22:12:09.8699336Z ✔ file leaves cover sidebars and floating windows and accept both native pin encodings (1.896389ms)
+2026-11-15T22:12:09.8719573Z ✔ restoration verification catches a lost pin even when the expected note is open (0.276435ms)
+2026-11-15T22:12:09.8748108Z ▶ extra stale file leaves are rejected in main, sidebars and floating windows
+2026-11-15T22:12:09.8757551Z   ✔ main (0.244047ms)
+2026-11-15T22:12:09.8767787Z   ✔ left (0.135023ms)
+2026-11-15T22:12:09.8799099Z   ✔ right (0.111227ms)
+2026-11-15T22:12:09.8807017Z   ✔ floating (0.11981ms)
+2026-11-15T22:12:09.8817565Z ✔ extra stale file leaves are rejected in main, sidebars and floating windows (1.274284ms)
+2026-11-15T22:12:09.8819305Z ✔ restoration preserves file region and duplicate-leaf multiplicity (0.614463ms)
+2026-11-15T22:12:10.1149091Z ✔ own catalog round trips native state, metadata, history, bindings and explicit order (3.719126ms)
+2026-11-15T22:12:10.1150399Z ✔ future versions, invalid revisions and malformed own catalogs are refused (1.370399ms)
+2026-11-15T22:12:10.1155489Z ✔ blank workspace IDs are refused on load and own-product import (1.553363ms)
+2026-11-15T22:12:10.1167712Z ✔ legacy blank IDs receive distinct usable identities while valid non-UUID IDs survive (1.605201ms)
+2026-11-15T22:12:10.1169089Z ▶ valid recovery journals survive reload while corrupted recovery references are rejected
+2026-11-15T22:12:10.1169735Z   ✔ unknown target (0.305889ms)
+2026-11-15T22:12:10.1173416Z   ✔ unknown source (0.300362ms)
+2026-11-15T22:12:10.1177895Z   ✔ source differs from active (0.228493ms)
+2026-11-15T22:12:10.1181649Z   ✔ invalid phase (0.331418ms)
+2026-11-15T22:12:10.1186561Z   ✔ invalid source snapshot (0.347852ms)
+2026-11-15T22:12:10.1193213Z   ✔ empty recovery root (0.390657ms)
+2026-11-15T22:12:10.1206240Z   ✔ empty recovery branch (0.321433ms)
+2026-11-15T22:12:10.1208987Z ✔ valid recovery journals survive reload while corrupted recovery references are rejected (3.812678ms)
+2026-11-15T22:12:10.1212433Z ▶ path traversal is rejected in saved contexts, history and imported native trees
+2026-11-15T22:12:10.1215457Z   ✔ ../outside.md (0.904118ms)
+2026-11-15T22:12:10.1227147Z   ✔ notes/../../outside.md (0.603847ms)
+2026-11-15T22:12:10.1242914Z   ✔ /outside.md (0.360802ms)
+2026-11-15T22:12:10.1243600Z   ✔ C:/outside.md (0.410697ms)
+2026-11-15T22:12:10.1244456Z   ✔ notes\outside.md (0.427141ms)
+2026-11-15T22:12:10.1245727Z ✔ path traversal is rejected in saved contexts, history and imported native trees (3.343212ms)
+2026-11-15T22:12:10.1247751Z ✔ standard wrapped Workspace++ export preserves order, both device layouts and group presentation (0.65904ms)
+2026-11-15T22:12:10.1249490Z ✔ explicit Workspace++ history imports legacy timestamps and device-specific layouts (0.454974ms)
+2026-11-15T22:12:10.1251211Z ✔ native core workspaces import while capitalized and compact Mode entries are excluded (0.386801ms)
+2026-11-15T22:12:10.1253267Z ✔ Workspaces Plus metadata and missing tracked references migrate without executing mode or override settings (0.476386ms)
+2026-11-15T22:12:10.3742219Z ✔ deep diagnostic checkpoint writing preserves a preexisting symlink temporary (39.452685ms)
+2026-11-15T22:12:10.3879396Z ✔ deep diagnostic checkpoint writing preserves a preexisting hardlink temporary (7.355529ms)
+2026-11-15T22:12:10.4008435Z ✔ runtime-probe report writing preserves preexisting temporary and destination symlink targets (19.854064ms)
+2026-11-15T22:12:10.4128300Z ✔ runtime-probe report writing preserves preexisting temporary and destination hardlink targets (10.071049ms)
+2026-11-15T22:12:10.4165634Z ✔ quick-switcher-probe report writing preserves preexisting temporary and destination symlink targets (5.763357ms)
+2026-11-15T22:12:10.4226278Z ✔ quick-switcher-probe report writing preserves preexisting temporary and destination hardlink targets (5.746232ms)
+2026-11-15T22:12:10.4269695Z ✔ exclusive native temporary collision leaves an existing symlink and its target intact (4.58635ms)
+2026-11-15T22:12:10.4314171Z ✔ exclusive native temporary collision leaves an existing hardlink and its target intact (3.054398ms)
+2026-11-15T22:12:10.4351232Z ✔ failed native publication removes only the temporary it created and preserves the previous report (3.960359ms)
+2026-11-15T22:12:10.4397349Z ✔ failed native publication does not delete an unrelated replacement of its temporary (3.376212ms)
+2026-11-15T22:12:10.4419043Z ✔ native serialization failure cleans its own temporary without publishing partial JSON (2.795609ms)
+2026-11-15T22:12:10.6884330Z ✔ native file-following sidebar views unload independently and every unload is awaited (14.584479ms)
+2026-11-15T22:12:10.6925639Z ✔ a rejected native unload waits for every other started unload before reporting failure (4.449654ms)
+2026-11-15T22:12:10.6959090Z ✔ editable views of one file retain close-write order while another file closes (3.166446ms)
+2026-11-15T22:12:10.7086764Z ✔ a failed close stops later same-file saves while independent unloads still drain (2.803011ms)
+2026-11-15T22:12:10.7107300Z ✔ an unknown editable FileView blocks before any supported leaf is unloaded (0.601683ms)
+2026-11-15T22:12:10.7130426Z ✔ a core-looking type does not exempt an unknown file-backed non-FileView (0.357857ms)
+2026-11-15T22:12:10.7132129Z ✔ fast transitions block input in every window immediately without flashing progress (6.533414ms)
+2026-11-15T22:12:10.7159983Z ✔ activation handlers in existing and newly opened windows stay blocked until release (1.605061ms)
+2026-11-15T22:12:10.7179153Z ✔ a slow transition shows progress without releasing input or allowing dismissal (0.485219ms)
+2026-11-15T22:12:10.7199069Z ✔ restoration hydrates every leaf after native layout creation and waits for completion (4.097916ms)
+2026-11-15T22:12:10.7214223Z ✔ a failed hydration retains transition ownership until every started leaf settles (0.89205ms)
+2026-11-15T22:12:10.7231853Z ✔ post-checkout reconciliation drains failed hints before running full readiness probes (4.464006ms)
+2026-11-15T22:12:11.0144979Z ✔ lists stable IDs with duplicate names, group and branch search, without core Workspaces (17.622682ms)
+2026-11-15T22:12:11.0207902Z ✔ chooses duplicate names by their own IDs and observes renames without touching the core catalog (4.898588ms)
+2026-11-15T22:12:11.0308041Z ✔ consumes failed activation and deleted suggestions without falling through to native loading (5.31874ms)
+2026-11-15T22:12:11.0347790Z ✔ save-and-switch calls one atomic controller operation and keeps save intent local to its facade (3.154379ms)
+2026-11-15T22:12:11.0417279Z ✔ save failure and a stale save source prevent fallback activation (3.039106ms)
+2026-11-15T22:12:11.0688651Z ✔ rejects unmarked native rows even when a core name exactly equals a stable product ID (2.350191ms)
+2026-11-15T22:12:11.0707751Z ✔ creates unmatched workspaces through the controller without native save or active-state writes (2.598604ms)
+2026-11-15T22:12:11.0773816Z ✔ hooks apply only to their app and do not redirect a foreign app selection (2.695839ms)
+2026-11-15T22:12:11.0813874Z ✔ attaches after provider load, preserves manager results and arguments, and restores after unload (2.897523ms)
+2026-11-15T22:12:11.0820290Z ✔ provider reload replaces cached-handler hooks and rejects suggestions issued by the old provider (8.236653ms)
+2026-11-15T22:12:11.0843815Z ✔ attaches when native provider enable was already in progress before integration starts (2.334757ms)
+2026-11-15T22:12:11.0845923Z ✔ attaches when native enable starts before integration and publishes its instance later (2.085382ms)
+2026-11-15T22:12:11.0848469Z ✔ native lifecycle events reconcile replacements and stop observing after disposal (1.65118ms)
+2026-11-15T22:12:11.0850622Z ✔ invalidates workspace modals on install and teardown while leaving another mode open (1.71114ms)
+2026-11-15T22:12:11.0865834Z ✔ dispose restores inherited and own descriptors and makes previously captured operations harmless (5.654314ms)
+2026-11-15T22:12:11.0882195Z ✔ a provider load completing after disposal does not reinstall hooks (1.452913ms)
+2026-11-15T22:12:11.0892941Z ✔ later wrappers are preserved and captured adapter callbacks reject owned rows after disposal (2.169048ms)
+2026-11-15T22:12:11.0894759Z ✔ unsupported versions and incomplete handler capabilities produce a notice without partial hooks (2.854628ms)
+2026-11-15T22:12:11.0935359Z ✔ a non-replaceable handler method rolls back hooks installed earlier in the same attempt (1.707585ms)
+2026-11-15T22:12:11.0937592Z ✔ failed provider unload restores integration and propagates the original manager error (3.225915ms)
+2026-11-15T22:12:11.2892502Z ✔ fixture scaling keeps legacy defaults and requires an explicit representative profile (1.289086ms)
+2026-11-15T22:12:11.2895452Z ✔ fixture scaling rejects missing, malformed and excessive workload sizes before writing (0.431748ms)
+2026-11-15T22:12:11.3304956Z ✔ generated notes have deterministic exact byte lengths and distinct branch content (36.37327ms)
+2026-11-15T22:12:11.3338244Z ✔ generation refuses to overwrite an existing note (3.248389ms)
+2026-11-15T22:12:11.5950810Z ✔ atomic replacement exposes complete revisions and keeps the previous generation (54.778607ms)
+2026-11-15T22:12:11.5979616Z ✔ corrupt and future-version files are refused and never silently overwritten (8.635432ms)
+2026-11-15T22:12:11.6129094Z ✔ stale writers cannot overwrite a newer revision even if they guess its successor (14.206871ms)
+2026-11-15T22:12:11.6206168Z ✔ an existing writer lock is preserved rather than stolen or removed (9.541473ms)
+2026-11-15T22:12:11.6301379Z ✔ outside-repository validation rejects lexical and resolved symlink containment (5.825891ms)
+2026-11-15T22:12:11.8736021Z ✔ native reconciliation deduplicates vault paths and preserves the adapter receiver (10.448385ms)
+2026-11-15T22:12:11.8749213Z ✔ other versions, adapters, and unavailable capabilities retain normal readiness (5.512481ms)
+2026-11-15T22:12:11.8753284Z ✔ a synchronous failure still starts and drains all other native updates (3.334399ms)
+2026-11-15T22:12:11.8861542Z ✔ native update is not invoked for external or non-vault paths (1.339963ms)
+2026-11-15T22:12:11.8862412Z ℹ tests 396
+2026-11-15T22:12:11.8887170Z ℹ suites 0
+2026-11-15T22:12:11.9097549Z ℹ pass 396
+2026-11-15T22:12:11.9098322Z ℹ fail 0
+2026-11-15T22:12:11.9099356Z ℹ cancelled 0
+2026-11-15T22:12:11.9100017Z ℹ skipped 0
+2026-11-15T22:12:11.9101092Z ℹ todo 0
+2026-11-15T22:12:11.9101830Z ℹ duration_ms 47690.204745
+2026-11-15T22:12:12.0131935Z 
+2026-11-15T22:12:12.0132890Z > obsidian-workspaces@0.1.0 build
+2026-11-15T22:12:12.0133887Z > node esbuild.config.mjs
+2026-11-15T22:12:12.0134358Z 
+2026-11-15T22:12:12.1191470Z Post job cleanup.
+2026-11-15T22:12:12.2415636Z Cache hit occurred on the primary key node-cache-Linux-x64-npm-9b7cf11278bdf95a5c8914833e1f02975e557633d21851a63347d4450ddbe44a, not saving cache.
+2026-11-15T22:12:12.2582654Z Post job cleanup.
+2026-11-15T22:12:12.3595593Z [command]/usr/bin/git version
+2026-11-15T22:12:12.3688564Z git version 2.56.1
+2026-11-15T22:12:12.3735802Z Temporarily overriding HOME='/home/runner/work/_temp/f12627d8-cd67-4d3b-a741-46b84b14a1da' before making global git config changes
+2026-11-15T22:12:12.3749346Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-15T22:12:12.3777697Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/obsidian-workspaces/obsidian-workspaces
+2026-11-15T22:12:12.3851919Z Removing SSH command configuration
+2026-11-15T22:12:12.3853189Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-15T22:12:12.3918455Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-15T22:12:12.4653034Z Removing HTTP extra header
+2026-11-15T22:12:12.4660348Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-15T22:12:12.4754624Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-15T22:12:12.5317295Z Removing includeIf entries pointing to credentials config files
+2026-11-15T22:12:12.5330688Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-15T22:12:12.5349528Z includeif.gitdir:/home/runner/work/obsidian-workspaces/obsidian-workspaces/.git.path
+2026-11-15T22:12:12.5360187Z includeif.gitdir:/home/runner/work/obsidian-workspaces/obsidian-workspaces/.git/worktrees/*.path
+2026-11-15T22:12:12.5387450Z includeif.gitdir:/github/workspace/.git.path
+2026-11-15T22:12:12.5397074Z includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-11-15T22:12:12.5477753Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/obsidian-workspaces/obsidian-workspaces/.git.path
+2026-11-15T22:12:12.5482189Z /home/runner/work/_temp/git-credentials-1bcdfc77-c2aa-43ac-8506-29739501d971.config
+2026-11-15T22:12:12.5503729Z [command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/obsidian-workspaces/obsidian-workspaces/.git.path \/home\/runner\/work\/_temp\/git\-credentials\-1bcdfc77\-c2aa\-43ac\-8506\-29739501d971\.config
+2026-11-15T22:12:12.5557092Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/obsidian-workspaces/obsidian-workspaces/.git/worktrees/*.path
+2026-11-15T22:12:12.5567542Z /home/runner/work/_temp/git-credentials-1bcdfc77-c2aa-43ac-8506-29739501d971.config
+2026-11-15T22:12:12.5570360Z [command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/obsidian-workspaces/obsidian-workspaces/.git/worktrees/*.path \/home\/runner\/work\/_temp\/git\-credentials\-1bcdfc77\-c2aa\-43ac\-8506\-29739501d971\.config
+2026-11-15T22:12:12.5641041Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git.path
+2026-11-15T22:12:12.5677724Z /github/runner_temp/git-credentials-1bcdfc77-c2aa-43ac-8506-29739501d971.config
+2026-11-15T22:12:12.5708336Z [command]/usr/bin/git config --local --unset includeif.gitdir:/github/workspace/.git.path \/github\/runner_temp\/git\-credentials\-1bcdfc77\-c2aa\-43ac\-8506\-29739501d971\.config
+2026-11-15T22:12:12.5786862Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-11-15T22:12:12.5799282Z /github/runner_temp/git-credentials-1bcdfc77-c2aa-43ac-8506-29739501d971.config
+2026-11-15T22:12:12.5831103Z [command]/usr/bin/git config --local --unset includeif.gitdir:/github/workspace/.git/worktrees/*.path \/github\/runner_temp\/git\-credentials\-1bcdfc77\-c2aa\-43ac\-8506\-29739501d971\.config
+2026-11-15T22:12:12.5886713Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-15T22:12:12.6257685Z Removing credentials config '/home/runner/work/_temp/git-credentials-1bcdfc77-c2aa-43ac-8506-29739501d971.config'
+2026-11-15T22:12:12.6431438Z Cleaning up orphan processes

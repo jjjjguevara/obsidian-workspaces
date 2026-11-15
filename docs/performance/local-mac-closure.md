@@ -52,7 +52,7 @@ export PERF_REPO="$PERF_ROOT/repo"
 export PERF_REPORTS="$PERF_ROOT/reports"
 export PERF_ASSETS="$PERF_ROOT/assets"
 export PERF_BASELINE_COMMIT=6b3ae45589132a7c37da14e94a20a4668b2f28b9
-export PERF_CANDIDATE_COMMIT=REPLACE_WITH_FINAL_PRODUCT_COMMIT
+export PERF_CANDIDATE_COMMIT=3f0c0ed8df50efb1fb29b6bf402ad1084b2e9939
 mkdir -p "$PERF_REPORTS" "$PERF_ASSETS"
 git clone https://github.com/jjjjguevara/obsidian-workspaces.git "$PERF_REPO"
 cd "$PERF_REPO"
@@ -62,7 +62,7 @@ npm run check
 git status --short
 ```
 
-Preserve the complete check output and commit identity. The benchmark source checkout must be clean. Keep reports outside it until collecting evidence is finished. Build the baseline in a separate checkout:
+The candidate above pins PR #5's product and hardened benchmark protocol. For a later product or protocol change, replace it with the new full commit and collect new evidence. Preserve the complete check output and commit identity. The benchmark source checkout must be clean. Keep reports outside it until collecting evidence is finished. Build the baseline in a separate checkout:
 
 ```sh
 git worktree add --detach "$PERF_ROOT/baseline-source" "$PERF_BASELINE_COMMIT"
@@ -117,6 +117,8 @@ The command prints its external report location and safety-probe hash. Enable **
 
 For each profile, collect three paired sessions. Close and reopen that disposable vault window between pairs; both the native session identity and renderer process ID must change. **Reload app** can change the session UUID while retaining the renderer process and its memory. If closing a vault window also leaves that process alive or reuses it, quit and relaunch Obsidian between pairs. The gate requires distinct renderer PIDs across independent pairs and the same PID/session within each pair. This establishes a fresh renderer, not an OS-cache-cold sample. Keep the fixture window visible and focused, Settings closed, the viewport/theme/provider settings unchanged, and avoid concurrent builds or benchmarks. A session pair uses the same fixture commits, plugin assets and benchmark hash for both builds.
 
+Keep a configuration observation record with the reports: enabled community plugins, performance-relevant Obsidian Git and Quick Switcher++ settings, theme/CSS snippets, layout split arrangement, selected sidebar tabs, sidebar widths and collapsed states. The raw report captures plugin versions and JavaScript hashes, viewport, Workspaces auto-save, and native load/session evidence. It does not capture all provider/theme settings or stylesheet bytes. Their equality, along with full layout topology, must therefore be maintained by the operator and checked in independent review; the gate's normalized file-leaf comparison is narrower than full visual-layout equality.
+
 Alternate installation order to reduce order bias: baseline→candidate, candidate→baseline, baseline→candidate. For **each** report:
 
 1. Disable **Workspaces Switch Latency Benchmark** and **Workspaces** in the disposable vault.
@@ -140,7 +142,7 @@ Before every timed attempt, the probe requires both a focused document and a foc
 
 After a process crash, preserve the incomplete progress JSON, journal and any `.partial` output. They do not qualify as completed evidence. Confirm the disposable Obsidian process has exited, archive its progress JSON to a new filename ending in `.incomplete.json`, and prepare a new run with a new report name. Archiving the interrupted progress path also allows the preparer's stale `running` check to resolve; do not change its contents to `passed`. Inspect and recover the product's own transition journal explicitly before rearming if the fixture needs recovery.
 
-Record the benchmark bundle hash printed by preparation and the safety-probe hash printed by its preparer. Each must be identical across its respective closure reports. Any change to the benchmark invalidates comparisons made with the previous probe. Any product change requires a new exact candidate identity and new candidate evidence. Never reuse historical Linux results as Mac reports.
+Record the benchmark bundle hash printed by preparation and the safety-probe hash printed by its preparer. Each must be identical across its respective closure reports. A changed benchmark requires new matched baseline/candidate reports for acceptance with that probe. Preserve historical comparisons under their original identity; never combine probe hashes in one closure result. Any product change requires a new exact candidate identity and new candidate evidence. Never reuse historical Linux results as Mac reports.
 
 Inspect each report independently:
 
@@ -150,7 +152,7 @@ node scripts/analyze-switch-benchmark.mjs "$PERF_REPORTS/small-s1-candidate.json
 
 Do not run deep tracing or CPU profiling during acceptance. Those modes remain available for separate diagnostics, but the closure gate rejects them. Stage spans overlap; the analyzer treats nested safety checks and presentation overlap explicitly rather than adding every span.
 
-After the paired sessions, reinstall the candidate if necessary and rerun the native safety probe for each profile. Also make a physical command-palette Alpha→Beta→Alpha roundtrip and inspect the main and both sidebar pins, current text and Git/workspace labels. Preserve a concise observation record and screenshots for the independent review; automated chooser-method calls are not physical keyboard evidence.
+For each profile, finish its final baseline/candidate pair, reinstall the candidate if necessary, and rerun the native safety probe **before closing that renderer process or moving to the other profile**. The safety report must share a native session UUID and renderer PID with one of that profile's measured pairs. If the process exits before this check, collect a new complete pair and its safety report in the replacement process; do not combine the new safety report with an old renderer's timings. Also make a physical command-palette Alpha→Beta→Alpha roundtrip and inspect the main and both sidebar pins, current text and Git/workspace labels. Preserve a concise observation record and screenshots for the independent review; automated chooser-method calls are not physical keyboard evidence.
 
 ## 4. Evaluate the closure gate
 

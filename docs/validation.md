@@ -2,6 +2,12 @@
 
 Validated on 2026-11-13. This document distinguishes native application observations from automated simulations.
 
+## Completion benchmark and performance closure — 2026-11-15
+
+The [native completion benchmark report](validation/native-completion-budget/README.md) records six matched Linux runs with the real Obsidian Git and Quick Switcher++ plugins: 900 successful exact completion observations, including 600 measured branch switches. The product removes one redundant Git identity query while retaining its safeguards. The final product/protocol source passed **396 tests**, type checking and build; independent review includes native safety, separate-Settings rejection, complete raw reports and journals.
+
+Near-instant, consistently modal-free switching remains **unmet**. Candidate medians ranged from 404.629 to 733.679 ms across the long runs, with substantial session/order effects and progress openings. The [local Mac closure gate](performance/local-mac-closure.md) requires fresh paired sessions, representative workload evidence, final performance publication and independent review before issue #4 can close. Actual Mac acceptance remains pending. Earlier validation records below retain their original scope and build identities.
+
 ## Quick Switcher++ regression validation — 2026-11-14
 
 The subsequent status/Quick Switcher++ fixes passed **142 automated tests** and **10 native checks** on Linux with Obsidian **1.15.1**, Obsidian Git **2.43.0**, and Quick Switcher++ **6.3.0**. Both reported bugs were reproduced with the original build before the fixed build was installed. A separate blind reviewer identified an overlapping-plugin-enable race; the correction passed the reviewer's official-provider regression harness and a fresh full native run. The [independent review](validation/quick-switcher-independent-review.md) records the resolved finding, exact final bundle hashes, and [final native report](validation/quick-switcher-independent-final.json). The [original regression validation](validation/quick-switcher.md) retains the author's before/after results and manual observations. The initial implementation evidence below remains unchanged.
