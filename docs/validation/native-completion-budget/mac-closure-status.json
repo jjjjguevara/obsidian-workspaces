@@ -1,0 +1,44 @@
+{
+  "schema": "obsidian-workspaces-local-closure-status-v1",
+  "status": "pending",
+  "issue": "https://github.com/jjjjguevara/obsidian-workspaces/issues/4",
+  "issueMustRemainOpen": true,
+  "targetPlatform": "darwin",
+  "actualMacReports": 0,
+  "macGateExecuted": false,
+  "macGatePassed": false,
+  "productProtocolCommit": "3f0c0ed8df50efb1fb29b6bf402ad1084b2e9939",
+  "candidateBundleSHA256": "f4a862e7fd3c90786e4474a1e7c4a0041cc9d73d8595cda448cf64b10d530020",
+  "finalBenchmarkSHA256": "375711885e013bd1a0bc8acb48fe4e77c3d75ff87d03c821556d2d6cfe516792",
+  "finalSafetyProbeSHA256": "312307db21297eb859580186123c1f6f03ad02a280f7c449adf4f0f89cfaf652",
+  "linuxComparison": {
+    "platform": "linux",
+    "benchmarkSHA256": "394466fd2c824d4f2f49a46f1b7848c91303f27ccf77cdf03a34233bddf80431",
+    "pairedSessions": {
+      "small": 2,
+      "largerSynthetic": 1
+    },
+    "completedSamples": 900,
+    "measuredBranchSamples": 600,
+    "exactEndpointPasses": 900,
+    "candidateBranchMedianMs": {
+      "smallFirst": 404.629,
+      "smallSecond": 733.679,
+      "largerSecond": 712.359
+    },
+    "candidateMeasuredBranchModals": {
+      "smallFirst": 10,
+      "smallSecond": 95,
+      "largerSecond": 100
+    },
+    "acceptanceClaim": false
+  },
+  "remainingRequirements": [
+    "Collect actual Darwin evidence using the final installed product and one identical final benchmark bundle for both builds.",
+    "Document representative file counts, change volume, note sizes, editor/layout dimensions and suitability for normal use.",
+    "Collect three complete paired renderer sessions for each of the small and representative profiles, with 100 branch and 20+20 control samples per report.",
+    "Meet median <=100ms, p95 <=200ms and p99 <=300ms in every candidate session and pooled profile; no progress openings; completion and next-frame opportunities below 500 ms for all attempts.",
+    "Attach matching final safety evidence, raw reports and journals, hashes, manifest and unedited passing gate output.",
+    "Publish final local performance and independent review before closing the issue."
+  ]
+}

@@ -393,7 +393,23 @@ export class WorkspaceController {
         // Capture once more after flushing, before any outgoing leaf is unloaded.
         source.layout = structuredClone(this.host.capture());
         source.savedAt = Date.now();
-        const actual = repository ? await this.inspectIdentity(repository) : observed;
+        // A known cross-branch transition needs the complete preflight. Reuse
+        // its fresh source observation at this boundary, not the identity read
+        // before flushing. Other paths retain their inexpensive identity read:
+        // same-branch layout changes must continue to permit pending edits.
+        const canPrepare =
+          repository?.prepareSwitch &&
+          source.binding &&
+          target.binding &&
+          source.binding.root === target.binding.root &&
+          source.binding.branch !== target.binding.branch;
+        let preflighted = false;
+        let actual = observed;
+        if (canPrepare) {
+          await this.host.assertCanQuiesce?.();
+          actual = await repository!.prepareSwitch!(target.binding!.branch);
+          preflighted = true;
+        } else if (repository) actual = await this.inspectIdentity(repository);
         if (source.binding && actual) this.assertBinding(actual, source.binding);
         if (target.binding) {
           if (!actual || !repository) throw new Error('The Git backend is unavailable.');
@@ -403,7 +419,7 @@ export class WorkspaceController {
             throw new Error('Check out a local branch before switching a bound workspace.');
         }
         const checkout = !!target.binding && actual?.branch !== target.binding.branch;
-        if (checkout) {
+        if (checkout && !preflighted) {
           await this.host.assertCanQuiesce?.();
           await repository!.assertCanSwitch(target.binding!.branch);
         }

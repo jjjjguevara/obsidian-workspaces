@@ -1,10 +1,16 @@
 #!/usr/bin/env node
 /** Install/rearm the Q++ probe only in a completed, disposable native test fixture. */
 import { copyFile, mkdir, readFile, realpath, writeFile } from 'node:fs/promises';
-import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
+import { build } from 'esbuild';
+import { dirname, isAbsolute, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { randomUUID } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
+import {
+  resolveEvidenceOutput,
+  publishPreparedReport,
+  archiveEvidenceOutput,
+} from './benchmark-output.mjs';
 
 const args = process.argv.slice(2);
 const supplied = args.shift();
@@ -43,12 +49,10 @@ if (git('status', '--porcelain'))
 if (git('branch', '--show-current') !== 'alpha')
   throw new Error('The fixture must start on alpha.');
 const phase = options['--phase'];
-const resultFile = resolve(
+const resultFile = await resolveEvidenceOutput(
+  vault,
   options['--result'] ?? join(dirname(baseline.resultFile), `quick-switcher-${phase}.json`),
 );
-const outside = relative(vault, resultFile);
-if (!(outside === '..' || outside.startsWith(`..${sep}`) || isAbsolute(outside)))
-  throw new Error('The report must be outside the fixture vault.');
 const pluginId = 'workspaces-quick-switcher-probe';
 const plugin = join(configDirectory, 'plugins', pluginId);
 try {
@@ -62,7 +66,7 @@ try {
 try {
   const previous = JSON.parse(await readFile(resultFile, 'utf8'));
   if (previous.status === 'running') throw new Error('This report belongs to a running probe.');
-  await copyFile(resultFile, `${resultFile}.${previous.runId ?? 'previous'}.json`);
+  await archiveEvidenceOutput(resultFile);
 } catch (error) {
   if (error.code !== 'ENOENT') throw error;
 }
@@ -75,7 +79,19 @@ for (const file of ['main.js', 'manifest.json', 'styles.css'])
   await copyFile(join(assets, file), join(configDirectory, 'plugins', manifest.id, file));
 const runId = randomUUID();
 await mkdir(plugin, { recursive: true });
-await copyFile(join(repo, 'tests/obsidian/quick-switcher-probe.cjs'), join(plugin, 'main.js'));
+await build({
+  entryPoints: [join(repo, 'tests/obsidian/quick-switcher-probe.cjs')],
+  outfile: join(plugin, 'main.js'),
+  bundle: true,
+  platform: 'node',
+  target: 'es2022',
+  format: 'cjs',
+  external: ['obsidian'],
+  logLevel: 'warning',
+});
+const probeSHA256 = createHash('sha256')
+  .update(await readFile(join(plugin, 'main.js')))
+  .digest('hex');
 await writeFile(
   join(plugin, 'manifest.json'),
   JSON.stringify(
@@ -115,15 +131,13 @@ await writeFile(
   enabledFile,
   JSON.stringify([...new Set([...enabled, manifest.id, pluginId])], null, 2),
 );
-await mkdir(dirname(resultFile), { recursive: true });
-await writeFile(
-  resultFile,
-  JSON.stringify(
-    { status: 'prepared', phase, vault, runId, preparedAt: new Date().toISOString() },
-    null,
-    2,
-  ),
-);
+await publishPreparedReport(resultFile, {
+  status: 'prepared',
+  phase,
+  vault,
+  runId,
+  preparedAt: new Date().toISOString(),
+});
 console.log(
   JSON.stringify(
     {
@@ -132,6 +146,7 @@ console.log(
       phase,
       resultFile,
       next: 'Enable Quick Switcher++ and this probe in the disposable native app. If already enabled, disable/re-enable the probe to load its new phase. The installed Workspaces bundle is unchanged.',
+      probeSHA256,
     },
     null,
     2,

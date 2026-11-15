@@ -1,0 +1,49 @@
+{
+  "source": "/workspace/scratch/0a8d9baba8ea/repos/workspaces-benchmark-framework",
+  "sha": "1baf59ed89f733af5972524d11033ef84118d447",
+  "results": [
+    {
+      "label": "real CLI accepts valid complete synthetic files",
+      "exitCode": 0,
+      "closureAllowed": true,
+      "failures": []
+    },
+    {
+      "label": "real CLI rejects missing journal file",
+      "exitCode": 1,
+      "closureAllowed": false,
+      "failures": [
+        "ENOENT: no such file or directory, open '/workspace/scratch/0a8d9baba8ea/runtime/perf-v2/review-journal-counterexamples/cli-jaosHU/small-0-baseline.json.small-0-baseline.samples.ndjson'"
+      ]
+    },
+    {
+      "label": "real CLI rejects omitted journal references",
+      "exitCode": 1,
+      "closureAllowed": false,
+      "failures": [
+        "Session small-0: Session small-0 baseline: missing portable journal path/hash reference.",
+        "Session small-1: Session small-1 baseline: missing portable journal path/hash reference.",
+        "Session small-2: Session small-2 baseline: missing portable journal path/hash reference.",
+        "Session representative-0: Session representative-0 baseline: missing portable journal path/hash reference.",
+        "Session representative-1: Session representative-1 baseline: missing portable journal path/hash reference.",
+        "Session representative-2: Session representative-2 baseline: missing portable journal path/hash reference.",
+        "small: fewer than three valid paired native sessions."
+      ]
+    },
+    {
+      "label": "real CLI accepts matching gzip journal files",
+      "exitCode": 0,
+      "closureAllowed": true,
+      "failures": []
+    },
+    {
+      "label": "real CLI rejects rehashed contradictory footer in gzip journal",
+      "exitCode": 1,
+      "closureAllowed": false,
+      "failures": [
+        "Session small-0: Sample journal: seal metadata/status differs from the finalized report.",
+        "small: fewer than three valid paired native sessions."
+      ]
+    }
+  ]
+}

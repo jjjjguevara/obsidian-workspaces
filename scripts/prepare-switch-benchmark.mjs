@@ -1,17 +1,26 @@
 #!/usr/bin/env node
 /** Install/rearm a timing probe only in a completed disposable native fixture. */
-import { copyFile, mkdir, readFile, realpath, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, realpath, writeFile } from 'node:fs/promises';
 import { execFileSync } from 'node:child_process';
 import { createHash, randomUUID } from 'node:crypto';
-import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
+import { dirname, isAbsolute, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { build } from 'esbuild';
+import {
+  resolveEvidenceOutput,
+  publishPreparedReport,
+  archiveEvidenceOutput,
+} from './benchmark-output.mjs';
+import {
+  SCHEMA as RECORDER_SCHEMA,
+  MODE as RECORDER_MODE,
+} from '../tests/obsidian/sample-recorder.cjs';
 
 const args = process.argv.slice(2);
 const supplied = args.shift();
 const options = {};
 const usage =
-  'Usage: prepare-switch-benchmark.mjs ABS_VAULT --phase baseline|optimized [--result ABS_JSON] [--samples EVEN_AT_LEAST_20 | --diagnostic-samples EVEN_AT_LEAST_2] [--warmups ODD_AT_LEAST_1] [--baseline-samples EVEN_OR_ZERO] [--manual-start] [--deep-trace [--cpu-profile]]';
+  'Usage: prepare-switch-benchmark.mjs ABS_VAULT --phase baseline|optimized [--product-commit FULL_SHA] [--result ABS_JSON] [--samples EVEN_AT_LEAST_20 | --diagnostic-samples EVEN_AT_LEAST_2] [--warmups ODD_AT_LEAST_1] [--baseline-samples EVEN_OR_ZERO] [--manual-start] [--deep-trace [--cpu-profile]]';
 while (args.length) {
   const name = args.shift();
   if (Object.hasOwn(options, name)) throw new Error(`Repeated option: ${name}`);
@@ -27,6 +36,7 @@ while (args.length) {
       '--diagnostic-samples',
       '--warmups',
       '--baseline-samples',
+      '--product-commit',
     ].includes(name) ||
     !args.length ||
     args[0].startsWith('--')
@@ -47,6 +57,11 @@ if (diagnosticOnly && (!deepTrace || options['--samples'] !== undefined))
   );
 if (options['--result'] && !isAbsolute(options['--result']))
   throw new Error('--result requires an absolute path.');
+if (
+  options['--product-commit'] &&
+  !/^(?:[a-f0-9]{40}|[a-f0-9]{64})$/.test(options['--product-commit'])
+)
+  throw new Error('--product-commit requires the full source commit for the installed product.');
 const integer = (option, fallback, minimum, parity) => {
   const value = Number(options[option] ?? fallback);
   if (!Number.isSafeInteger(value) || value < minimum || value > 1000 || value % 2 !== parity)
@@ -83,17 +98,10 @@ if (git('branch', '--show-current') !== 'alpha')
 for (const branch of ['alpha', 'beta']) git('show-ref', '--verify', `refs/heads/${branch}`);
 
 const phase = options['--phase'];
-const resultFile = resolve(
+const resultFile = await resolveEvidenceOutput(
+  vault,
   options['--result'] ?? join(dirname(marker.resultFile), `switch-benchmark-${phase}.json`),
 );
-const within = (parent, child) => {
-  const part = relative(parent, child);
-  return part === '' || (part !== '..' && !part.startsWith(`..${sep}`) && !isAbsolute(part));
-};
-if (within(vault, resultFile)) throw new Error('The report must be outside the vault.');
-await mkdir(dirname(resultFile), { recursive: true });
-if (within(vault, await realpath(dirname(resultFile))))
-  throw new Error('The report directory resolves inside the vault.');
 const pluginId = 'workspaces-switch-benchmark';
 const plugin = join(configDirectory, 'plugins', pluginId);
 try {
@@ -105,6 +113,7 @@ try {
   if (error.code !== 'ENOENT') throw error;
 }
 const versions = {};
+let expectedProductSHA256;
 for (const [id, expected] of [
   ['obsidian-git', '2.43.0'],
   ['darlal-switcher-plus', '6.3.0'],
@@ -116,20 +125,22 @@ for (const [id, expected] of [
   if (manifest.id !== id || (expected && manifest.version !== expected))
     throw new Error(`Expected installed ${id}${expected ? ` ${expected}` : ''}.`);
   versions[id] = manifest.version;
+  if (id === 'obsidian-workspaces')
+    expectedProductSHA256 = createHash('sha256')
+      .update(await readFile(join(configDirectory, 'plugins', id, 'main.js')))
+      .digest('hex');
 }
 try {
   const previous = JSON.parse(await readFile(resultFile, 'utf8'));
   if (previous.status === 'running')
     throw new Error('The selected report belongs to a running benchmark.');
   // Always use a fresh suffix: repeated rearming must not replace an older archive.
-  await copyFile(
-    resultFile,
-    `${resultFile}.${new Date().toISOString().replaceAll(':', '-')}.${randomUUID()}.json`,
-  );
+  await archiveEvidenceOutput(resultFile);
 } catch (error) {
   if (error.code !== 'ENOENT') throw error;
 }
 const runId = randomUUID();
+const journalFile = `${resultFile}.${runId}.samples.ndjson`;
 await mkdir(plugin, { recursive: true });
 // Bundle the existing independent native verifier; no production helper is used
 // to decide whether branch, pins, indexed files, and editor contents are correct.
@@ -170,6 +181,8 @@ await writeFile(
       vaultPath: vault,
       resultFile,
       runId,
+      recorderSchema: RECORDER_SCHEMA,
+      recorderMode: RECORDER_MODE,
       phase,
       samples,
       warmups,
@@ -182,6 +195,8 @@ await writeFile(
       expectedGitVersion: versions['obsidian-git'],
       expectedSwitcherVersion: versions['darlal-switcher-plus'],
       probeSHA256,
+      expectedProductSHA256,
+      productSourceCommit: options['--product-commit'] ?? null,
       preparedFromCommit: gitFromSource('rev-parse', 'HEAD'),
       sourceWorktreeStatus: gitFromSource('status', '--porcelain'),
     },
@@ -192,24 +207,20 @@ await writeFile(
 const enabledFile = join(configDirectory, 'community-plugins.json');
 const enabled = JSON.parse(await readFile(enabledFile, 'utf8'));
 await writeFile(enabledFile, JSON.stringify([...new Set([...enabled, pluginId])], null, 2));
-await writeFile(
-  resultFile,
-  JSON.stringify(
-    {
-      status: 'prepared',
-      phase,
-      vault,
-      runId,
-      deepTrace,
-      cpuProfile,
-      manualStart,
-      diagnosticOnly,
-      preparedAt: new Date().toISOString(),
-    },
-    null,
-    2,
-  ),
-);
+await publishPreparedReport(resultFile, {
+  status: 'prepared',
+  phase,
+  vault,
+  runId,
+  recorderSchema: RECORDER_SCHEMA,
+  recorderMode: RECORDER_MODE,
+  journalFile,
+  deepTrace,
+  cpuProfile,
+  manualStart,
+  diagnosticOnly,
+  preparedAt: new Date().toISOString(),
+});
 console.log(
   JSON.stringify(
     {
@@ -217,6 +228,7 @@ console.log(
       pluginId,
       phase,
       resultFile,
+      journalFile,
       samples,
       warmups,
       baselineSamples,
@@ -225,7 +237,8 @@ console.log(
       manualStart,
       diagnosticOnly,
       probeSHA256,
-      next: `While the benchmark is disabled, install the intended Workspaces bundle. Enable/reload Workspaces and Quick Switcher++, then enable this benchmark. ${manualStart ? 'Close Settings, then run the benchmark plugin command “Run switch benchmark” from the command palette.' : 'The benchmark starts automatically when the layout is ready.'} Rearming requires disabling the benchmark first. Workspaces assets were not changed. Deep tracing adds diagnostic observation; CPU profiling is optional, requires deep tracing, and depends on native runtime capability.`,
+      expectedProductSHA256,
+      next: `The currently installed Workspaces bundle is pinned by SHA-256. Enable/reload Workspaces and Quick Switcher++, then enable this benchmark. ${manualStart ? 'Close Settings, then run the benchmark plugin command “Run switch benchmark” from the command palette.' : 'The benchmark starts automatically when the layout is ready.'} Rearming requires disabling the benchmark first. Install a different Workspaces bundle BEFORE preparing again. Workspaces assets were not changed. Deep tracing adds diagnostic observation; CPU profiling is optional, requires deep tracing, and depends on native runtime capability.`,
     },
     null,
     2,

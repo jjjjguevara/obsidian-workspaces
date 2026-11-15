@@ -2,7 +2,7 @@
 
 Workspaces is the personal Obsidian plugin maintained in this repository. Its plugin ID is `obsidian-workspaces`. Keep product documentation about its behavior; put upstream provenance in `THIRD_PARTY_NOTICES.md` and retain original notices for adapted code.
 
-Read `docs/specification.md`, `docs/architecture.md`, and the four records in `docs/adr/` before changing workspace state, storage, Git integration, or activation behavior. These records describe adopted decisions. Update the relevant record when an authorized product decision changes; do not silently introduce a competing model.
+Read `docs/specification.md`, `docs/architecture.md`, and the records in `docs/adr/` before changing workspace state, storage, Git integration, activation behavior or performance acceptance. These records describe adopted decisions. Update the relevant record when an authorized product decision changes; do not silently introduce a competing model.
 
 ## Implementation boundaries
 
@@ -21,5 +21,7 @@ Read `docs/specification.md`, `docs/architecture.md`, and the four records in `d
 Use `npm run check` for the repository's typecheck, tests, and build. Add tests for state transitions, migrations, or recovery behavior when those contracts change. Keep fixtures small and focused on real failure cases.
 
 Application behavior requires the scenarios in `docs/development.md`; mocked host tests do not establish that Obsidian has restored actual pinned tabs or completed filesystem observation. Report which checks ran and which require a desktop session.
+
+Performance closure additionally requires `docs/performance/local-mac-closure.md` and ADR 0005. Keep the issue open until final local Mac evidence passes the gate and is documented with the reviewed build. Do not add automatic issue-closing keywords to a partial performance PR. Preserve exact completion observations, both directions, raw samples and artifact identities; a delayed progress modal does not establish a latency improvement.
 
 Keep README claims aligned with implemented behavior. Mark deferred features explicitly. Do not import upstream agent instructions, unrelated workflows, complete source trees, or documentation merely because they are present in an upstream repository. Repository visibility and release publication are controlled by the user's instructions.

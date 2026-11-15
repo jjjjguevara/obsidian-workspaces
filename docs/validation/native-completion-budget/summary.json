@@ -1,0 +1,2398 @@
+{
+  "purpose": "Descriptive Linux evidence only; not local Mac acceptance",
+  "reports": [
+    {
+      "file": "final-small-s1-baseline.json.gz",
+      "profile": "small",
+      "session": "s1",
+      "role": "baseline",
+      "order": 1,
+      "rawSHA256": "2aa763865d7c6ac903d9fc3c0208251dd2a6089739bc14319486dacf47b371f3",
+      "gzipSHA256": "831d57b4c2ec3e410cba5f894712d599b7272f15d3ec0037371c83c541607e85",
+      "productSourceCommit": "6b3ae45589132a7c37da14e94a20a4668b2f28b9",
+      "plugins": {
+        "obsidian-workspaces": {
+          "version": "0.1.0",
+          "bundleSHA256": "9dee2cbb8b25f768f81d3b94ec1a7c57ddae55267ae29de459ad00a8d94d3400"
+        },
+        "obsidian-git": {
+          "version": "2.43.0",
+          "bundleSHA256": "58beb0981875c672fc83350e3b1f20db6ca1df3ca2047a25f49190b1e31e2443"
+        },
+        "darlal-switcher-plus": {
+          "version": "6.3.0",
+          "bundleSHA256": "6746dad3d6b132698b04c2a10ea0c2f71c03c8b5af7bec753ca76319c72e3f23"
+        },
+        "workspaces-switch-benchmark": {
+          "version": "0.1.0",
+          "bundleSHA256": "394466fd2c824d4f2f49a46f1b7848c91303f27ccf77cdf03a34233bddf80431"
+        }
+      },
+      "nativeSession": {
+        "id": "407aa8a8-1a25-4a51-9e1a-cf8a55d0f1e8",
+        "processId": 11744,
+        "observedAt": "2026-11-15T21:27:29.582Z"
+      },
+      "samples": 150,
+      "allSampleModalOpenings": 15,
+      "allSampleEndpointPasses": 150,
+      "groups": {
+        "branch": {
+          "selectionToCompleteMs": {
+            "n": 100,
+            "median": 425.918,
+            "p95": 624.671,
+            "p99": 687.968,
+            "min": 316.258,
+            "max": 1007.749
+          },
+          "selectionToNextFrameMs": {
+            "n": 100,
+            "median": 429.399,
+            "p95": 629.161,
+            "p99": 691.535,
+            "min": 319.273,
+            "max": 1011.753
+          },
+          "selectionToInputReleaseMs": {
+            "n": 100,
+            "median": 420.172,
+            "p95": 617.136,
+            "p99": 682.053,
+            "min": 310.759,
+            "max": 1002.452
+          },
+          "endpointCaptureMs": {
+            "n": 100,
+            "median": 2.254,
+            "p95": 3.542,
+            "p99": 4.833,
+            "min": 1.914,
+            "max": 7.533
+          },
+          "modalOpenings": 15,
+          "endpointPasses": 100,
+          "rawGitCalls": {
+            "20": 100
+          }
+        },
+        "same-branch": {
+          "selectionToCompleteMs": {
+            "n": 20,
+            "median": 235.499,
+            "p95": 353.565,
+            "p99": 377.48,
+            "min": 189.339,
+            "max": 377.48
+          },
+          "selectionToNextFrameMs": {
+            "n": 20,
+            "median": 239.926,
+            "p95": 357.372,
+            "p99": 385.827,
+            "min": 193.209,
+            "max": 385.827
+          },
+          "selectionToInputReleaseMs": {
+            "n": 20,
+            "median": 227.953,
+            "p95": 346.706,
+            "p99": 370.605,
+            "min": 182.331,
+            "max": 370.605
+          },
+          "endpointCaptureMs": {
+            "n": 20,
+            "median": 2.986,
+            "p95": 3.97,
+            "p99": 8.459,
+            "min": 2.743,
+            "max": 8.459
+          },
+          "modalOpenings": 0,
+          "endpointPasses": 20,
+          "rawGitCalls": {
+            "3": 20
+          }
+        },
+        "unbound": {
+          "selectionToCompleteMs": {
+            "n": 20,
+            "median": 194.341,
+            "p95": 282.61,
+            "p99": 369.357,
+            "min": 167.836,
+            "max": 369.357
+          },
+          "selectionToNextFrameMs": {
+            "n": 20,
+            "median": 199.698,
+            "p95": 288.765,
+            "p99": 374.804,
+            "min": 173.251,
+            "max": 374.804
+          },
+          "selectionToInputReleaseMs": {
+            "n": 20,
+            "median": 181.837,
+            "p95": 269.979,
+            "p99": 356.82,
+            "min": 156.381,
+            "max": 356.82
+          },
+          "endpointCaptureMs": {
+            "n": 20,
+            "median": 4.544,
+            "p95": 5.167,
+            "p99": 5.651,
+            "min": 4.279,
+            "max": 5.651
+          },
+          "modalOpenings": 0,
+          "endpointPasses": 20,
+          "rawGitCalls": {
+            "0": 20
+          }
+        }
+      },
+      "directions": {
+        "alpha->beta": {
+          "selectionToCompleteMs": {
+            "n": 50,
+            "median": 418.914,
+            "p95": 639.158,
+            "p99": 1007.749,
+            "min": 316.258,
+            "max": 1007.749
+          },
+          "selectionToNextFrameMs": {
+            "n": 50,
+            "median": 423.196,
+            "p95": 642.831,
+            "p99": 1011.753,
+            "min": 319.273,
+            "max": 1011.753
+          },
+          "selectionToInputReleaseMs": {
+            "n": 50,
+            "median": 413.881,
+            "p95": 634.281,
+            "p99": 1002.452,
+            "min": 310.759,
+            "max": 1002.452
+          },
+          "endpointCaptureMs": {
+            "n": 50,
+            "median": 2.267,
+            "p95": 3.083,
+            "p99": 4.429,
+            "min": 1.914,
+            "max": 4.429
+          },
+          "modalOpenings": 8,
+          "endpointPasses": 50,
+          "rawGitCalls": {
+            "20": 50
+          }
+        },
+        "beta->alpha": {
+          "selectionToCompleteMs": {
+            "n": 50,
+            "median": 433.351,
+            "p95": 565.543,
+            "p99": 655.05,
+            "min": 337.94,
+            "max": 655.05
+          },
+          "selectionToNextFrameMs": {
+            "n": 50,
+            "median": 436.646,
+            "p95": 569.138,
+            "p99": 658.423,
+            "min": 340.786,
+            "max": 658.423
+          },
+          "selectionToInputReleaseMs": {
+            "n": 50,
+            "median": 428.355,
+            "p95": 559.383,
+            "p99": 650.223,
+            "min": 332.963,
+            "max": 650.223
+          },
+          "endpointCaptureMs": {
+            "n": 50,
+            "median": 2.219,
+            "p95": 4.529,
+            "p99": 7.533,
+            "min": 2.005,
+            "max": 7.533
+          },
+          "modalOpenings": 7,
+          "endpointPasses": 50,
+          "rawGitCalls": {
+            "20": 50
+          }
+        }
+      },
+      "firstSwitches": [
+        {
+          "scenario": "branch",
+          "direction": "alpha->beta",
+          "timingsMs": {
+            "commandToChooser": 20.536917000001267,
+            "commandToSelection": 20.713644999999815,
+            "selectionToControllerEntry": 0.9752359999984037,
+            "controller": 419.2899940000025,
+            "selectionToControllerComplete": 420.2652300000009,
+            "commandToControllerComplete": 440.9788750000007,
+            "controllerCompleteToNextFrame": 4.23489999999947,
+            "selectionToNextFrame": 424.50013000000035,
+            "endpointCapture": 2.901230999999825,
+            "selectionToInputRelease": 414.8621610000009
+          },
+          "modalOpened": false
+        }
+      ],
+      "branchQuartileCompletionMs": [
+        {
+          "n": 25,
+          "median": 421.734,
+          "p95": 558.011,
+          "p99": 632.64,
+          "min": 316.258,
+          "max": 632.64
+        },
+        {
+          "n": 25,
+          "median": 384.193,
+          "p95": 549.093,
+          "p99": 565.543,
+          "min": 320.221,
+          "max": 565.543
+        },
+        {
+          "n": 25,
+          "median": 424.243,
+          "p95": 639.158,
+          "p99": 655.05,
+          "min": 337.94,
+          "max": 655.05
+        },
+        {
+          "n": 25,
+          "median": 482.769,
+          "p95": 687.968,
+          "p99": 1007.749,
+          "min": 377.45,
+          "max": 1007.749
+        }
+      ],
+      "branchRssMiB": {
+        "first": 296.953,
+        "last": 646.355
+      },
+      "recorderCosts": {
+        "sampleSerializationMs": 41.72917899994354,
+        "journalAppendMs": 118.06897700000991,
+        "compactProgressWriteMs": 109.11500099998011,
+        "compactProgressWrites": 154,
+        "finalAssemblyBeforePublicationMs": 57.10326199998963
+      },
+      "recorderSampleCostsMs": {
+        "serialization": {
+          "n": 150,
+          "median": 0.229,
+          "p95": 0.391,
+          "p99": 2.672,
+          "min": 0.162,
+          "max": 3.365
+        },
+        "append": {
+          "n": 150,
+          "median": 0.25,
+          "p95": 0.654,
+          "p99": 2.374,
+          "min": 0.142,
+          "max": 5.272
+        }
+      }
+    },
+    {
+      "file": "final-small-s1-candidate.json.gz",
+      "profile": "small",
+      "session": "s1",
+      "role": "candidate",
+      "order": 2,
+      "rawSHA256": "e8b714ef824da3ebca1eca0bdddeae5e083f7e569f9f35f31a9210918bda06cb",
+      "gzipSHA256": "b5e1cd87808e7bf4b30dfca96e4548b1a477a3ec58c8cc0910b77683ea822b55",
+      "productSourceCommit": "d7399c2dd7b642e4e2c904bb55a02ad38039a67d",
+      "plugins": {
+        "obsidian-workspaces": {
+          "version": "0.1.0",
+          "bundleSHA256": "f4a862e7fd3c90786e4474a1e7c4a0041cc9d73d8595cda448cf64b10d530020"
+        },
+        "obsidian-git": {
+          "version": "2.43.0",
+          "bundleSHA256": "58beb0981875c672fc83350e3b1f20db6ca1df3ca2047a25f49190b1e31e2443"
+        },
+        "darlal-switcher-plus": {
+          "version": "6.3.0",
+          "bundleSHA256": "6746dad3d6b132698b04c2a10ea0c2f71c03c8b5af7bec753ca76319c72e3f23"
+        },
+        "workspaces-switch-benchmark": {
+          "version": "0.1.0",
+          "bundleSHA256": "394466fd2c824d4f2f49a46f1b7848c91303f27ccf77cdf03a34233bddf80431"
+        }
+      },
+      "nativeSession": {
+        "id": "407aa8a8-1a25-4a51-9e1a-cf8a55d0f1e8",
+        "processId": 11744,
+        "observedAt": "2026-11-15T21:27:29.582Z"
+      },
+      "samples": 150,
+      "allSampleModalOpenings": 100,
+      "allSampleEndpointPasses": 150,
+      "groups": {
+        "branch": {
+          "selectionToCompleteMs": {
+            "n": 100,
+            "median": 733.679,
+            "p95": 921.255,
+            "p99": 1037.779,
+            "min": 507.513,
+            "max": 1048.526
+          },
+          "selectionToNextFrameMs": {
+            "n": 100,
+            "median": 737.643,
+            "p95": 924.639,
+            "p99": 1041.754,
+            "min": 511.426,
+            "max": 1052.993
+          },
+          "selectionToInputReleaseMs": {
+            "n": 100,
+            "median": 726.37,
+            "p95": 916.273,
+            "p99": 1032.654,
+            "min": 501.007,
+            "max": 1041.963
+          },
+          "endpointCaptureMs": {
+            "n": 100,
+            "median": 2.403,
+            "p95": 3.249,
+            "p99": 8.323,
+            "min": 1.991,
+            "max": 13.161
+          },
+          "modalOpenings": 95,
+          "endpointPasses": 100,
+          "rawGitCalls": {
+            "19": 99,
+            "21": 1
+          }
+        },
+        "same-branch": {
+          "selectionToCompleteMs": {
+            "n": 20,
+            "median": 261.248,
+            "p95": 567.874,
+            "p99": 583.553,
+            "min": 236.553,
+            "max": 583.553
+          },
+          "selectionToNextFrameMs": {
+            "n": 20,
+            "median": 265.236,
+            "p95": 572.207,
+            "p99": 587.973,
+            "min": 240.416,
+            "max": 587.973
+          },
+          "selectionToInputReleaseMs": {
+            "n": 20,
+            "median": 254.03,
+            "p95": 560.63,
+            "p99": 575.455,
+            "min": 229.379,
+            "max": 575.455
+          },
+          "endpointCaptureMs": {
+            "n": 20,
+            "median": 2.872,
+            "p95": 3.494,
+            "p99": 3.752,
+            "min": 2.722,
+            "max": 3.752
+          },
+          "modalOpenings": 1,
+          "endpointPasses": 20,
+          "rawGitCalls": {
+            "3": 18,
+            "5": 2
+          }
+        },
+        "unbound": {
+          "selectionToCompleteMs": {
+            "n": 20,
+            "median": 231.539,
+            "p95": 265.344,
+            "p99": 333.492,
+            "min": 192.078,
+            "max": 333.492
+          },
+          "selectionToNextFrameMs": {
+            "n": 20,
+            "median": 238.464,
+            "p95": 272.024,
+            "p99": 341.249,
+            "min": 199.092,
+            "max": 341.249
+          },
+          "selectionToInputReleaseMs": {
+            "n": 20,
+            "median": 214.834,
+            "p95": 250.852,
+            "p99": 318.816,
+            "min": 177.085,
+            "max": 318.816
+          },
+          "endpointCaptureMs": {
+            "n": 20,
+            "median": 5.457,
+            "p95": 6.175,
+            "p99": 6.49,
+            "min": 4.286,
+            "max": 6.49
+          },
+          "modalOpenings": 0,
+          "endpointPasses": 20,
+          "rawGitCalls": {
+            "0": 20
+          }
+        }
+      },
+      "directions": {
+        "alpha->beta": {
+          "selectionToCompleteMs": {
+            "n": 50,
+            "median": 738.145,
+            "p95": 908.412,
+            "p99": 936.858,
+            "min": 526.337,
+            "max": 936.858
+          },
+          "selectionToNextFrameMs": {
+            "n": 50,
+            "median": 742.094,
+            "p95": 912.286,
+            "p99": 941.158,
+            "min": 530.414,
+            "max": 941.158
+          },
+          "selectionToInputReleaseMs": {
+            "n": 50,
+            "median": 723.618,
+            "p95": 902.955,
+            "p99": 931.907,
+            "min": 518.751,
+            "max": 931.907
+          },
+          "endpointCaptureMs": {
+            "n": 50,
+            "median": 2.398,
+            "p95": 3.146,
+            "p99": 8.323,
+            "min": 1.991,
+            "max": 8.323
+          },
+          "modalOpenings": 47,
+          "endpointPasses": 50,
+          "rawGitCalls": {
+            "19": 50
+          }
+        },
+        "beta->alpha": {
+          "selectionToCompleteMs": {
+            "n": 50,
+            "median": 733.084,
+            "p95": 1000.581,
+            "p99": 1048.526,
+            "min": 507.513,
+            "max": 1048.526
+          },
+          "selectionToNextFrameMs": {
+            "n": 50,
+            "median": 736.907,
+            "p95": 1006.899,
+            "p99": 1052.993,
+            "min": 511.426,
+            "max": 1052.993
+          },
+          "selectionToInputReleaseMs": {
+            "n": 50,
+            "median": 726.37,
+            "p95": 992.815,
+            "p99": 1041.963,
+            "min": 501.007,
+            "max": 1041.963
+          },
+          "endpointCaptureMs": {
+            "n": 50,
+            "median": 2.42,
+            "p95": 3.439,
+            "p99": 13.161,
+            "min": 2.022,
+            "max": 13.161
+          },
+          "modalOpenings": 48,
+          "endpointPasses": 50,
+          "rawGitCalls": {
+            "19": 49,
+            "21": 1
+          }
+        }
+      },
+      "firstSwitches": [
+        {
+          "scenario": "branch",
+          "direction": "alpha->beta",
+          "timingsMs": {
+            "commandToChooser": 15.17930499999784,
+            "commandToSelection": 15.391306000004988,
+            "selectionToControllerEntry": 0.9787510000169277,
+            "controller": 628.215298999974,
+            "selectionToControllerComplete": 629.194049999991,
+            "commandToControllerComplete": 644.585355999996,
+            "controllerCompleteToNextFrame": 4.06304999999702,
+            "selectionToNextFrame": 633.257099999988,
+            "endpointCapture": 2.4274640000076033,
+            "selectionToInputRelease": 622.5684120000224
+          },
+          "modalOpened": true
+        }
+      ],
+      "branchQuartileCompletionMs": [
+        {
+          "n": 25,
+          "median": 608.956,
+          "p95": 734.124,
+          "p99": 813.368,
+          "min": 507.513,
+          "max": 813.368
+        },
+        {
+          "n": 25,
+          "median": 732.934,
+          "p95": 847.81,
+          "p99": 1037.779,
+          "min": 582.017,
+          "max": 1037.779
+        },
+        {
+          "n": 25,
+          "median": 744.464,
+          "p95": 852.401,
+          "p99": 908.412,
+          "min": 616.398,
+          "max": 908.412
+        },
+        {
+          "n": 25,
+          "median": 849.396,
+          "p95": 1000.581,
+          "p99": 1048.526,
+          "min": 707.572,
+          "max": 1048.526
+        }
+      ],
+      "branchRssMiB": {
+        "first": 498.516,
+        "last": 1133.738
+      },
+      "recorderCosts": {
+        "sampleSerializationMs": 38.31147300021257,
+        "journalAppendMs": 138.30522599909455,
+        "compactProgressWriteMs": 82.79017100000056,
+        "compactProgressWrites": 154,
+        "finalAssemblyBeforePublicationMs": 81.47276200004853
+      },
+      "recorderSampleCostsMs": {
+        "serialization": {
+          "n": 150,
+          "median": 0.249,
+          "p95": 0.347,
+          "p99": 0.568,
+          "min": 0.168,
+          "max": 0.81
+        },
+        "append": {
+          "n": 150,
+          "median": 0.264,
+          "p95": 1.218,
+          "p99": 3.23,
+          "min": 0.152,
+          "max": 4.486
+        }
+      }
+    },
+    {
+      "file": "final-small-s2-candidate.json.gz",
+      "profile": "small",
+      "session": "s2",
+      "role": "candidate",
+      "order": 1,
+      "rawSHA256": "9471b4f872dee7faa8265881290d3e2d033a4339a4c691b58021dddd43952b95",
+      "gzipSHA256": "ff301356ee657e0f2a750755d4ea3321db9884ef8adcdfc01a6a4bc0afdc9d94",
+      "productSourceCommit": "d7399c2dd7b642e4e2c904bb55a02ad38039a67d",
+      "plugins": {
+        "obsidian-workspaces": {
+          "version": "0.1.0",
+          "bundleSHA256": "f4a862e7fd3c90786e4474a1e7c4a0041cc9d73d8595cda448cf64b10d530020"
+        },
+        "obsidian-git": {
+          "version": "2.43.0",
+          "bundleSHA256": "58beb0981875c672fc83350e3b1f20db6ca1df3ca2047a25f49190b1e31e2443"
+        },
+        "darlal-switcher-plus": {
+          "version": "6.3.0",
+          "bundleSHA256": "6746dad3d6b132698b04c2a10ea0c2f71c03c8b5af7bec753ca76319c72e3f23"
+        },
+        "workspaces-switch-benchmark": {
+          "version": "0.1.0",
+          "bundleSHA256": "394466fd2c824d4f2f49a46f1b7848c91303f27ccf77cdf03a34233bddf80431"
+        }
+      },
+      "nativeSession": {
+        "id": "78d776c0-704d-4ad0-90da-c57cb2f28aa4",
+        "processId": 17153,
+        "observedAt": "2026-11-15T21:37:20.718Z"
+      },
+      "samples": 150,
+      "allSampleModalOpenings": 10,
+      "allSampleEndpointPasses": 150,
+      "groups": {
+        "branch": {
+          "selectionToCompleteMs": {
+            "n": 100,
+            "median": 404.629,
+            "p95": 594.413,
+            "p99": 684.33,
+            "min": 265.957,
+            "max": 717.819
+          },
+          "selectionToNextFrameMs": {
+            "n": 100,
+            "median": 408.209,
+            "p95": 597.742,
+            "p99": 690.838,
+            "min": 269.271,
+            "max": 724.408
+          },
+          "selectionToInputReleaseMs": {
+            "n": 100,
+            "median": 398.567,
+            "p95": 587.748,
+            "p99": 676.724,
+            "min": 260.519,
+            "max": 709.153
+          },
+          "endpointCaptureMs": {
+            "n": 100,
+            "median": 2.37,
+            "p95": 3.793,
+            "p99": 5.453,
+            "min": 2.033,
+            "max": 6.376
+          },
+          "modalOpenings": 10,
+          "endpointPasses": 100,
+          "rawGitCalls": {
+            "19": 99,
+            "21": 1
+          }
+        },
+        "same-branch": {
+          "selectionToCompleteMs": {
+            "n": 20,
+            "median": 239.177,
+            "p95": 393.683,
+            "p99": 430.521,
+            "min": 186.512,
+            "max": 430.521
+          },
+          "selectionToNextFrameMs": {
+            "n": 20,
+            "median": 243.538,
+            "p95": 397.891,
+            "p99": 434.621,
+            "min": 190.377,
+            "max": 434.621
+          },
+          "selectionToInputReleaseMs": {
+            "n": 20,
+            "median": 229.895,
+            "p95": 385.803,
+            "p99": 422.515,
+            "min": 179.049,
+            "max": 422.515
+          },
+          "endpointCaptureMs": {
+            "n": 20,
+            "median": 3.063,
+            "p95": 3.862,
+            "p99": 3.981,
+            "min": 2.86,
+            "max": 3.981
+          },
+          "modalOpenings": 0,
+          "endpointPasses": 20,
+          "rawGitCalls": {
+            "3": 19,
+            "5": 1
+          }
+        },
+        "unbound": {
+          "selectionToCompleteMs": {
+            "n": 20,
+            "median": 203.14,
+            "p95": 238.221,
+            "p99": 277.162,
+            "min": 188.458,
+            "max": 277.162
+          },
+          "selectionToNextFrameMs": {
+            "n": 20,
+            "median": 208.813,
+            "p95": 243.989,
+            "p99": 394.778,
+            "min": 194.186,
+            "max": 394.778
+          },
+          "selectionToInputReleaseMs": {
+            "n": 20,
+            "median": 189.834,
+            "p95": 213.653,
+            "p99": 225.883,
+            "min": 175.967,
+            "max": 225.883
+          },
+          "endpointCaptureMs": {
+            "n": 20,
+            "median": 4.784,
+            "p95": 10.109,
+            "p99": 105.944,
+            "min": 4.506,
+            "max": 105.944
+          },
+          "modalOpenings": 0,
+          "endpointPasses": 20,
+          "rawGitCalls": {
+            "0": 20
+          }
+        }
+      },
+      "directions": {
+        "alpha->beta": {
+          "selectionToCompleteMs": {
+            "n": 50,
+            "median": 405.258,
+            "p95": 594.413,
+            "p99": 684.33,
+            "min": 274.758,
+            "max": 684.33
+          },
+          "selectionToNextFrameMs": {
+            "n": 50,
+            "median": 408.654,
+            "p95": 597.742,
+            "p99": 690.838,
+            "min": 277.933,
+            "max": 690.838
+          },
+          "selectionToInputReleaseMs": {
+            "n": 50,
+            "median": 398.977,
+            "p95": 587.748,
+            "p99": 676.724,
+            "min": 269.728,
+            "max": 676.724
+          },
+          "endpointCaptureMs": {
+            "n": 50,
+            "median": 2.226,
+            "p95": 3.058,
+            "p99": 5.453,
+            "min": 2.033,
+            "max": 5.453
+          },
+          "modalOpenings": 6,
+          "endpointPasses": 50,
+          "rawGitCalls": {
+            "19": 50
+          }
+        },
+        "beta->alpha": {
+          "selectionToCompleteMs": {
+            "n": 50,
+            "median": 403.928,
+            "p95": 632.035,
+            "p99": 717.819,
+            "min": 265.957,
+            "max": 717.819
+          },
+          "selectionToNextFrameMs": {
+            "n": 50,
+            "median": 407.386,
+            "p95": 635.991,
+            "p99": 724.408,
+            "min": 269.271,
+            "max": 724.408
+          },
+          "selectionToInputReleaseMs": {
+            "n": 50,
+            "median": 398.567,
+            "p95": 621.808,
+            "p99": 709.153,
+            "min": 260.519,
+            "max": 709.153
+          },
+          "endpointCaptureMs": {
+            "n": 50,
+            "median": 2.544,
+            "p95": 3.987,
+            "p99": 6.376,
+            "min": 2.12,
+            "max": 6.376
+          },
+          "modalOpenings": 4,
+          "endpointPasses": 50,
+          "rawGitCalls": {
+            "19": 49,
+            "21": 1
+          }
+        }
+      },
+      "firstSwitches": [
+        {
+          "scenario": "branch",
+          "direction": "alpha->beta",
+          "timingsMs": {
+            "commandToChooser": 18.514258999999583,
+            "commandToSelection": 18.678087000000232,
+            "selectionToControllerEntry": 0.7889539999996487,
+            "controller": 417.27940800000033,
+            "selectionToControllerComplete": 418.068362,
+            "commandToControllerComplete": 436.7464490000002,
+            "controllerCompleteToNextFrame": 3.272603999999774,
+            "selectionToNextFrame": 421.34096599999975,
+            "endpointCapture": 2.3064009999998234,
+            "selectionToInputRelease": 412.9152720000002
+          },
+          "modalOpened": false
+        }
+      ],
+      "branchQuartileCompletionMs": [
+        {
+          "n": 25,
+          "median": 329.785,
+          "p95": 479.924,
+          "p99": 481.578,
+          "min": 265.957,
+          "max": 481.578
+        },
+        {
+          "n": 25,
+          "median": 348.948,
+          "p95": 576.169,
+          "p99": 614.916,
+          "min": 298.525,
+          "max": 614.916
+        },
+        {
+          "n": 25,
+          "median": 442.831,
+          "p95": 684.33,
+          "p99": 717.819,
+          "min": 351.786,
+          "max": 717.819
+        },
+        {
+          "n": 25,
+          "median": 460.208,
+          "p95": 594.413,
+          "p99": 632.954,
+          "min": 358.444,
+          "max": 632.954
+        }
+      ],
+      "branchRssMiB": {
+        "first": 303.863,
+        "last": 769.16
+      },
+      "recorderCosts": {
+        "sampleSerializationMs": 35.49339599997984,
+        "journalAppendMs": 112.36724500010678,
+        "compactProgressWriteMs": 101.7156540000451,
+        "compactProgressWrites": 154,
+        "finalAssemblyBeforePublicationMs": 141.9410130000033
+      },
+      "recorderSampleCostsMs": {
+        "serialization": {
+          "n": 150,
+          "median": 0.224,
+          "p95": 0.337,
+          "p99": 0.428,
+          "min": 0.171,
+          "max": 0.601
+        },
+        "append": {
+          "n": 150,
+          "median": 0.268,
+          "p95": 0.841,
+          "p99": 1.957,
+          "min": 0.132,
+          "max": 3.152
+        }
+      }
+    },
+    {
+      "file": "final-small-s2-baseline.json.gz",
+      "profile": "small",
+      "session": "s2",
+      "role": "baseline",
+      "order": 2,
+      "rawSHA256": "3e7e4c4867e697652d0851819d903f4ba54632f1cc4338fc94c347b8b065e98f",
+      "gzipSHA256": "7c49d1c61dbaa94aafc58ec65e140c64dea7749e8b51e2405dfda6e63eb7bc03",
+      "productSourceCommit": "6b3ae45589132a7c37da14e94a20a4668b2f28b9",
+      "plugins": {
+        "obsidian-workspaces": {
+          "version": "0.1.0",
+          "bundleSHA256": "9dee2cbb8b25f768f81d3b94ec1a7c57ddae55267ae29de459ad00a8d94d3400"
+        },
+        "obsidian-git": {
+          "version": "2.43.0",
+          "bundleSHA256": "58beb0981875c672fc83350e3b1f20db6ca1df3ca2047a25f49190b1e31e2443"
+        },
+        "darlal-switcher-plus": {
+          "version": "6.3.0",
+          "bundleSHA256": "6746dad3d6b132698b04c2a10ea0c2f71c03c8b5af7bec753ca76319c72e3f23"
+        },
+        "workspaces-switch-benchmark": {
+          "version": "0.1.0",
+          "bundleSHA256": "394466fd2c824d4f2f49a46f1b7848c91303f27ccf77cdf03a34233bddf80431"
+        }
+      },
+      "nativeSession": {
+        "id": "78d776c0-704d-4ad0-90da-c57cb2f28aa4",
+        "processId": 17153,
+        "observedAt": "2026-11-15T21:37:20.718Z"
+      },
+      "samples": 150,
+      "allSampleModalOpenings": 102,
+      "allSampleEndpointPasses": 150,
+      "groups": {
+        "branch": {
+          "selectionToCompleteMs": {
+            "n": 100,
+            "median": 714.492,
+            "p95": 866.545,
+            "p99": 923.102,
+            "min": 527.579,
+            "max": 1053.153
+          },
+          "selectionToNextFrameMs": {
+            "n": 100,
+            "median": 718.722,
+            "p95": 870.674,
+            "p99": 926.811,
+            "min": 531.636,
+            "max": 1058.632
+          },
+          "selectionToInputReleaseMs": {
+            "n": 100,
+            "median": 700.558,
+            "p95": 860.953,
+            "p99": 917.812,
+            "min": 520.089,
+            "max": 1047.814
+          },
+          "endpointCaptureMs": {
+            "n": 100,
+            "median": 2.464,
+            "p95": 3.457,
+            "p99": 4.875,
+            "min": 2.07,
+            "max": 10.468
+          },
+          "modalOpenings": 98,
+          "endpointPasses": 100,
+          "rawGitCalls": {
+            "20": 98,
+            "22": 2
+          }
+        },
+        "same-branch": {
+          "selectionToCompleteMs": {
+            "n": 20,
+            "median": 251.077,
+            "p95": 428.134,
+            "p99": 430.618,
+            "min": 231.748,
+            "max": 430.618
+          },
+          "selectionToNextFrameMs": {
+            "n": 20,
+            "median": 255.407,
+            "p95": 432.134,
+            "p99": 434.819,
+            "min": 235.748,
+            "max": 434.819
+          },
+          "selectionToInputReleaseMs": {
+            "n": 20,
+            "median": 242.514,
+            "p95": 420.335,
+            "p99": 422.626,
+            "min": 224.2,
+            "max": 422.626
+          },
+          "endpointCaptureMs": {
+            "n": 20,
+            "median": 3.036,
+            "p95": 3.826,
+            "p99": 4.269,
+            "min": 2.893,
+            "max": 4.269
+          },
+          "modalOpenings": 0,
+          "endpointPasses": 20,
+          "rawGitCalls": {
+            "3": 19,
+            "5": 1
+          }
+        },
+        "unbound": {
+          "selectionToCompleteMs": {
+            "n": 20,
+            "median": 212.532,
+            "p95": 246.183,
+            "p99": 625.629,
+            "min": 188.842,
+            "max": 625.629
+          },
+          "selectionToNextFrameMs": {
+            "n": 20,
+            "median": 218.529,
+            "p95": 260.907,
+            "p99": 632.075,
+            "min": 194.423,
+            "max": 632.075
+          },
+          "selectionToInputReleaseMs": {
+            "n": 20,
+            "median": 196.762,
+            "p95": 230.337,
+            "p99": 611.648,
+            "min": 176.457,
+            "max": 611.648
+          },
+          "endpointCaptureMs": {
+            "n": 20,
+            "median": 4.801,
+            "p95": 6.468,
+            "p99": 27.182,
+            "min": 4.492,
+            "max": 27.182
+          },
+          "modalOpenings": 1,
+          "endpointPasses": 20,
+          "rawGitCalls": {
+            "0": 20
+          }
+        }
+      },
+      "directions": {
+        "alpha->beta": {
+          "selectionToCompleteMs": {
+            "n": 50,
+            "median": 706.107,
+            "p95": 866.545,
+            "p99": 1053.153,
+            "min": 563.569,
+            "max": 1053.153
+          },
+          "selectionToNextFrameMs": {
+            "n": 50,
+            "median": 710.225,
+            "p95": 870.674,
+            "p99": 1058.632,
+            "min": 567.541,
+            "max": 1058.632
+          },
+          "selectionToInputReleaseMs": {
+            "n": 50,
+            "median": 700.558,
+            "p95": 860.953,
+            "p99": 1047.814,
+            "min": 556.014,
+            "max": 1047.814
+          },
+          "endpointCaptureMs": {
+            "n": 50,
+            "median": 2.542,
+            "p95": 3.825,
+            "p99": 4.875,
+            "min": 2.07,
+            "max": 4.875
+          },
+          "modalOpenings": 50,
+          "endpointPasses": 50,
+          "rawGitCalls": {
+            "20": 50
+          }
+        },
+        "beta->alpha": {
+          "selectionToCompleteMs": {
+            "n": 50,
+            "median": 721.599,
+            "p95": 886.874,
+            "p99": 923.102,
+            "min": 527.579,
+            "max": 923.102
+          },
+          "selectionToNextFrameMs": {
+            "n": 50,
+            "median": 725.684,
+            "p95": 892.543,
+            "p99": 926.811,
+            "min": 531.636,
+            "max": 926.811
+          },
+          "selectionToInputReleaseMs": {
+            "n": 50,
+            "median": 706.283,
+            "p95": 879.179,
+            "p99": 917.812,
+            "min": 520.089,
+            "max": 917.812
+          },
+          "endpointCaptureMs": {
+            "n": 50,
+            "median": 2.454,
+            "p95": 3.222,
+            "p99": 10.468,
+            "min": 2.132,
+            "max": 10.468
+          },
+          "modalOpenings": 48,
+          "endpointPasses": 50,
+          "rawGitCalls": {
+            "20": 48,
+            "22": 2
+          }
+        }
+      },
+      "firstSwitches": [
+        {
+          "scenario": "branch",
+          "direction": "alpha->beta",
+          "timingsMs": {
+            "commandToChooser": 9.140443000011146,
+            "commandToSelection": 9.272964000003412,
+            "selectionToControllerEntry": 0.8703870000026654,
+            "controller": 668.484678000008,
+            "selectionToControllerComplete": 669.3550650000107,
+            "commandToControllerComplete": 678.6280290000141,
+            "controllerCompleteToNextFrame": 6.104709000006551,
+            "selectionToNextFrame": 675.4597740000172,
+            "endpointCapture": 4.679731999989599,
+            "selectionToInputRelease": 657.8500329999952
+          },
+          "modalOpened": true
+        }
+      ],
+      "branchQuartileCompletionMs": [
+        {
+          "n": 25,
+          "median": 652.539,
+          "p95": 831.556,
+          "p99": 841.717,
+          "min": 527.579,
+          "max": 841.717
+        },
+        {
+          "n": 25,
+          "median": 744.952,
+          "p95": 898.036,
+          "p99": 1053.153,
+          "min": 574.298,
+          "max": 1053.153
+        },
+        {
+          "n": 25,
+          "median": 697.692,
+          "p95": 825.285,
+          "p99": 857.675,
+          "min": 601.84,
+          "max": 857.675
+        },
+        {
+          "n": 25,
+          "median": 771.964,
+          "p95": 916.825,
+          "p99": 923.102,
+          "min": 623.14,
+          "max": 923.102
+        }
+      ],
+      "branchRssMiB": {
+        "first": 561.598,
+        "last": 1002.949
+      },
+      "recorderCosts": {
+        "sampleSerializationMs": 39.48921499995049,
+        "journalAppendMs": 156.1047670004191,
+        "compactProgressWriteMs": 81.91481600017869,
+        "compactProgressWrites": 154,
+        "finalAssemblyBeforePublicationMs": 89.19815500004916
+      },
+      "recorderSampleCostsMs": {
+        "serialization": {
+          "n": 150,
+          "median": 0.242,
+          "p95": 0.392,
+          "p99": 0.757,
+          "min": 0.163,
+          "max": 1.233
+        },
+        "append": {
+          "n": 150,
+          "median": 0.257,
+          "p95": 1.202,
+          "p99": 2.851,
+          "min": 0.154,
+          "max": 3.607
+        }
+      }
+    },
+    {
+      "file": "final-scale-s1-baseline.json.gz",
+      "profile": "scale",
+      "session": "s1",
+      "role": "baseline",
+      "order": 1,
+      "rawSHA256": "1c6282feda63ec36a13ca904ed51fcddd3c7eda27e562ab5eae1674cce8a1f2a",
+      "gzipSHA256": "6cd1b2e3387a7ca4ef7db5edd88d91d141ad3f6826218697930745bfd216f8a1",
+      "productSourceCommit": "6b3ae45589132a7c37da14e94a20a4668b2f28b9",
+      "plugins": {
+        "obsidian-workspaces": {
+          "version": "0.1.0",
+          "bundleSHA256": "9dee2cbb8b25f768f81d3b94ec1a7c57ddae55267ae29de459ad00a8d94d3400"
+        },
+        "obsidian-git": {
+          "version": "2.43.0",
+          "bundleSHA256": "58beb0981875c672fc83350e3b1f20db6ca1df3ca2047a25f49190b1e31e2443"
+        },
+        "darlal-switcher-plus": {
+          "version": "6.3.0",
+          "bundleSHA256": "6746dad3d6b132698b04c2a10ea0c2f71c03c8b5af7bec753ca76319c72e3f23"
+        },
+        "workspaces-switch-benchmark": {
+          "version": "0.1.0",
+          "bundleSHA256": "394466fd2c824d4f2f49a46f1b7848c91303f27ccf77cdf03a34233bddf80431"
+        }
+      },
+      "nativeSession": {
+        "id": "a40e941f-7e32-431a-b8ec-72865fd92b1d",
+        "processId": 22217,
+        "observedAt": "2026-11-15T21:44:11.464Z"
+      },
+      "samples": 150,
+      "allSampleModalOpenings": 18,
+      "allSampleEndpointPasses": 150,
+      "groups": {
+        "branch": {
+          "selectionToCompleteMs": {
+            "n": 100,
+            "median": 453.471,
+            "p95": 581.893,
+            "p99": 657.948,
+            "min": 317.373,
+            "max": 709.583
+          },
+          "selectionToNextFrameMs": {
+            "n": 100,
+            "median": 458.266,
+            "p95": 587.451,
+            "p99": 668.491,
+            "min": 325.152,
+            "max": 717.419
+          },
+          "selectionToInputReleaseMs": {
+            "n": 100,
+            "median": 452.455,
+            "p95": 579.928,
+            "p99": 657.089,
+            "min": 316.633,
+            "max": 708.721
+          },
+          "endpointCaptureMs": {
+            "n": 100,
+            "median": 0.703,
+            "p95": 0.902,
+            "p99": 1.428,
+            "min": 0.611,
+            "max": 2.634
+          },
+          "modalOpenings": 17,
+          "endpointPasses": 100,
+          "rawGitCalls": {
+            "20": 99,
+            "22": 1
+          }
+        },
+        "same-branch": {
+          "selectionToCompleteMs": {
+            "n": 20,
+            "median": 182.625,
+            "p95": 211.521,
+            "p99": 257.541,
+            "min": 164.002,
+            "max": 257.541
+          },
+          "selectionToNextFrameMs": {
+            "n": 20,
+            "median": 185.567,
+            "p95": 215.869,
+            "p99": 264.603,
+            "min": 170.754,
+            "max": 264.603
+          },
+          "selectionToInputReleaseMs": {
+            "n": 20,
+            "median": 181.187,
+            "p95": 210.032,
+            "p99": 256.254,
+            "min": 162.764,
+            "max": 256.254
+          },
+          "endpointCaptureMs": {
+            "n": 20,
+            "median": 0.778,
+            "p95": 1.024,
+            "p99": 1.105,
+            "min": 0.648,
+            "max": 1.105
+          },
+          "modalOpenings": 0,
+          "endpointPasses": 20,
+          "rawGitCalls": {
+            "3": 20
+          }
+        },
+        "unbound": {
+          "selectionToCompleteMs": {
+            "n": 20,
+            "median": 104.526,
+            "p95": 120.536,
+            "p99": 165.876,
+            "min": 92.472,
+            "max": 165.876
+          },
+          "selectionToNextFrameMs": {
+            "n": 20,
+            "median": 108.75,
+            "p95": 126.796,
+            "p99": 167.939,
+            "min": 97.984,
+            "max": 167.939
+          },
+          "selectionToInputReleaseMs": {
+            "n": 20,
+            "median": 102.877,
+            "p95": 118.051,
+            "p99": 164.168,
+            "min": 90.859,
+            "max": 164.168
+          },
+          "endpointCaptureMs": {
+            "n": 20,
+            "median": 0.935,
+            "p95": 1.052,
+            "p99": 1.108,
+            "min": 0.833,
+            "max": 1.108
+          },
+          "modalOpenings": 0,
+          "endpointPasses": 20,
+          "rawGitCalls": {
+            "0": 19,
+            "2": 1
+          }
+        }
+      },
+      "directions": {
+        "alpha->beta": {
+          "selectionToCompleteMs": {
+            "n": 50,
+            "median": 440.485,
+            "p95": 581.893,
+            "p99": 626.926,
+            "min": 317.373,
+            "max": 626.926
+          },
+          "selectionToNextFrameMs": {
+            "n": 50,
+            "median": 451.865,
+            "p95": 587.451,
+            "p99": 633.422,
+            "min": 325.152,
+            "max": 633.422
+          },
+          "selectionToInputReleaseMs": {
+            "n": 50,
+            "median": 439.654,
+            "p95": 579.928,
+            "p99": 625.987,
+            "min": 316.633,
+            "max": 625.987
+          },
+          "endpointCaptureMs": {
+            "n": 50,
+            "median": 0.699,
+            "p95": 1.129,
+            "p99": 2.634,
+            "min": 0.611,
+            "max": 2.634
+          },
+          "modalOpenings": 8,
+          "endpointPasses": 50,
+          "rawGitCalls": {
+            "20": 50
+          }
+        },
+        "beta->alpha": {
+          "selectionToCompleteMs": {
+            "n": 50,
+            "median": 458.334,
+            "p95": 590.522,
+            "p99": 709.583,
+            "min": 344.682,
+            "max": 709.583
+          },
+          "selectionToNextFrameMs": {
+            "n": 50,
+            "median": 465.066,
+            "p95": 593.407,
+            "p99": 717.419,
+            "min": 354.369,
+            "max": 717.419
+          },
+          "selectionToInputReleaseMs": {
+            "n": 50,
+            "median": 457.491,
+            "p95": 588.661,
+            "p99": 708.721,
+            "min": 343.943,
+            "max": 708.721
+          },
+          "endpointCaptureMs": {
+            "n": 50,
+            "median": 0.707,
+            "p95": 0.876,
+            "p99": 1.036,
+            "min": 0.629,
+            "max": 1.036
+          },
+          "modalOpenings": 9,
+          "endpointPasses": 50,
+          "rawGitCalls": {
+            "20": 49,
+            "22": 1
+          }
+        }
+      },
+      "firstSwitches": [
+        {
+          "scenario": "branch",
+          "direction": "alpha->beta",
+          "timingsMs": {
+            "commandToChooser": 14.190498000003572,
+            "commandToSelection": 14.330870999998297,
+            "selectionToControllerEntry": 0.3725140000024112,
+            "controller": 402.19228799999837,
+            "selectionToControllerComplete": 402.5648020000008,
+            "commandToControllerComplete": 416.8956729999991,
+            "controllerCompleteToNextFrame": 12.118102000000363,
+            "selectionToNextFrame": 414.68290400000114,
+            "endpointCapture": 0.9835090000051423,
+            "selectionToInputRelease": 401.6793620000026
+          },
+          "modalOpened": false
+        }
+      ],
+      "branchQuartileCompletionMs": [
+        {
+          "n": 25,
+          "median": 386.127,
+          "p95": 517.298,
+          "p99": 626.926,
+          "min": 317.373,
+          "max": 626.926
+        },
+        {
+          "n": 25,
+          "median": 420.784,
+          "p95": 557.154,
+          "p99": 573.342,
+          "min": 378.632,
+          "max": 573.342
+        },
+        {
+          "n": 25,
+          "median": 470.259,
+          "p95": 581.893,
+          "p99": 709.583,
+          "min": 395.971,
+          "max": 709.583
+        },
+        {
+          "n": 25,
+          "median": 476.995,
+          "p95": 611.298,
+          "p99": 657.948,
+          "min": 418.07,
+          "max": 657.948
+        }
+      ],
+      "branchRssMiB": {
+        "first": 273.34,
+        "last": 678.809
+      },
+      "recorderCosts": {
+        "sampleSerializationMs": 37.78562000000966,
+        "journalAppendMs": 132.35769799994887,
+        "compactProgressWriteMs": 145.5469479999665,
+        "compactProgressWrites": 154,
+        "finalAssemblyBeforePublicationMs": 72.35416400000395
+      },
+      "recorderSampleCostsMs": {
+        "serialization": {
+          "n": 150,
+          "median": 0.248,
+          "p95": 0.369,
+          "p99": 0.423,
+          "min": 0.145,
+          "max": 0.427
+        },
+        "append": {
+          "n": 150,
+          "median": 0.282,
+          "p95": 1.003,
+          "p99": 2.36,
+          "min": 0.134,
+          "max": 4.357
+        }
+      }
+    },
+    {
+      "file": "final-scale-s1-candidate.json.gz",
+      "profile": "scale",
+      "session": "s1",
+      "role": "candidate",
+      "order": 2,
+      "rawSHA256": "d9216afc893792ec3a0f49dc4ac1dee70a27b06334cc05b56884bda294efa996",
+      "gzipSHA256": "0fee7fd76d0b99b5e6024e585edb58288c7a3f6d2aca21c8c03e229b81f9ddaf",
+      "productSourceCommit": "d7399c2dd7b642e4e2c904bb55a02ad38039a67d",
+      "plugins": {
+        "obsidian-workspaces": {
+          "version": "0.1.0",
+          "bundleSHA256": "f4a862e7fd3c90786e4474a1e7c4a0041cc9d73d8595cda448cf64b10d530020"
+        },
+        "obsidian-git": {
+          "version": "2.43.0",
+          "bundleSHA256": "58beb0981875c672fc83350e3b1f20db6ca1df3ca2047a25f49190b1e31e2443"
+        },
+        "darlal-switcher-plus": {
+          "version": "6.3.0",
+          "bundleSHA256": "6746dad3d6b132698b04c2a10ea0c2f71c03c8b5af7bec753ca76319c72e3f23"
+        },
+        "workspaces-switch-benchmark": {
+          "version": "0.1.0",
+          "bundleSHA256": "394466fd2c824d4f2f49a46f1b7848c91303f27ccf77cdf03a34233bddf80431"
+        }
+      },
+      "nativeSession": {
+        "id": "a40e941f-7e32-431a-b8ec-72865fd92b1d",
+        "processId": 22217,
+        "observedAt": "2026-11-15T21:44:11.464Z"
+      },
+      "samples": 150,
+      "allSampleModalOpenings": 102,
+      "allSampleEndpointPasses": 150,
+      "groups": {
+        "branch": {
+          "selectionToCompleteMs": {
+            "n": 100,
+            "median": 712.359,
+            "p95": 896.162,
+            "p99": 993.834,
+            "min": 546.674,
+            "max": 1116.164
+          },
+          "selectionToNextFrameMs": {
+            "n": 100,
+            "median": 721.86,
+            "p95": 902.55,
+            "p99": 1004.893,
+            "min": 548.651,
+            "max": 1125.359
+          },
+          "selectionToInputReleaseMs": {
+            "n": 100,
+            "median": 711.187,
+            "p95": 895.326,
+            "p99": 993.007,
+            "min": 544.367,
+            "max": 1115.318
+          },
+          "endpointCaptureMs": {
+            "n": 100,
+            "median": 0.678,
+            "p95": 0.943,
+            "p99": 1.191,
+            "min": 0.591,
+            "max": 1.202
+          },
+          "modalOpenings": 100,
+          "endpointPasses": 100,
+          "rawGitCalls": {
+            "19": 99,
+            "21": 1
+          }
+        },
+        "same-branch": {
+          "selectionToCompleteMs": {
+            "n": 20,
+            "median": 208.165,
+            "p95": 232.766,
+            "p99": 290.181,
+            "min": 193.32,
+            "max": 290.181
+          },
+          "selectionToNextFrameMs": {
+            "n": 20,
+            "median": 212.469,
+            "p95": 240.008,
+            "p99": 293.119,
+            "min": 194.643,
+            "max": 293.119
+          },
+          "selectionToInputReleaseMs": {
+            "n": 20,
+            "median": 206.86,
+            "p95": 231.491,
+            "p99": 289.01,
+            "min": 191.879,
+            "max": 289.01
+          },
+          "endpointCaptureMs": {
+            "n": 20,
+            "median": 0.8,
+            "p95": 0.954,
+            "p99": 0.965,
+            "min": 0.67,
+            "max": 0.965
+          },
+          "modalOpenings": 0,
+          "endpointPasses": 20,
+          "rawGitCalls": {
+            "3": 20
+          }
+        },
+        "unbound": {
+          "selectionToCompleteMs": {
+            "n": 20,
+            "median": 113.878,
+            "p95": 126.541,
+            "p99": 151.027,
+            "min": 103.062,
+            "max": 151.027
+          },
+          "selectionToNextFrameMs": {
+            "n": 20,
+            "median": 118.045,
+            "p95": 132.352,
+            "p99": 158.758,
+            "min": 104.788,
+            "max": 158.758
+          },
+          "selectionToInputReleaseMs": {
+            "n": 20,
+            "median": 112.078,
+            "p95": 124.863,
+            "p99": 148.771,
+            "min": 101.4,
+            "max": 148.771
+          },
+          "endpointCaptureMs": {
+            "n": 20,
+            "median": 0.911,
+            "p95": 1.03,
+            "p99": 1.265,
+            "min": 0.783,
+            "max": 1.265
+          },
+          "modalOpenings": 0,
+          "endpointPasses": 20,
+          "rawGitCalls": {
+            "0": 20
+          }
+        }
+      },
+      "directions": {
+        "alpha->beta": {
+          "selectionToCompleteMs": {
+            "n": 50,
+            "median": 696.577,
+            "p95": 888.868,
+            "p99": 908.36,
+            "min": 546.674,
+            "max": 908.36
+          },
+          "selectionToNextFrameMs": {
+            "n": 50,
+            "median": 701.94,
+            "p95": 897.409,
+            "p99": 914.368,
+            "min": 548.651,
+            "max": 914.368
+          },
+          "selectionToInputReleaseMs": {
+            "n": 50,
+            "median": 695.706,
+            "p95": 887.624,
+            "p99": 907.523,
+            "min": 544.367,
+            "max": 907.523
+          },
+          "endpointCaptureMs": {
+            "n": 50,
+            "median": 0.672,
+            "p95": 0.943,
+            "p99": 1.202,
+            "min": 0.591,
+            "max": 1.202
+          },
+          "modalOpenings": 50,
+          "endpointPasses": 50,
+          "rawGitCalls": {
+            "19": 49,
+            "21": 1
+          }
+        },
+        "beta->alpha": {
+          "selectionToCompleteMs": {
+            "n": 50,
+            "median": 730.203,
+            "p95": 922.611,
+            "p99": 1116.164,
+            "min": 602.514,
+            "max": 1116.164
+          },
+          "selectionToNextFrameMs": {
+            "n": 50,
+            "median": 731.673,
+            "p95": 924.949,
+            "p99": 1125.359,
+            "min": 604.959,
+            "max": 1125.359
+          },
+          "selectionToInputReleaseMs": {
+            "n": 50,
+            "median": 729.317,
+            "p95": 921.741,
+            "p99": 1115.318,
+            "min": 600.61,
+            "max": 1115.318
+          },
+          "endpointCaptureMs": {
+            "n": 50,
+            "median": 0.685,
+            "p95": 0.953,
+            "p99": 1.155,
+            "min": 0.6,
+            "max": 1.155
+          },
+          "modalOpenings": 50,
+          "endpointPasses": 50,
+          "rawGitCalls": {
+            "19": 50
+          }
+        }
+      },
+      "firstSwitches": [
+        {
+          "scenario": "branch",
+          "direction": "alpha->beta",
+          "timingsMs": {
+            "commandToChooser": 7.851754000002984,
+            "commandToSelection": 7.991004999988945,
+            "selectionToControllerEntry": 0.8629060000239406,
+            "controller": 635.2223319999757,
+            "selectionToControllerComplete": 636.0852379999997,
+            "commandToControllerComplete": 644.0762429999886,
+            "controllerCompleteToNextFrame": 2.067149000009522,
+            "selectionToNextFrame": 638.1523870000092,
+            "endpointCapture": 0.9626270000007935,
+            "selectionToInputRelease": 634.3004260000016
+          },
+          "modalOpened": true
+        }
+      ],
+      "branchQuartileCompletionMs": [
+        {
+          "n": 25,
+          "median": 748.777,
+          "p95": 888.868,
+          "p99": 922.611,
+          "min": 546.674,
+          "max": 922.611
+        },
+        {
+          "n": 25,
+          "median": 710.416,
+          "p95": 899.99,
+          "p99": 1116.164,
+          "min": 622.042,
+          "max": 1116.164
+        },
+        {
+          "n": 25,
+          "median": 694.928,
+          "p95": 908.36,
+          "p99": 993.834,
+          "min": 615.804,
+          "max": 993.834
+        },
+        {
+          "n": 25,
+          "median": 706.389,
+          "p95": 833.609,
+          "p99": 896.162,
+          "min": 614.055,
+          "max": 896.162
+        }
+      ],
+      "branchRssMiB": {
+        "first": 606.406,
+        "last": 942.215
+      },
+      "recorderCosts": {
+        "sampleSerializationMs": 41.555006999959005,
+        "journalAppendMs": 159.32131599949207,
+        "compactProgressWriteMs": 169.67004500015173,
+        "compactProgressWrites": 154,
+        "finalAssemblyBeforePublicationMs": 64.33253200002946
+      },
+      "recorderSampleCostsMs": {
+        "serialization": {
+          "n": 150,
+          "median": 0.267,
+          "p95": 0.407,
+          "p99": 0.642,
+          "min": 0.15,
+          "max": 1.239
+        },
+        "append": {
+          "n": 150,
+          "median": 0.292,
+          "p95": 1.084,
+          "p99": 2.807,
+          "min": 0.144,
+          "max": 6.012
+        }
+      }
+    }
+  ],
+  "pooled": {
+    "small/baseline/branch": {
+      "selectionToCompleteMs": {
+        "n": 200,
+        "median": 593.445,
+        "p95": 841.04,
+        "p99": 923.102,
+        "min": 316.258,
+        "max": 1053.153
+      },
+      "selectionToNextFrameMs": {
+        "n": 200,
+        "median": 597.512,
+        "p95": 845.002,
+        "p99": 926.811,
+        "min": 319.273,
+        "max": 1058.632
+      },
+      "selectionToInputReleaseMs": {
+        "n": 200,
+        "median": 586.968,
+        "p95": 834.15,
+        "p99": 917.812,
+        "min": 310.759,
+        "max": 1047.814
+      },
+      "endpointCaptureMs": {
+        "n": 200,
+        "median": 2.319,
+        "p95": 3.533,
+        "p99": 4.875,
+        "min": 1.914,
+        "max": 10.468
+      },
+      "modalOpenings": 113,
+      "endpointPasses": 200,
+      "rawGitCalls": {
+        "20": 198,
+        "22": 2
+      }
+    },
+    "small/baseline/same-branch": {
+      "selectionToCompleteMs": {
+        "n": 40,
+        "median": 245.232,
+        "p95": 377.48,
+        "p99": 430.618,
+        "min": 189.339,
+        "max": 430.618
+      },
+      "selectionToNextFrameMs": {
+        "n": 40,
+        "median": 249.655,
+        "p95": 385.827,
+        "p99": 434.819,
+        "min": 193.209,
+        "max": 434.819
+      },
+      "selectionToInputReleaseMs": {
+        "n": 40,
+        "median": 237.314,
+        "p95": 370.605,
+        "p99": 422.626,
+        "min": 182.331,
+        "max": 422.626
+      },
+      "endpointCaptureMs": {
+        "n": 40,
+        "median": 3.031,
+        "p95": 3.97,
+        "p99": 8.459,
+        "min": 2.743,
+        "max": 8.459
+      },
+      "modalOpenings": 0,
+      "endpointPasses": 40,
+      "rawGitCalls": {
+        "3": 39,
+        "5": 1
+      }
+    },
+    "small/baseline/unbound": {
+      "selectionToCompleteMs": {
+        "n": 40,
+        "median": 201.191,
+        "p95": 282.61,
+        "p99": 625.629,
+        "min": 167.836,
+        "max": 625.629
+      },
+      "selectionToNextFrameMs": {
+        "n": 40,
+        "median": 207.114,
+        "p95": 288.765,
+        "p99": 632.075,
+        "min": 173.251,
+        "max": 632.075
+      },
+      "selectionToInputReleaseMs": {
+        "n": 40,
+        "median": 188.042,
+        "p95": 269.979,
+        "p99": 611.648,
+        "min": 156.381,
+        "max": 611.648
+      },
+      "endpointCaptureMs": {
+        "n": 40,
+        "median": 4.687,
+        "p95": 6.382,
+        "p99": 27.182,
+        "min": 4.279,
+        "max": 27.182
+      },
+      "modalOpenings": 1,
+      "endpointPasses": 40,
+      "rawGitCalls": {
+        "0": 40
+      }
+    },
+    "small/candidate/branch": {
+      "selectionToCompleteMs": {
+        "n": 200,
+        "median": 575.511,
+        "p95": 899.184,
+        "p99": 1000.581,
+        "min": 265.957,
+        "max": 1048.526
+      },
+      "selectionToNextFrameMs": {
+        "n": 200,
+        "median": 579.623,
+        "p95": 903.756,
+        "p99": 1006.899,
+        "min": 269.271,
+        "max": 1052.993
+      },
+      "selectionToInputReleaseMs": {
+        "n": 200,
+        "median": 568.496,
+        "p95": 892.849,
+        "p99": 992.815,
+        "min": 260.519,
+        "max": 1041.963
+      },
+      "endpointCaptureMs": {
+        "n": 200,
+        "median": 2.388,
+        "p95": 3.439,
+        "p99": 6.376,
+        "min": 1.991,
+        "max": 13.161
+      },
+      "modalOpenings": 105,
+      "endpointPasses": 200,
+      "rawGitCalls": {
+        "19": 198,
+        "21": 2
+      }
+    },
+    "small/candidate/same-branch": {
+      "selectionToCompleteMs": {
+        "n": 40,
+        "median": 253.253,
+        "p95": 503.017,
+        "p99": 583.553,
+        "min": 186.512,
+        "max": 583.553
+      },
+      "selectionToNextFrameMs": {
+        "n": 40,
+        "median": 257.679,
+        "p95": 506.903,
+        "p99": 587.973,
+        "min": 190.377,
+        "max": 587.973
+      },
+      "selectionToInputReleaseMs": {
+        "n": 40,
+        "median": 244.497,
+        "p95": 496.054,
+        "p99": 575.455,
+        "min": 179.049,
+        "max": 575.455
+      },
+      "endpointCaptureMs": {
+        "n": 40,
+        "median": 3.006,
+        "p95": 3.853,
+        "p99": 3.981,
+        "min": 2.722,
+        "max": 3.981
+      },
+      "modalOpenings": 1,
+      "endpointPasses": 40,
+      "rawGitCalls": {
+        "3": 37,
+        "5": 3
+      }
+    },
+    "small/candidate/unbound": {
+      "selectionToCompleteMs": {
+        "n": 40,
+        "median": 219.877,
+        "p95": 265.344,
+        "p99": 333.492,
+        "min": 188.458,
+        "max": 333.492
+      },
+      "selectionToNextFrameMs": {
+        "n": 40,
+        "median": 226.356,
+        "p95": 272.024,
+        "p99": 394.778,
+        "min": 194.186,
+        "max": 394.778
+      },
+      "selectionToInputReleaseMs": {
+        "n": 40,
+        "median": 205.682,
+        "p95": 237.964,
+        "p99": 318.816,
+        "min": 175.967,
+        "max": 318.816
+      },
+      "endpointCaptureMs": {
+        "n": 40,
+        "median": 5.038,
+        "p95": 6.49,
+        "p99": 105.944,
+        "min": 4.286,
+        "max": 105.944
+      },
+      "modalOpenings": 0,
+      "endpointPasses": 40,
+      "rawGitCalls": {
+        "0": 40
+      }
+    },
+    "scale/baseline/branch": {
+      "selectionToCompleteMs": {
+        "n": 100,
+        "median": 453.471,
+        "p95": 581.893,
+        "p99": 657.948,
+        "min": 317.373,
+        "max": 709.583
+      },
+      "selectionToNextFrameMs": {
+        "n": 100,
+        "median": 458.266,
+        "p95": 587.451,
+        "p99": 668.491,
+        "min": 325.152,
+        "max": 717.419
+      },
+      "selectionToInputReleaseMs": {
+        "n": 100,
+        "median": 452.455,
+        "p95": 579.928,
+        "p99": 657.089,
+        "min": 316.633,
+        "max": 708.721
+      },
+      "endpointCaptureMs": {
+        "n": 100,
+        "median": 0.703,
+        "p95": 0.902,
+        "p99": 1.428,
+        "min": 0.611,
+        "max": 2.634
+      },
+      "modalOpenings": 17,
+      "endpointPasses": 100,
+      "rawGitCalls": {
+        "20": 99,
+        "22": 1
+      }
+    },
+    "scale/baseline/same-branch": {
+      "selectionToCompleteMs": {
+        "n": 20,
+        "median": 182.625,
+        "p95": 211.521,
+        "p99": 257.541,
+        "min": 164.002,
+        "max": 257.541
+      },
+      "selectionToNextFrameMs": {
+        "n": 20,
+        "median": 185.567,
+        "p95": 215.869,
+        "p99": 264.603,
+        "min": 170.754,
+        "max": 264.603
+      },
+      "selectionToInputReleaseMs": {
+        "n": 20,
+        "median": 181.187,
+        "p95": 210.032,
+        "p99": 256.254,
+        "min": 162.764,
+        "max": 256.254
+      },
+      "endpointCaptureMs": {
+        "n": 20,
+        "median": 0.778,
+        "p95": 1.024,
+        "p99": 1.105,
+        "min": 0.648,
+        "max": 1.105
+      },
+      "modalOpenings": 0,
+      "endpointPasses": 20,
+      "rawGitCalls": {
+        "3": 20
+      }
+    },
+    "scale/baseline/unbound": {
+      "selectionToCompleteMs": {
+        "n": 20,
+        "median": 104.526,
+        "p95": 120.536,
+        "p99": 165.876,
+        "min": 92.472,
+        "max": 165.876
+      },
+      "selectionToNextFrameMs": {
+        "n": 20,
+        "median": 108.75,
+        "p95": 126.796,
+        "p99": 167.939,
+        "min": 97.984,
+        "max": 167.939
+      },
+      "selectionToInputReleaseMs": {
+        "n": 20,
+        "median": 102.877,
+        "p95": 118.051,
+        "p99": 164.168,
+        "min": 90.859,
+        "max": 164.168
+      },
+      "endpointCaptureMs": {
+        "n": 20,
+        "median": 0.935,
+        "p95": 1.052,
+        "p99": 1.108,
+        "min": 0.833,
+        "max": 1.108
+      },
+      "modalOpenings": 0,
+      "endpointPasses": 20,
+      "rawGitCalls": {
+        "0": 19,
+        "2": 1
+      }
+    },
+    "scale/candidate/branch": {
+      "selectionToCompleteMs": {
+        "n": 100,
+        "median": 712.359,
+        "p95": 896.162,
+        "p99": 993.834,
+        "min": 546.674,
+        "max": 1116.164
+      },
+      "selectionToNextFrameMs": {
+        "n": 100,
+        "median": 721.86,
+        "p95": 902.55,
+        "p99": 1004.893,
+        "min": 548.651,
+        "max": 1125.359
+      },
+      "selectionToInputReleaseMs": {
+        "n": 100,
+        "median": 711.187,
+        "p95": 895.326,
+        "p99": 993.007,
+        "min": 544.367,
+        "max": 1115.318
+      },
+      "endpointCaptureMs": {
+        "n": 100,
+        "median": 0.678,
+        "p95": 0.943,
+        "p99": 1.191,
+        "min": 0.591,
+        "max": 1.202
+      },
+      "modalOpenings": 100,
+      "endpointPasses": 100,
+      "rawGitCalls": {
+        "19": 99,
+        "21": 1
+      }
+    },
+    "scale/candidate/same-branch": {
+      "selectionToCompleteMs": {
+        "n": 20,
+        "median": 208.165,
+        "p95": 232.766,
+        "p99": 290.181,
+        "min": 193.32,
+        "max": 290.181
+      },
+      "selectionToNextFrameMs": {
+        "n": 20,
+        "median": 212.469,
+        "p95": 240.008,
+        "p99": 293.119,
+        "min": 194.643,
+        "max": 293.119
+      },
+      "selectionToInputReleaseMs": {
+        "n": 20,
+        "median": 206.86,
+        "p95": 231.491,
+        "p99": 289.01,
+        "min": 191.879,
+        "max": 289.01
+      },
+      "endpointCaptureMs": {
+        "n": 20,
+        "median": 0.8,
+        "p95": 0.954,
+        "p99": 0.965,
+        "min": 0.67,
+        "max": 0.965
+      },
+      "modalOpenings": 0,
+      "endpointPasses": 20,
+      "rawGitCalls": {
+        "3": 20
+      }
+    },
+    "scale/candidate/unbound": {
+      "selectionToCompleteMs": {
+        "n": 20,
+        "median": 113.878,
+        "p95": 126.541,
+        "p99": 151.027,
+        "min": 103.062,
+        "max": 151.027
+      },
+      "selectionToNextFrameMs": {
+        "n": 20,
+        "median": 118.045,
+        "p95": 132.352,
+        "p99": 158.758,
+        "min": 104.788,
+        "max": 158.758
+      },
+      "selectionToInputReleaseMs": {
+        "n": 20,
+        "median": 112.078,
+        "p95": 124.863,
+        "p99": 148.771,
+        "min": 101.4,
+        "max": 148.771
+      },
+      "endpointCaptureMs": {
+        "n": 20,
+        "median": 0.911,
+        "p95": 1.03,
+        "p99": 1.265,
+        "min": 0.783,
+        "max": 1.265
+      },
+      "modalOpenings": 0,
+      "endpointPasses": 20,
+      "rawGitCalls": {
+        "0": 20
+      }
+    }
+  }
+}

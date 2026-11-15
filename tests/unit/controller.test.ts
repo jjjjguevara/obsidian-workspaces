@@ -229,6 +229,126 @@ test('fresh identity checks retain branch validation without treating identity a
   assert.equal(controller.state.activeId, ids[1]);
 });
 
+test('a complete post-flush preparation replaces only the adjacent cross-branch identity read', async () => {
+  const f = fixture();
+  const identities: string[] = [];
+  let preparations = 0;
+  Object.assign(f.git, {
+    inspectIdentity: async () => {
+      identities.push(f.git.status.branch!);
+      return { root: f.git.status.root, branch: f.git.status.branch };
+    },
+    prepareSwitch: async (branch: string) => {
+      preparations += 1;
+      assert.equal(f.host.events.at(-1), 'flush');
+      assert.equal(f.store.writes.length, 0, 'Preparation precedes the durable journal');
+      await f.git.assertCanSwitch(branch);
+      return { root: f.git.status.root, branch: f.git.status.branch };
+    },
+  });
+  await f.controller.activate(f.ids[1]!);
+  assert.equal(preparations, 1);
+  assert.deepEqual(identities, ['alpha', 'beta'], 'Initial and final identity checks remain');
+  assert.deepEqual(f.git.preflights, ['beta', 'beta'], 'Checkout still validates after unload');
+  assert.equal(f.store.writes.length, 2);
+  assert.equal(f.controller.state.activeId, f.ids[1]);
+  assert.equal(f.controller.state.journal, null);
+});
+
+test('prepared identity rejects source drift before journaling or unload', async (t) => {
+  for (const drift of ['branch', 'root'] as const) {
+    await t.test(drift, async () => {
+      const f = fixture();
+      Object.assign(f.git, {
+        prepareSwitch: async (branch: string) => {
+          await f.git.assertCanSwitch(branch);
+          return { root: f.git.status.root, branch: f.git.status.branch };
+        },
+      });
+      f.host.flushHook = async () => {
+        if (drift === 'branch') f.git.status.branch = 'external';
+        else f.git.status.root = '/external-repository';
+      };
+      await assert.rejects(
+        f.controller.activate(f.ids[1]!),
+        drift === 'branch' ? /Git is on “external”/ : /different Git repository/,
+      );
+      assert.deepEqual(f.git.checkouts, []);
+      assert.equal(f.host.events.includes('quiesce'), false);
+      assert.equal(f.store.writes.length, 0);
+      assert.equal(f.controller.state.activeId, f.ids[0]);
+      assert.equal(f.controller.state.journal, null);
+      assert.equal(f.host.blocked, 0);
+    });
+  }
+});
+
+test('preparation capability preserves the initial drift check and final unload-time safeguard', async (t) => {
+  for (const phase of ['before-flush', 'during-unload'] as const) {
+    await t.test(phase, async () => {
+      const f = fixture();
+      let preparations = 0;
+      Object.assign(f.git, {
+        prepareSwitch: async (branch: string) => {
+          preparations += 1;
+          await f.git.assertCanSwitch(branch);
+          return { root: f.git.status.root, branch: f.git.status.branch };
+        },
+      });
+      if (phase === 'before-flush') f.git.status.branch = 'external';
+      else {
+        const quiesce = f.host.quiesce.bind(f.host);
+        f.host.quiesce = async () => {
+          await quiesce();
+          f.git.status.dirty = true;
+        };
+      }
+      await assert.rejects(
+        f.controller.activate(f.ids[1]!),
+        phase === 'before-flush' ? /Git is on “external”/ : /Uncommitted changes/,
+      );
+      assert.deepEqual(f.git.checkouts, []);
+      assert.equal(f.controller.state.activeId, f.ids[0]);
+      if (phase === 'before-flush') {
+        assert.equal(preparations, 0);
+        assert.deepEqual(f.host.events, []);
+        assert.equal(f.store.writes.length, 0);
+      } else {
+        assert.equal(preparations, 1);
+        assert.deepEqual(f.git.preflights, ['beta', 'beta']);
+        assert.equal(f.store.writes[0]!.journal?.phase, 'prepared');
+        assert.equal(f.controller.state.journal?.phase, 'recovery');
+      }
+    });
+  }
+});
+
+test('same-branch and unbound paths do not opt into cross-branch preparation', async (t) => {
+  for (const branches of [
+    ['alpha', 'alpha'],
+    [null, null],
+    ['alpha', null],
+    [null, 'alpha'],
+  ] as const) {
+    await t.test(JSON.stringify(branches), async () => {
+      const f = fixture([...branches]);
+      f.git.status.dirty = true;
+      Object.assign(f.git, {
+        prepareSwitch: async () => {
+          throw new Error('A layout-only activation must not perform a switch preflight');
+        },
+      });
+      await f.controller.activate(f.ids[1]!);
+      assert.equal(f.controller.state.activeId, f.ids[1]);
+      assert.equal(f.git.status.dirty, true);
+      assert.deepEqual(f.git.preflights, []);
+      assert.deepEqual(f.git.checkouts, []);
+      assert.deepEqual(f.host.events, ['flush', 'wait', 'restore']);
+      assert.equal(f.controller.state.journal, null);
+    });
+  }
+});
+
 test('a branch change during flush is rejected by the identity observation before unload', async () => {
   const { controller, git, host, ids } = fixture();
   Object.assign(git, {

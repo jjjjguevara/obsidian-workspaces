@@ -1,0 +1,4047 @@
+{
+  "reviewedAt": "2026-11-15T22:02:10.402Z",
+  "scope": "Independent audit of six explicitly versioned Linux long comparisons. This is not the Mac closure evaluator or a budget pass.",
+  "method": "Primary latency is selection to actual controller settlement. Median averages the middle observations; p95/p99 use nearest rank. Quartiles are chronological blocks of 25 measured branch transitions. Inclusive stage durations are not additive; gitRawUnionMs merges overlapping raw-Git intervals.",
+  "probeSHA256": "394466fd2c824d4f2f49a46f1b7848c91303f27ccf77cdf03a34233bddf80431",
+  "candidateProductCommit": "d7399c2dd7b642e4e2c904bb55a02ad38039a67d",
+  "candidateProductSHA256": "f4a862e7fd3c90786e4474a1e7c4a0041cc9d73d8595cda448cf64b10d530020",
+  "baselineProductCommit": "6b3ae45589132a7c37da14e94a20a4668b2f28b9",
+  "baselineProductSHA256": "9dee2cbb8b25f768f81d3b94ec1a7c57ddae55267ae29de459ad00a8d94d3400",
+  "reports": [
+    {
+      "filename": "final-small-s1-baseline.json",
+      "sha256": "2aa763865d7c6ac903d9fc3c0208251dd2a6089739bc14319486dacf47b371f3",
+      "bytes": 5098525,
+      "runId": "429fe472-b4cd-472f-a5c7-a99f07e4e1ab",
+      "phase": "baseline",
+      "startedAt": "2026-11-15T21:27:29.124Z",
+      "finishedAt": "2026-11-15T21:28:35.411Z",
+      "session": {
+        "id": "407aa8a8-1a25-4a51-9e1a-cf8a55d0f1e8",
+        "processId": 11744,
+        "observedAt": "2026-11-15T21:27:29.582Z"
+      },
+      "sourceCommit": "026efdb60c6862f091dd2e382589e881a50875bf",
+      "productSourceCommit": "6b3ae45589132a7c37da14e94a20a4668b2f28b9",
+      "providers": {
+        "obsidian-workspaces": {
+          "version": "0.1.0",
+          "bundleSHA256": "9dee2cbb8b25f768f81d3b94ec1a7c57ddae55267ae29de459ad00a8d94d3400"
+        },
+        "obsidian-git": {
+          "version": "2.43.0",
+          "bundleSHA256": "58beb0981875c672fc83350e3b1f20db6ca1df3ca2047a25f49190b1e31e2443"
+        },
+        "darlal-switcher-plus": {
+          "version": "6.3.0",
+          "bundleSHA256": "6746dad3d6b132698b04c2a10ea0c2f71c03c8b5af7bec753ca76319c72e3f23"
+        },
+        "workspaces-switch-benchmark": {
+          "version": "0.1.0",
+          "bundleSHA256": "394466fd2c824d4f2f49a46f1b7848c91303f27ccf77cdf03a34233bddf80431"
+        }
+      },
+      "fixture": {
+        "alphaCommit": "16b513247d3d6c7b06a96e08cd66216f745765c6",
+        "betaCommit": "bc4e41676d573c09173dd9b77632f6713188ca35",
+        "catalogSize": 3,
+        "measuredSwitches": 100,
+        "warmups": 3,
+        "baselineSamples": 20,
+        "expectedNotes": {
+          "alpha": {
+            "alpha-exclusive.md": "# Alpha exclusive\n",
+            "sidebar-alpha.md": "# Alpha sidebar\n",
+            "shared.md": "ALPHA\n"
+          },
+          "beta": {
+            "beta-exclusive.md": "# Beta exclusive\n",
+            "sidebar-beta.md": "# Beta sidebar\n",
+            "shared.md": "BRAVO\n"
+          }
+        },
+        "workload": {
+          "schemaVersion": 1,
+          "profile": "small",
+          "unchangedNotes": 0,
+          "branchNotes": 0,
+          "noteKiB": 1,
+          "generatedBytes": 0,
+          "trackedFiles": {
+            "alpha": 4,
+            "beta": 4
+          },
+          "changedPaths": 5
+        },
+        "trackedFiles": 4,
+        "changedPaths": 5,
+        "markdownLeaves": 4
+      },
+      "verifiedSamples": 150,
+      "final": {
+        "branch": "alpha",
+        "activeId": "runtime-alpha",
+        "journal": null,
+        "gitStatus": ""
+      },
+      "groups": {
+        "branch": {
+          "selectionToCompleteMs": {
+            "n": 100,
+            "min": 316.25820199999725,
+            "median": 425.91777,
+            "p95": 624.6713500000042,
+            "p99": 687.9679240000114,
+            "max": 1007.7485250000027
+          },
+          "selectionToNextFrameMs": {
+            "n": 100,
+            "min": 319.2729760000002,
+            "median": 429.39891250000073,
+            "p95": 629.1612170000008,
+            "p99": 691.5347030000121,
+            "max": 1011.7533869999897
+          },
+          "selectionToInputReleaseMs": {
+            "n": 100,
+            "min": 310.7593379999962,
+            "median": 420.1724420000028,
+            "p95": 617.136043999999,
+            "p99": 682.0532500000118,
+            "max": 1002.45167699999
+          },
+          "endpointCaptureMs": {
+            "n": 100,
+            "min": 1.9141170000002603,
+            "median": 2.253676500000438,
+            "p95": 3.5419910000055097,
+            "p99": 4.832665000001725,
+            "max": 7.533431999996537
+          },
+          "modalCount": 15,
+          "rawGitCommandHistogram": {
+            "20": 100
+          },
+          "gitRawUnionMs": {
+            "n": 100,
+            "min": 142.5737359999912,
+            "median": 236.414058499995,
+            "p95": 351.3919399999868,
+            "p99": 407.87504899999476,
+            "max": 578.4874649999983
+          },
+          "repositoryQueueWaitMs": {
+            "n": 100,
+            "min": 0.006078999998862855,
+            "median": 0.007956999997986713,
+            "p95": 0.018467000001692213,
+            "p99": 0.04321600000548642,
+            "max": 0.10774300000048243
+          },
+          "inclusiveStageMs": {
+            "repository.inspectIdentity": {
+              "n": 100,
+              "min": 35.88770399999339,
+              "median": 61.46669399999155,
+              "p95": 86.20835299997998,
+              "p99": 125.24376499999926,
+              "max": 323.81286700000055
+            },
+            "repository.prepareSwitch": {
+              "n": 100,
+              "min": 0,
+              "median": 0,
+              "p95": 0,
+              "p99": 0,
+              "max": 0
+            },
+            "repository.assertCanSwitch": {
+              "n": 100,
+              "min": 68.72662500000297,
+              "median": 124.36248900000282,
+              "p95": 197.6670969999832,
+              "p99": 242.82313799999974,
+              "max": 258.22849199999473
+            },
+            "repository.checkout": {
+              "n": 100,
+              "min": 62.19058599999698,
+              "median": 107.1947820000023,
+              "p95": 170.6324300000124,
+              "p99": 195.9056300000011,
+              "max": 231.76423000000068
+            },
+            "provider.checkout": {
+              "n": 100,
+              "min": 6.931772000003548,
+              "median": 12.578380500002822,
+              "p95": 19.33413699999801,
+              "p99": 35.17498199999682,
+              "max": 40.77530800000386
+            },
+            "host.flush": {
+              "n": 100,
+              "min": 0.014251999993575737,
+              "median": 0.02278949999890756,
+              "p95": 0.0794300000052317,
+              "p99": 0.3431799999962095,
+              "max": 0.3921039999986533
+            },
+            "host.quiesce": {
+              "n": 100,
+              "min": 7.745194000002812,
+              "median": 10.747197500000766,
+              "p95": 21.338239999997313,
+              "p99": 26.646294999998645,
+              "max": 73.48831000000064
+            },
+            "host.waitForFiles": {
+              "n": 100,
+              "min": 31.282994000001054,
+              "median": 52.88173800000368,
+              "p95": 112.78916999999637,
+              "p99": 192.5371060000034,
+              "max": 242.07685900000797
+            },
+            "host.restore": {
+              "n": 100,
+              "min": 53.20488699999987,
+              "median": 69.76955899999666,
+              "p95": 123.2362540000031,
+              "p99": 144.61509099999967,
+              "max": 205.9107210000002
+            },
+            "repository.refreshPresentation": {
+              "n": 100,
+              "min": 19.972322999994503,
+              "median": 36.66098250000141,
+              "p95": 66.72222799999872,
+              "p99": 123.20276299999387,
+              "max": 126.51301399999647
+            },
+            "store.save": {
+              "n": 100,
+              "min": 21.246188999997685,
+              "median": 28.77527000000555,
+              "p95": 60.70942699999432,
+              "p99": 90.60137499999837,
+              "max": 156.8026499999978
+            }
+          },
+          "chronologicalQuartiles": [
+            {
+              "firstMeasuredIndex": 0,
+              "lastMeasuredIndex": 24,
+              "latencyMs": {
+                "n": 25,
+                "min": 316.25820199999725,
+                "median": 421.73409900000115,
+                "p95": 558.0108890000047,
+                "p99": 632.6396179999938,
+                "max": 632.6396179999938
+              },
+              "rawGitUnionMs": {
+                "n": 25,
+                "min": 142.5737359999912,
+                "median": 204.68756000000576,
+                "p95": 266.5911710000073,
+                "p99": 348.6483769999977,
+                "max": 348.6483769999977
+              },
+              "nativeRestoreMs": {
+                "n": 25,
+                "min": 58.65401600000041,
+                "median": 79.94209799999953,
+                "p95": 122.23304700000153,
+                "p99": 122.79881500000192,
+                "max": 122.79881500000192
+              }
+            },
+            {
+              "firstMeasuredIndex": 25,
+              "lastMeasuredIndex": 49,
+              "latencyMs": {
+                "n": 25,
+                "min": 320.22125600000436,
+                "median": 384.1933960000024,
+                "p95": 549.0933960000038,
+                "p99": 565.5425699999978,
+                "max": 565.5425699999978
+              },
+              "rawGitUnionMs": {
+                "n": 25,
+                "min": 155.82847399998718,
+                "median": 205.28922599998623,
+                "p95": 304.2812199999971,
+                "p99": 307.0075249999936,
+                "max": 307.0075249999936
+              },
+              "nativeRestoreMs": {
+                "n": 25,
+                "min": 55.91877499999828,
+                "median": 70.5207389999996,
+                "p95": 144.61509099999967,
+                "p99": 205.9107210000002,
+                "max": 205.9107210000002
+              }
+            },
+            {
+              "firstMeasuredIndex": 50,
+              "lastMeasuredIndex": 74,
+              "latencyMs": {
+                "n": 25,
+                "min": 337.93956900000194,
+                "median": 424.24293000000034,
+                "p95": 639.1575739999971,
+                "p99": 655.0499150000032,
+                "max": 655.0499150000032
+              },
+              "rawGitUnionMs": {
+                "n": 25,
+                "min": 192.64010799999232,
+                "median": 253.8170059999975,
+                "p95": 331.6709140000021,
+                "p99": 353.94388199997775,
+                "max": 353.94388199997775
+              },
+              "nativeRestoreMs": {
+                "n": 25,
+                "min": 53.20488699999987,
+                "median": 63.872073999998975,
+                "p95": 91.66994300000079,
+                "p99": 123.59704999999667,
+                "max": 123.59704999999667
+              }
+            },
+            {
+              "firstMeasuredIndex": 75,
+              "lastMeasuredIndex": 99,
+              "latencyMs": {
+                "n": 25,
+                "min": 377.450067999991,
+                "median": 482.76923399999214,
+                "p95": 687.9679240000114,
+                "p99": 1007.7485250000027,
+                "max": 1007.7485250000027
+              },
+              "rawGitUnionMs": {
+                "n": 25,
+                "min": 219.79080000001704,
+                "median": 305.8199909999821,
+                "p95": 407.87504899999476,
+                "p99": 578.4874649999983,
+                "max": 578.4874649999983
+              },
+              "nativeRestoreMs": {
+                "n": 25,
+                "min": 54.794011999998474,
+                "median": 68.16143199999351,
+                "p95": 123.2362540000031,
+                "p99": 143.5912399999943,
+                "max": 143.5912399999943
+              }
+            }
+          ],
+          "firstBeforeTimingRssMiB": 296.953125,
+          "lastBeforeTimingRssMiB": 646.35546875,
+          "peakBeforeTimingRssMiB": 659.1015625
+        },
+        "same-branch": {
+          "selectionToCompleteMs": {
+            "n": 20,
+            "min": 189.33875999999873,
+            "median": 235.4992929999935,
+            "p95": 353.5649689999991,
+            "p99": 377.48009199999797,
+            "max": 377.48009199999797
+          },
+          "selectionToNextFrameMs": {
+            "n": 20,
+            "min": 193.20856800000183,
+            "median": 239.92564299999503,
+            "p95": 357.3721119999973,
+            "p99": 385.8272869999928,
+            "max": 385.8272869999928
+          },
+          "selectionToInputReleaseMs": {
+            "n": 20,
+            "min": 182.33147299999837,
+            "median": 227.95330999999715,
+            "p95": 346.7062769999902,
+            "p99": 370.6051860000007,
+            "max": 370.6051860000007
+          },
+          "endpointCaptureMs": {
+            "n": 20,
+            "min": 2.7426520000008168,
+            "median": 2.986340500006918,
+            "p95": 3.970050000003539,
+            "p99": 8.459224999998696,
+            "max": 8.459224999998696
+          },
+          "modalCount": 0,
+          "rawGitCommandHistogram": {
+            "3": 20
+          },
+          "gitRawUnionMs": {
+            "n": 20,
+            "min": 57.472446000014315,
+            "median": 70.17630149999604,
+            "p95": 90.49190699998871,
+            "p99": 137.75002800000948,
+            "max": 137.75002800000948
+          },
+          "repositoryQueueWaitMs": {
+            "n": 20,
+            "min": 0.006559999994351529,
+            "median": 0.007571499998448417,
+            "p95": 0.009103999997023493,
+            "p99": 0.010175999996135943,
+            "max": 0.010175999996135943
+          },
+          "inclusiveStageMs": {
+            "repository.inspectIdentity": {
+              "n": 20,
+              "min": 57.96737799998664,
+              "median": 70.72498649999034,
+              "p95": 94.68102800000634,
+              "p99": 146.98418699999456,
+              "max": 146.98418699999456
+            },
+            "repository.prepareSwitch": {
+              "n": 20,
+              "min": 0,
+              "median": 0,
+              "p95": 0,
+              "p99": 0,
+              "max": 0
+            },
+            "repository.assertCanSwitch": {
+              "n": 20,
+              "min": 0,
+              "median": 0,
+              "p95": 0,
+              "p99": 0,
+              "max": 0
+            },
+            "repository.checkout": {
+              "n": 20,
+              "min": 0,
+              "median": 0,
+              "p95": 0,
+              "p99": 0,
+              "max": 0
+            },
+            "provider.checkout": {
+              "n": 20,
+              "min": 0,
+              "median": 0,
+              "p95": 0,
+              "p99": 0,
+              "max": 0
+            },
+            "host.flush": {
+              "n": 20,
+              "min": 0.013310000009369105,
+              "median": 0.01773650000541238,
+              "p95": 0.02573899998969864,
+              "p99": 0.038979000004474074,
+              "max": 0.038979000004474074
+            },
+            "host.quiesce": {
+              "n": 20,
+              "min": 0,
+              "median": 0,
+              "p95": 0,
+              "p99": 0,
+              "max": 0
+            },
+            "host.waitForFiles": {
+              "n": 20,
+              "min": 1.00568299999577,
+              "median": 4.429790499998489,
+              "p95": 12.012192999987747,
+              "p99": 16.671354999998584,
+              "max": 16.671354999998584
+            },
+            "host.restore": {
+              "n": 20,
+              "min": 52.23088299999654,
+              "median": 74.11547350000183,
+              "p95": 92.6560759999993,
+              "p99": 110.07893299999705,
+              "max": 110.07893299999705
+            },
+            "repository.refreshPresentation": {
+              "n": 20,
+              "min": 0,
+              "median": 0,
+              "p95": 0,
+              "p99": 0,
+              "max": 0
+            },
+            "store.save": {
+              "n": 20,
+              "min": 27.321196999997483,
+              "median": 33.02073450000171,
+              "p95": 65.28073099999165,
+              "p99": 116.63983800000278,
+              "max": 116.63983800000278
+            }
+          }
+        },
+        "unbound": {
+          "selectionToCompleteMs": {
+            "n": 20,
+            "min": 167.83647599999676,
+            "median": 194.341456999995,
+            "p95": 282.60973099998955,
+            "p99": 369.35732100000314,
+            "max": 369.35732100000314
+          },
+          "selectionToNextFrameMs": {
+            "n": 20,
+            "min": 173.25120199999947,
+            "median": 199.69773450000503,
+            "p95": 288.76548799999,
+            "p99": 374.8036950000096,
+            "max": 374.8036950000096
+          },
+          "selectionToInputReleaseMs": {
+            "n": 20,
+            "min": 156.38113599999633,
+            "median": 181.8373145000005,
+            "p95": 269.97887099999934,
+            "p99": 356.8199030000105,
+            "max": 356.8199030000105
+          },
+          "endpointCaptureMs": {
+            "n": 20,
+            "min": 4.279497999988962,
+            "median": 4.543576999996731,
+            "p95": 5.1669309999997495,
+            "p99": 5.6507130000100005,
+            "max": 5.6507130000100005
+          },
+          "modalCount": 0,
+          "rawGitCommandHistogram": {
+            "0": 20
+          },
+          "gitRawUnionMs": {
+            "n": 20,
+            "min": 0,
+            "median": 0,
+            "p95": 0,
+            "p99": 0,
+            "max": 0
+          },
+          "repositoryQueueWaitMs": {
+            "n": 20,
+            "min": 0,
+            "median": 0,
+            "p95": 0,
+            "p99": 0,
+            "max": 0
+          },
+          "inclusiveStageMs": {
+            "repository.inspectIdentity": {
+              "n": 20,
+              "min": 0,
+              "median": 0,
+              "p95": 0,
+              "p99": 0,
+              "max": 0
+            },
+            "repository.prepareSwitch": {
+              "n": 20,
+              "min": 0,
+              "median": 0,
+              "p95": 0,
+              "p99": 0,
+              "max": 0
+            },
+            "repository.assertCanSwitch": {
+              "n": 20,
+              "min": 0,
+              "median": 0,
+              "p95": 0,
+              "p99": 0,
+              "max": 0
+            },
+            "repository.checkout": {
+              "n": 20,
+              "min": 0,
+              "median": 0,
+              "p95": 0,
+              "p99": 0,
+              "max": 0
+            },
+            "provider.checkout": {
+              "n": 20,
+              "min": 0,
+              "median": 0,
+              "p95": 0,
+              "p99": 0,
+              "max": 0
+            },
+            "host.flush": {
+              "n": 20,
+              "min": 0.015313000010792166,
+              "median": 0.019614499993622303,
+              "p95": 0.024978000001283363,
+              "p99": 0.08820299999206327,
+              "max": 0.08820299999206327
+            },
+            "host.quiesce": {
+              "n": 20,
+              "min": 0,
+              "median": 0,
+              "p95": 0,
+              "p99": 0,
+              "max": 0
+            },
+            "host.waitForFiles": {
+              "n": 20,
+              "min": 0.9984109999932116,
+              "median": 4.058123000002524,
+              "p95": 6.091130999993766,
+              "p99": 6.863159000000451,
+              "max": 6.863159000000451
+            },
+            "host.restore": {
+              "n": 20,
+              "min": 52.59041600000637,
+              "median": 63.83887799999502,
+              "p95": 88.98769300000276,
+              "p99": 98.41715500000282,
+              "max": 98.41715500000282
+            },
+            "repository.refreshPresentation": {
+              "n": 20,
+              "min": 0,
+              "median": 0,
+              "p95": 0,
+              "p99": 0,
+              "max": 0
+            },
+            "store.save": {
+              "n": 20,
+              "min": 47.89738299998862,
+              "median": 56.508562999995775,
+              "p95": 129.42026499999338,
+              "p99": 226.45477699999174,
+              "max": 226.45477699999174
+            }
+          }
+        }
+      },
+      "recorder": {
+        "schema": "obsidian-workspaces-sample-recorder-v1",
+        "mode": "append-only-streamed-final",
+        "runId": "429fe472-b4cd-472f-a5c7-a99f07e4e1ab",
+        "complete": true,
+        "startedSamples": 150,
+        "completedSamples": 150,
+        "failedSamples": 0,
+        "journalFile": "/workspace/scratch/0a8d9baba8ea/runtime/perf-v2/final-small-s1-baseline.json.429fe472-b4cd-472f-a5c7-a99f07e4e1ab.samples.ndjson",
+        "journalSHA256": "48735df3137cda2f60c1d281598876d81f1763a99e55c2affbdf9a7e6afee571",
+        "journalBytes": 5157558,
+        "rawSampleBytes": 4974042,
+        "rawSampleSerializations": 150,
+        "retainedDetailedSamplesBetweenSwitches": 0,
+        "finalAssembly": "streamed-after-timing",
+        "memoryScope": "renderer process; observations outside switch timers; no forced GC",
+        "initialMemory": {
+          "at": "2026-11-15T21:27:29.128Z",
+          "performanceMs": 31210.646803,
+          "rss": 230998016,
+          "heapTotal": 19914752,
+          "heapUsed": 18439336,
+          "external": 9045984,
+          "arrayBuffers": 0
+        },
+        "finalMemory": {
+          "at": "2026-11-15T21:28:35.414Z",
+          "performanceMs": 97496.293603,
+          "rss": 905953280,
+          "heapTotal": 145051648,
+          "heapUsed": 93362716,
+          "external": 13660194,
+          "arrayBuffers": 0
+        },
+        "costs": {
+          "sampleSerializationMs": 41.72917899994354,
+          "journalAppendMs": 118.06897700000991,
+          "compactProgressWriteMs": 109.11500099998011,
+          "compactProgressWrites": 154,
+          "finalAssemblyBeforePublicationMs": 57.10326199998963
+        },
+        "samplesSHA256": "70abb01471fe3212aa93032acb5b552259c46641a88a4ef827833326b4da6e62"
+      }
+    },
+    {
+      "filename": "final-small-s1-candidate.json",
+      "sha256": "e8b714ef824da3ebca1eca0bdddeae5e083f7e569f9f35f31a9210918bda06cb",
+      "bytes": 5103483,
+      "runId": "05fc7f18-1688-4a71-b7a7-ab263a187333",
+      "phase": "candidate",
+      "startedAt": "2026-11-15T21:31:31.409Z",
+      "finishedAt": "2026-11-15T21:33:11.557Z",
+      "session": {
+        "id": "407aa8a8-1a25-4a51-9e1a-cf8a55d0f1e8",
+        "processId": 11744,
+        "observedAt": "2026-11-15T21:27:29.582Z"
+      },
+      "sourceCommit": "026efdb60c6862f091dd2e382589e881a50875bf",
+      "productSourceCommit": "d7399c2dd7b642e4e2c904bb55a02ad38039a67d",
+      "providers": {
+        "obsidian-workspaces": {
+          "version": "0.1.0",
+          "bundleSHA256": "f4a862e7fd3c90786e4474a1e7c4a0041cc9d73d8595cda448cf64b10d530020"
+        },
+        "obsidian-git": {
+          "version": "2.43.0",
+          "bundleSHA256": "58beb0981875c672fc83350e3b1f20db6ca1df3ca2047a25f49190b1e31e2443"
+        },
+        "darlal-switcher-plus": {
+          "version": "6.3.0",
+          "bundleSHA256": "6746dad3d6b132698b04c2a10ea0c2f71c03c8b5af7bec753ca76319c72e3f23"
+        },
+        "workspaces-switch-benchmark": {
+          "version": "0.1.0",
+          "bundleSHA256": "394466fd2c824d4f2f49a46f1b7848c91303f27ccf77cdf03a34233bddf80431"
+        }
+      },
+      "fixture": {
+        "alphaCommit": "16b513247d3d6c7b06a96e08cd66216f745765c6",
+        "betaCommit": "bc4e41676d573c09173dd9b77632f6713188ca35",
+        "catalogSize": 3,
+        "measuredSwitches": 100,
+        "warmups": 3,
+        "baselineSamples": 20,
+        "expectedNotes": {
+          "alpha": {
+            "alpha-exclusive.md": "# Alpha exclusive\n",
+            "sidebar-alpha.md": "# Alpha sidebar\n",
+            "shared.md": "ALPHA\n"
+          },
+          "beta": {
+            "beta-exclusive.md": "# Beta exclusive\n",
+            "sidebar-beta.md": "# Beta sidebar\n",
+            "shared.md": "BRAVO\n"
+          }
+        },
+        "workload": {
+          "schemaVersion": 1,
+          "profile": "small",
+          "unchangedNotes": 0,
+          "branchNotes": 0,
+          "noteKiB": 1,
+          "generatedBytes": 0,
+          "trackedFiles": {
+            "alpha": 4,
+            "beta": 4
+          },
+          "changedPaths": 5
+        },
+        "trackedFiles": 4,
+        "changedPaths": 5,
+        "markdownLeaves": 4
+      },
+      "verifiedSamples": 150,
+      "final": {
+        "branch": "alpha",
+        "activeId": "runtime-alpha",
+        "journal": null,
+        "gitStatus": ""
+      },
+      "groups": {
+        "branch": {
+          "selectionToCompleteMs": {
+            "n": 100,
+            "min": 507.5129320000415,
+            "median": 733.679023500008,
+            "p95": 921.2547679999843,
+            "p99": 1037.779018000001,
+            "max": 1048.526155999978
+          },
+          "selectionToNextFrameMs": {
+            "n": 100,
+            "min": 511.42550400004257,
+            "median": 737.6425774999952,
+            "p95": 924.6387000000104,
+            "p99": 1041.7540940000326,
+            "max": 1052.992535999976
+          },
+          "selectionToInputReleaseMs": {
+            "n": 100,
+            "min": 501.0068550000433,
+            "median": 726.3696744999907,
+            "p95": 916.2731679999852,
+            "p99": 1032.6537800000515,
+            "max": 1041.9627120000077
+          },
+          "endpointCaptureMs": {
+            "n": 100,
+            "min": 1.9912009999970905,
+            "median": 2.4032625000108965,
+            "p95": 3.2494380000280216,
+            "p99": 8.323038000031374,
+            "max": 13.161160000017844
+          },
+          "modalCount": 95,
+          "rawGitCommandHistogram": {
+            "19": 99,
+            "21": 1
+          },
+          "gitRawUnionMs": {
+            "n": 100,
+            "min": 305.13642700004857,
+            "median": 498.6987455000053,
+            "p95": 673.6809130000183,
+            "p99": 709.2336099998793,
+            "max": 792.7337939999416
+          },
+          "repositoryQueueWaitMs": {
+            "n": 100,
+            "min": 0.007381000032182783,
+            "median": 0.00910900000599213,
+            "p95": 0.015704000019468367,
+            "p99": 0.03687599999830127,
+            "max": 0.03953999996883795
+          },
+          "inclusiveStageMs": {
+            "repository.inspectIdentity": {
+              "n": 100,
+              "min": 61.060649000050034,
+              "median": 90.19657399997232,
+              "p95": 136.0239939999883,
+              "p99": 170.81959900003858,
+              "max": 177.73398000001907
+            },
+            "repository.prepareSwitch": {
+              "n": 100,
+              "min": 164.48083000001498,
+              "median": 287.0419160000456,
+              "p95": 407.8538399999379,
+              "p99": 448.51061800000025,
+              "max": 491.4950630000676
+            },
+            "repository.assertCanSwitch": {
+              "n": 100,
+              "min": 91.32536600000458,
+              "median": 148.57867050002096,
+              "p95": 233.95594499999424,
+              "p99": 266.0351870000013,
+              "max": 287.8960139999981
+            },
+            "repository.checkout": {
+              "n": 100,
+              "min": 152.30876200000057,
+              "median": 226.3006629999727,
+              "p95": 333.07427400001325,
+              "p99": 395.8535569999949,
+              "max": 397.470736999996
+            },
+            "provider.checkout": {
+              "n": 100,
+              "min": 16.122912999999244,
+              "median": 25.77851550001651,
+              "p95": 40.62710300000617,
+              "p99": 48.474560000002384,
+              "max": 95.56558699999005
+            },
+            "host.flush": {
+              "n": 100,
+              "min": 0.017767000012099743,
+              "median": 0.022208500013221055,
+              "p95": 0.03755700000328943,
+              "p99": 0.053290999960154295,
+              "max": 0.0625049999798648
+            },
+            "host.quiesce": {
+              "n": 100,
+              "min": 7.666404000017792,
+              "median": 10.546002999995835,
+              "p95": 15.97726800001692,
+              "p99": 77.34649500000523,
+              "max": 101.07304899999872
+            },
+            "host.waitForFiles": {
+              "n": 100,
+              "min": 67.55925599997863,
+              "median": 111.63135549999424,
+              "p95": 168.51186500000767,
+              "p99": 235.14888500003144,
+              "max": 254.2456490000477
+            },
+            "host.restore": {
+              "n": 100,
+              "min": 60.35687499999767,
+              "median": 73.74515150001389,
+              "p95": 96.2891739999759,
+              "p99": 178.11003999999957,
+              "max": 194.43531199998688
+            },
+            "repository.refreshPresentation": {
+              "n": 100,
+              "min": 47.59242100000847,
+              "median": 76.10630400001537,
+              "p95": 119.67345799994655,
+              "p99": 148.41974600002868,
+              "max": 157.6084559999872
+            },
+            "store.save": {
+              "n": 100,
+              "min": 20.240915999980643,
+              "median": 27.673495499999262,
+              "p95": 41.59659999998985,
+              "p99": 97.53661000006832,
+              "max": 170.03330899996217
+            }
+          },
+          "chronologicalQuartiles": [
+            {
+              "firstMeasuredIndex": 0,
+              "lastMeasuredIndex": 24,
+              "latencyMs": {
+                "n": 25,
+                "min": 507.5129320000415,
+                "median": 608.9558129999787,
+                "p95": 734.1235950000118,
+                "p99": 813.3676560000167,
+                "max": 813.3676560000167
+              },
+              "rawGitUnionMs": {
+                "n": 25,
+                "min": 305.13642700004857,
+                "median": 402.5173900000518,
+                "p95": 458.79027399996994,
+                "p99": 525.6158880001167,
+                "max": 525.6158880001167
+              },
+              "nativeRestoreMs": {
+                "n": 25,
+                "min": 60.35687499999767,
+                "median": 74.60833600000478,
+                "p95": 85.3513549999916,
+                "p99": 91.29208599997219,
+                "max": 91.29208599997219
+              }
+            },
+            {
+              "firstMeasuredIndex": 25,
+              "lastMeasuredIndex": 49,
+              "latencyMs": {
+                "n": 25,
+                "min": 582.0168059999705,
+                "median": 732.9343579999986,
+                "p95": 847.8095709999907,
+                "p99": 1037.779018000001,
+                "max": 1037.779018000001
+              },
+              "rawGitUnionMs": {
+                "n": 25,
+                "min": 390.7222719999263,
+                "median": 504.5991229999927,
+                "p95": 607.2690679999068,
+                "p99": 618.3367859999416,
+                "max": 618.3367859999416
+              },
+              "nativeRestoreMs": {
+                "n": 25,
+                "min": 60.837853999983054,
+                "median": 72.12148199998774,
+                "p95": 97.36263200000394,
+                "p99": 114.75928400002886,
+                "max": 114.75928400002886
+              }
+            },
+            {
+              "firstMeasuredIndex": 50,
+              "lastMeasuredIndex": 74,
+              "latencyMs": {
+                "n": 25,
+                "min": 616.3981309999945,
+                "median": 744.4638820000109,
+                "p95": 852.4013489999925,
+                "p99": 908.4117100000149,
+                "max": 908.4117100000149
+              },
+              "rawGitUnionMs": {
+                "n": 25,
+                "min": 407.17654199997196,
+                "median": 467.08667600003537,
+                "p95": 621.4625080000842,
+                "p99": 659.0611529999878,
+                "max": 659.0611529999878
+              },
+              "nativeRestoreMs": {
+                "n": 25,
+                "min": 66.57376500003738,
+                "median": 72.09461600001669,
+                "p95": 178.11003999999957,
+                "p99": 194.43531199998688,
+                "max": 194.43531199998688
+              }
+            },
+            {
+              "firstMeasuredIndex": 75,
+              "lastMeasuredIndex": 99,
+              "latencyMs": {
+                "n": 25,
+                "min": 707.5715269999928,
+                "median": 849.3964370000176,
+                "p95": 1000.5808419999667,
+                "p99": 1048.526155999978,
+                "max": 1048.526155999978
+              },
+              "rawGitUnionMs": {
+                "n": 25,
+                "min": 484.27450900000986,
+                "median": 622.7455270000501,
+                "p95": 709.2336099998793,
+                "p99": 792.7337939999416,
+                "max": 792.7337939999416
+              },
+              "nativeRestoreMs": {
+                "n": 25,
+                "min": 61.856658999982756,
+                "median": 79.94089900003746,
+                "p95": 96.2891739999759,
+                "p99": 111.81973699998343,
+                "max": 111.81973699998343
+              }
+            }
+          ],
+          "firstBeforeTimingRssMiB": 498.515625,
+          "lastBeforeTimingRssMiB": 1133.73828125,
+          "peakBeforeTimingRssMiB": 1133.73828125
+        },
+        "same-branch": {
+          "selectionToCompleteMs": {
+            "n": 20,
+            "min": 236.55261700000847,
+            "median": 261.2476339999994,
+            "p95": 567.873683999991,
+            "p99": 583.5531649999903,
+            "max": 583.5531649999903
+          },
+          "selectionToNextFrameMs": {
+            "n": 20,
+            "min": 240.41573400003836,
+            "median": 265.23557050002273,
+            "p95": 572.2074830000056,
+            "p99": 587.9729660000303,
+            "max": 587.9729660000303
+          },
+          "selectionToInputReleaseMs": {
+            "n": 20,
+            "min": 229.37854800000787,
+            "median": 254.0297445000324,
+            "p95": 560.6298589999788,
+            "p99": 575.4549480000278,
+            "max": 575.4549480000278
+          },
+          "endpointCaptureMs": {
+            "n": 20,
+            "min": 2.7215500000165775,
+            "median": 2.8723525000095833,
+            "p95": 3.4940589999896474,
+            "p99": 3.752360000042245,
+            "max": 3.752360000042245
+          },
+          "modalCount": 1,
+          "rawGitCommandHistogram": {
+            "3": 18,
+            "5": 2
+          },
+          "gitRawUnionMs": {
+            "n": 20,
+            "min": 92.0083830000367,
+            "median": 104.50844450001023,
+            "p95": 187.46235400007572,
+            "p99": 199.75455400004284,
+            "max": 199.75455400004284
+          },
+          "repositoryQueueWaitMs": {
+            "n": 20,
+            "min": 0.007530999951995909,
+            "median": 0.008613499987404794,
+            "p95": 0.013429999991785735,
+            "p99": 0.014112000004388392,
+            "max": 0.014112000004388392
+          },
+          "inclusiveStageMs": {
+            "repository.inspectIdentity": {
+              "n": 20,
+              "min": 92.53336799994577,
+              "median": 106.98298599995906,
+              "p95": 136.13106699992204,
+              "p99": 140.92004900000757,
+              "max": 140.92004900000757
+            },
+            "repository.prepareSwitch": {
+              "n": 20,
+              "min": 0,
+              "median": 0,
+              "p95": 0,
+              "p99": 0,
+              "max": 0
+            },
+            "repository.assertCanSwitch": {
+              "n": 20,
+              "min": 0,
+              "median": 0,
+              "p95": 0,
+              "p99": 0,
+              "max": 0
+            },
+            "repository.checkout": {
+              "n": 20,
+              "min": 0,
+              "median": 0,
+              "p95": 0,
+              "p99": 0,
+              "max": 0
+            },
+            "provider.checkout": {
+              "n": 20,
+              "min": 0,
+              "median": 0,
+              "p95": 0,
+              "p99": 0,
+              "max": 0
+            },
+            "host.flush": {
+              "n": 20,
+              "min": 0.015562999993562698,
+              "median": 0.019199000002117828,
+              "p95": 0.02904399996623397,
+              "p99": 0.03549300000304356,
+              "max": 0.03549300000304356
+            },
+            "host.quiesce": {
+              "n": 20,
+              "min": 0,
+              "median": 0,
+              "p95": 0,
+              "p99": 0,
+              "max": 0
+            },
+            "host.waitForFiles": {
+              "n": 20,
+              "min": 1.235960999969393,
+              "median": 4.661545999988448,
+              "p95": 75.95267099997727,
+              "p99": 165.66632199997548,
+              "max": 165.66632199997548
+            },
+            "host.restore": {
+              "n": 20,
+              "min": 63.06962199998088,
+              "median": 71.51441949998843,
+              "p95": 185.38349199999357,
+              "p99": 384.6260440000333,
+              "max": 384.6260440000333
+            },
+            "repository.refreshPresentation": {
+              "n": 20,
+              "min": 0,
+              "median": 0,
+              "p95": 0,
+              "p99": 0,
+              "max": 0
+            },
+            "store.save": {
+              "n": 20,
+              "min": 27.02584700001171,
+              "median": 32.878605500009144,
+              "p95": 92.80734200001461,
+              "p99": 159.99338399997214,
+              "max": 159.99338399997214
+            }
+          }
+        },
+        "unbound": {
+          "selectionToCompleteMs": {
+            "n": 20,
+            "min": 192.07826300000306,
+            "median": 231.53855649998877,
+            "p95": 265.34410899999784,
+            "p99": 333.49175400001695,
+            "max": 333.49175400001695
+          },
+          "selectionToNextFrameMs": {
+            "n": 20,
+            "min": 199.09184999996796,
+            "median": 238.46363899999415,
+            "p95": 272.02353900001617,
+            "p99": 341.24936600000365,
+            "max": 341.24936600000365
+          },
+          "selectionToInputReleaseMs": {
+            "n": 20,
+            "min": 177.08475799998268,
+            "median": 214.83428149999236,
+            "p95": 250.8522740000044,
+            "p99": 318.8161599999876,
+            "max": 318.8161599999876
+          },
+          "endpointCaptureMs": {
+            "n": 20,
+            "min": 4.286189000005834,
+            "median": 5.456628999992972,
+            "p95": 6.175147000001743,
+            "p99": 6.490063000004739,
+            "max": 6.490063000004739
+          },
+          "modalCount": 0,
+          "rawGitCommandHistogram": {
+            "0": 20
+          },
+          "gitRawUnionMs": {
+            "n": 20,
+            "min": 0,
+            "median": 0,
+            "p95": 0,
+            "p99": 0,
+            "max": 0
+          },
+          "repositoryQueueWaitMs": {
+            "n": 20,
+            "min": 0,
+            "median": 0,
+            "p95": 0,
+            "p99": 0,
+            "max": 0
+          },
+          "inclusiveStageMs": {
+            "repository.inspectIdentity": {
+              "n": 20,
+              "min": 0,
+              "median": 0,
+              "p95": 0,
+              "p99": 0,
+              "max": 0
+            },
+            "repository.prepareSwitch": {
+              "n": 20,
+              "min": 0,
+              "median": 0,
+              "p95": 0,
+              "p99": 0,
+              "max": 0
+            },
+            "repository.assertCanSwitch": {
+              "n": 20,
+              "min": 0,
+              "median": 0,
+              "p95": 0,
+              "p99": 0,
+              "max": 0
+            },
+            "repository.checkout": {
+              "n": 20,
+              "min": 0,
+              "median": 0,
+              "p95": 0,
+              "p99": 0,
+              "max": 0
+            },
+            "provider.checkout": {
+              "n": 20,
+              "min": 0,
+              "median": 0,
+              "p95": 0,
+              "p99": 0,
+              "max": 0
+            },
+            "host.flush": {
+              "n": 20,
+              "min": 0.01946999999927357,
+              "median": 0.02187299996148795,
+              "p95": 0.025528999976813793,
+              "p99": 0.02556799998274073,
+              "max": 0.02556799998274073
+            },
+            "host.quiesce": {
+              "n": 20,
+              "min": 0,
+              "median": 0,
+              "p95": 0,
+              "p99": 0,
+              "max": 0
+            },
+            "host.waitForFiles": {
+              "n": 20,
+              "min": 1.1793249999755062,
+              "median": 4.8977785000170115,
+              "p95": 6.282829000032507,
+              "p99": 7.2694740000297315,
+              "max": 7.2694740000297315
+            },
+            "host.restore": {
+              "n": 20,
+              "min": 62.02686799998628,
+              "median": 74.77871050001704,
+              "p95": 95.70671699999366,
+              "p99": 161.4058860000223,
+              "max": 161.4058860000223
+            },
+            "repository.refreshPresentation": {
+              "n": 20,
+              "min": 0,
+              "median": 0,
+              "p95": 0,
+              "p99": 0,
+              "max": 0
+            },
+            "store.save": {
+              "n": 20,
+              "min": 60.193659999989904,
+              "median": 73.34662799999933,
+              "p95": 83.2005450000288,
+              "p99": 86.31456400000025,
+              "max": 86.31456400000025
+            }
+          }
+        }
+      },
+      "recorder": {
+        "schema": "obsidian-workspaces-sample-recorder-v1",
+        "mode": "append-only-streamed-final",
+        "runId": "05fc7f18-1688-4a71-b7a7-ab263a187333",
+        "complete": true,
+        "startedSamples": 150,
+        "completedSamples": 150,
+        "failedSamples": 0,
+        "journalFile": "/workspace/scratch/0a8d9baba8ea/runtime/perf-v2/final-small-s1-candidate.json.05fc7f18-1688-4a71-b7a7-ab263a187333.samples.ndjson",
+        "journalSHA256": "a4fe81c7e4ebc76552e473c833c7300eaae18ac71cfb92eb30eed2c8d9b1027c",
+        "journalBytes": 5162515,
+        "rawSampleBytes": 4978013,
+        "rawSampleSerializations": 150,
+        "retainedDetailedSamplesBetweenSwitches": 0,
+        "finalAssembly": "streamed-after-timing",
+        "memoryScope": "renderer process; observations outside switch timers; no forced GC",
+        "initialMemory": {
+          "at": "2026-11-15T21:31:31.415Z",
+          "performanceMs": 273497.468701,
+          "rss": 450215936,
+          "heapTotal": 41410560,
+          "heapUsed": 39860224,
+          "external": 9344121,
+          "arrayBuffers": 0
+        },
+        "finalMemory": {
+          "at": "2026-11-15T21:33:11.561Z",
+          "performanceMs": 373643.322581,
+          "rss": 1498578944,
+          "heapTotal": 167325696,
+          "heapUsed": 97990004,
+          "external": 11797892,
+          "arrayBuffers": 0
+        },
+        "costs": {
+          "sampleSerializationMs": 38.31147300021257,
+          "journalAppendMs": 138.30522599909455,
+          "compactProgressWriteMs": 82.79017100000056,
+          "compactProgressWrites": 154,
+          "finalAssemblyBeforePublicationMs": 81.47276200004853
+        },
+        "samplesSHA256": "be767b24b84e8c159ebb7aa82b71ee7cc92c39e173642b524af2474db6192a55"
+      }
+    },
+    {
+      "filename": "final-small-s2-candidate.json",
+      "sha256": "9471b4f872dee7faa8265881290d3e2d033a4339a4c691b58021dddd43952b95",
+      "bytes": 5079158,
+      "runId": "530f7d22-d88e-4518-bb62-810e0ca7c312",
+      "phase": "candidate",
+      "startedAt": "2026-11-15T21:37:20.307Z",
+      "finishedAt": "2026-11-15T21:38:23.758Z",
+      "session": {
+        "id": "78d776c0-704d-4ad0-90da-c57cb2f28aa4",
+        "processId": 17153,
+        "observedAt": "2026-11-15T21:37:20.718Z"
+      },
+      "sourceCommit": "026efdb60c6862f091dd2e382589e881a50875bf",
+      "productSourceCommit": "d7399c2dd7b642e4e2c904bb55a02ad38039a67d",
+      "providers": {
+        "obsidian-workspaces": {
+          "version": "0.1.0",
+          "bundleSHA256": "f4a862e7fd3c90786e4474a1e7c4a0041cc9d73d8595cda448cf64b10d530020"
+        },
+        "obsidian-git": {
+          "version": "2.43.0",
+          "bundleSHA256": "58beb0981875c672fc83350e3b1f20db6ca1df3ca2047a25f49190b1e31e2443"
+        },
+        "darlal-switcher-plus": {
+          "version": "6.3.0",
+          "bundleSHA256": "6746dad3d6b132698b04c2a10ea0c2f71c03c8b5af7bec753ca76319c72e3f23"
+        },
+        "workspaces-switch-benchmark": {
+          "version": "0.1.0",
+          "bundleSHA256": "394466fd2c824d4f2f49a46f1b7848c91303f27ccf77cdf03a34233bddf80431"
+        }
+      },
+      "fixture": {
+        "alphaCommit": "16b513247d3d6c7b06a96e08cd66216f745765c6",
+        "betaCommit": "bc4e41676d573c09173dd9b77632f6713188ca35",
+        "catalogSize": 3,
+        "measuredSwitches": 100,
+        "warmups": 3,
+        "baselineSamples": 20,
+        "expectedNotes": {
+          "alpha": {
+            "alpha-exclusive.md": "# Alpha exclusive\n",
+            "sidebar-alpha.md": "# Alpha sidebar\n",
+            "shared.md": "ALPHA\n"
+          },
+          "beta": {
+            "beta-exclusive.md": "# Beta exclusive\n",
+            "sidebar-beta.md": "# Beta sidebar\n",
+            "shared.md": "BRAVO\n"
+          }
+        },
+        "workload": {
+          "schemaVersion": 1,
+          "profile": "small",
+          "unchangedNotes": 0,
+          "branchNotes": 0,
+          "noteKiB": 1,
+          "generatedBytes": 0,
+          "trackedFiles": {
+            "alpha": 4,
+            "beta": 4
+          },
+          "changedPaths": 5
+        },
+        "trackedFiles": 4,
+        "changedPaths": 5,
+        "markdownLeaves": 4
+      },
+      "verifiedSamples": 150,
+      "final": {
+        "branch": "alpha",
+        "activeId": "runtime-alpha",
+        "journal": null,
+        "gitStatus": ""
+      },
+      "groups": {
+        "branch": {
+          "selectionToCompleteMs": {
+            "n": 100,
+            "min": 265.9571840000008,
+            "median": 404.6289835000025,
+            "p95": 594.4129749999993,
+            "p99": 684.3301560000036,
+            "max": 717.8188359999986
+          },
+          "selectionToNextFrameMs": {
+            "n": 100,
+            "min": 269.2714300000007,
+            "median": 408.2086620000009,
+            "p95": 597.7415330000003,
+            "p99": 690.8375599999999,
+            "max": 724.4082589999962
+          },
+          "selectionToInputReleaseMs": {
+            "n": 100,
+            "min": 260.519053,
+            "median": 398.56674249999924,
+            "p95": 587.747675999999,
+            "p99": 676.7236279999997,
+            "max": 709.1527110000025
+          },
+          "endpointCaptureMs": {
+            "n": 100,
+            "min": 2.032777000000351,
+            "median": 2.369565999999395,
+            "p95": 3.792809999999008,
+            "p99": 5.452642999998716,
+            "max": 6.375560000000405
+          },
+          "modalCount": 10,
+          "rawGitCommandHistogram": {
+            "19": 99,
+            "21": 1
+          },
+          "gitRawUnionMs": {
+            "n": 100,
+            "min": 111.759673999999,
+            "median": 226.63803750000443,
+            "p95": 351.5603200000187,
+            "p99": 437.23029099999985,
+            "max": 478.9641139999949
+          },
+          "repositoryQueueWaitMs": {
+            "n": 100,
+            "min": 0.005358000002161134,
+            "median": 0.007616000000780332,
+            "p95": 0.010955999998259358,
+            "p99": 0.019729999999981374,
+            "max": 0.04227399999945192
+          },
+          "inclusiveStageMs": {
+            "repository.inspectIdentity": {
+              "n": 100,
+              "min": 24.578997000000527,
+              "median": 47.61688700000377,
+              "p95": 73.16066000000865,
+              "p99": 111.41644299999825,
+              "max": 145.92074200000206
+            },
+            "repository.prepareSwitch": {
+              "n": 100,
+              "min": 60.014540000000125,
+              "median": 125.05138049999914,
+              "p95": 215.69222900000022,
+              "p99": 270.96275300000707,
+              "max": 320.6495519999953
+            },
+            "repository.assertCanSwitch": {
+              "n": 100,
+              "min": 33.93011699999988,
+              "median": 68.23229050000009,
+              "p95": 111.75737500000105,
+              "p99": 129.7694080000001,
+              "max": 179.61823500000173
+            },
+            "repository.checkout": {
+              "n": 100,
+              "min": 55.352092000000994,
+              "median": 105.57151149999845,
+              "p95": 170.10528899999917,
+              "p99": 200.10881100000552,
+              "max": 239.61914800000523
+            },
+            "provider.checkout": {
+              "n": 100,
+              "min": 6.901506000001973,
+              "median": 11.432058000002144,
+              "p95": 22.353424000000814,
+              "p99": 24.257422000002407,
+              "max": 27.18131700000231
+            },
+            "host.flush": {
+              "n": 100,
+              "min": 0.0130700000008801,
+              "median": 0.021177000000534463,
+              "p95": 0.05281999999715481,
+              "p99": 0.09333100000003469,
+              "max": 0.15336199999728706
+            },
+            "host.quiesce": {
+              "n": 100,
+              "min": 7.4069109999982174,
+              "median": 9.99951449999935,
+              "p95": 14.716926000000967,
+              "p99": 17.4104490000027,
+              "max": 52.214922999999544
+            },
+            "host.waitForFiles": {
+              "n": 100,
+              "min": 22.590463000000454,
+              "median": 52.0043540000006,
+              "p95": 95.03614599999855,
+              "p99": 111.80869600000005,
+              "max": 135.21372300000075
+            },
+            "host.restore": {
+              "n": 100,
+              "min": 53.420296999996935,
+              "median": 66.64911449999909,
+              "p95": 100.9641929999998,
+              "p99": 220.36231800000314,
+              "max": 262.01236699999936
+            },
+            "repository.refreshPresentation": {
+              "n": 100,
+              "min": 16.113649000000805,
+              "median": 35.08280450000166,
+              "p95": 58.46537299999909,
+              "p99": 71.67533700000058,
+              "max": 152.29933900000105
+            },
+            "store.save": {
+              "n": 100,
+              "min": 21.19374300000345,
+              "median": 28.217064499996923,
+              "p95": 46.0670769999997,
+              "p99": 79.7510989999937,
+              "max": 90.81921300000249
+            }
+          },
+          "chronologicalQuartiles": [
+            {
+              "firstMeasuredIndex": 0,
+              "lastMeasuredIndex": 24,
+              "latencyMs": {
+                "n": 25,
+                "min": 265.9571840000008,
+                "median": 329.78485999999975,
+                "p95": 479.92387699999745,
+                "p99": 481.57805799999915,
+                "max": 481.57805799999915
+              },
+              "rawGitUnionMs": {
+                "n": 25,
+                "min": 111.759673999999,
+                "median": 148.84460099999342,
+                "p95": 254.4784189999882,
+                "p99": 270.3086059999987,
+                "max": 270.3086059999987
+              },
+              "nativeRestoreMs": {
+                "n": 25,
+                "min": 56.33031200000005,
+                "median": 69.81411099999968,
+                "p95": 118.42676899999788,
+                "p99": 127.0657769999998,
+                "max": 127.0657769999998
+              }
+            },
+            {
+              "firstMeasuredIndex": 25,
+              "lastMeasuredIndex": 49,
+              "latencyMs": {
+                "n": 25,
+                "min": 298.5253870000015,
+                "median": 348.94775200000004,
+                "p95": 576.169334000002,
+                "p99": 614.9157930000001,
+                "max": 614.9157930000001
+              },
+              "rawGitUnionMs": {
+                "n": 25,
+                "min": 141.99166599999808,
+                "median": 178.67798999999286,
+                "p95": 271.4078150000096,
+                "p99": 280.3323979999914,
+                "max": 280.3323979999914
+              },
+              "nativeRestoreMs": {
+                "n": 25,
+                "min": 53.98022900000069,
+                "median": 63.27933000000121,
+                "p95": 220.36231800000314,
+                "p99": 262.01236699999936,
+                "max": 262.01236699999936
+              }
+            },
+            {
+              "firstMeasuredIndex": 50,
+              "lastMeasuredIndex": 74,
+              "latencyMs": {
+                "n": 25,
+                "min": 351.7860589999982,
+                "median": 442.8306939999966,
+                "p95": 684.3301560000036,
+                "p99": 717.8188359999986,
+                "max": 717.8188359999986
+              },
+              "rawGitUnionMs": {
+                "n": 25,
+                "min": 193.2414290000088,
+                "median": 268.83389900000475,
+                "p95": 437.23029099999985,
+                "p99": 478.9641139999949,
+                "max": 478.9641139999949
+              },
+              "nativeRestoreMs": {
+                "n": 25,
+                "min": 53.420296999996935,
+                "median": 69.79831800000102,
+                "p95": 79.64242399999785,
+                "p99": 100.9641929999998,
+                "max": 100.9641929999998
+              }
+            },
+            {
+              "firstMeasuredIndex": 75,
+              "lastMeasuredIndex": 99,
+              "latencyMs": {
+                "n": 25,
+                "min": 358.44429300000047,
+                "median": 460.2079450000019,
+                "p95": 594.4129749999993,
+                "p99": 632.9535279999982,
+                "max": 632.9535279999982
+              },
+              "rawGitUnionMs": {
+                "n": 25,
+                "min": 208.0512250000029,
+                "median": 276.0345640000087,
+                "p95": 351.5603200000187,
+                "p99": 370.05068700000993,
+                "max": 370.05068700000993
+              },
+              "nativeRestoreMs": {
+                "n": 25,
+                "min": 55.4715720000022,
+                "median": 63.47225099999923,
+                "p95": 80.52394600000116,
+                "p99": 85.6321820000012,
+                "max": 85.6321820000012
+              }
+            }
+          ],
+          "firstBeforeTimingRssMiB": 303.86328125,
+          "lastBeforeTimingRssMiB": 769.16015625,
+          "peakBeforeTimingRssMiB": 769.16015625
+        },
+        "same-branch": {
+          "selectionToCompleteMs": {
+            "n": 20,
+            "min": 186.51211400000466,
+            "median": 239.17683699999543,
+            "p95": 393.6828059999971,
+            "p99": 430.5210730000108,
+            "max": 430.5210730000108
+          },
+          "selectionToNextFrameMs": {
+            "n": 20,
+            "min": 190.37664300000324,
+            "median": 243.5376324999961,
+            "p95": 397.89052499999525,
+            "p99": 434.6207990000112,
+            "max": 434.6207990000112
+          },
+          "selectionToInputReleaseMs": {
+            "n": 20,
+            "min": 179.04947900000116,
+            "median": 229.89474849999897,
+            "p95": 385.8025990000024,
+            "p99": 422.5152960000123,
+            "max": 422.5152960000123
+          },
+          "endpointCaptureMs": {
+            "n": 20,
+            "min": 2.859658000001218,
+            "median": 3.0630160000036994,
+            "p95": 3.8620049999954063,
+            "p99": 3.9811049999989336,
+            "max": 3.9811049999989336
+          },
+          "modalCount": 0,
+          "rawGitCommandHistogram": {
+            "3": 19,
+            "5": 1
+          },
+          "gitRawUnionMs": {
+            "n": 20,
+            "min": 49.69640900000377,
+            "median": 72.46503300000404,
+            "p95": 157.88802100000612,
+            "p99": 234.25685799999337,
+            "max": 234.25685799999337
+          },
+          "repositoryQueueWaitMs": {
+            "n": 20,
+            "min": 0.0057989999986602925,
+            "median": 0.007286000000021886,
+            "p95": 0.009703999996418133,
+            "p99": 0.009833999996772036,
+            "max": 0.009833999996772036
+          },
+          "inclusiveStageMs": {
+            "repository.inspectIdentity": {
+              "n": 20,
+              "min": 51.90107500000886,
+              "median": 73.2366660000007,
+              "p95": 115.17105599999195,
+              "p99": 235.30615600002056,
+              "max": 235.30615600002056
+            },
+            "repository.prepareSwitch": {
+              "n": 20,
+              "min": 0,
+              "median": 0,
+              "p95": 0,
+              "p99": 0,
+              "max": 0
+            },
+            "repository.assertCanSwitch": {
+              "n": 20,
+              "min": 0,
+              "median": 0,
+              "p95": 0,
+              "p99": 0,
+              "max": 0
+            },
+            "repository.checkout": {
+              "n": 20,
+              "min": 0,
+              "median": 0,
+              "p95": 0,
+              "p99": 0,
+              "max": 0
+            },
+            "provider.checkout": {
+              "n": 20,
+              "min": 0,
+              "median": 0,
+              "p95": 0,
+              "p99": 0,
+              "max": 0
+            },
+            "host.flush": {
+              "n": 20,
+              "min": 0.014752000002772547,
+              "median": 0.016770999998698244,
+              "p95": 0.049254999998083804,
+              "p99": 0.05972099999780767,
+              "max": 0.05972099999780767
+            },
+            "host.quiesce": {
+              "n": 20,
+              "min": 0,
+              "median": 0,
+              "p95": 0,
+              "p99": 0,
+              "max": 0
+            },
+            "host.waitForFiles": {
+              "n": 20,
+              "min": 3.6208410000035656,
+              "median": 6.125711500000762,
+              "p95": 8.945109000007506,
+              "p99": 104.67200600000069,
+              "max": 104.67200600000069
+            },
+            "host.restore": {
+              "n": 20,
+              "min": 54.63468200000352,
+              "median": 67.14047550000396,
+              "p95": 84.28531899999507,
+              "p99": 186.4061140000049,
+              "max": 186.4061140000049
+            },
+            "repository.refreshPresentation": {
+              "n": 20,
+              "min": 0,
+              "median": 0,
+              "p95": 0,
+              "p99": 0,
+              "max": 0
+            },
+            "store.save": {
+              "n": 20,
+              "min": 27.25845699999627,
+              "median": 32.919995500004006,
+              "p95": 56.076052999997046,
+              "p99": 194.4801509999961,
+              "max": 194.4801509999961
+            }
+          }
+        },
+        "unbound": {
+          "selectionToCompleteMs": {
+            "n": 20,
+            "min": 188.45812299998943,
+            "median": 203.14031399999658,
+            "p95": 238.22142000000167,
+            "p99": 277.16165199999523,
+            "max": 277.16165199999523
+          },
+          "selectionToNextFrameMs": {
+            "n": 20,
+            "min": 194.18637199999648,
+            "median": 208.81329499999265,
+            "p95": 243.98914999999397,
+            "p99": 394.77762500000244,
+            "max": 394.77762500000244
+          },
+          "selectionToInputReleaseMs": {
+            "n": 20,
+            "min": 175.96725799998967,
+            "median": 189.83418350000284,
+            "p95": 213.6529709999886,
+            "p99": 225.88332599999558,
+            "max": 225.88332599999558
+          },
+          "endpointCaptureMs": {
+            "n": 20,
+            "min": 4.506240000002435,
+            "median": 4.784456000001228,
+            "p95": 10.108848999996553,
+            "p99": 105.9441380000062,
+            "max": 105.9441380000062
+          },
+          "modalCount": 0,
+          "rawGitCommandHistogram": {
+            "0": 20
+          },
+          "gitRawUnionMs": {
+            "n": 20,
+            "min": 0,
+            "median": 0,
+            "p95": 0,
+            "p99": 0,
+            "max": 0
+          },
+          "repositoryQueueWaitMs": {
+            "n": 20,
+            "min": 0,
+            "median": 0,
+            "p95": 0,
+            "p99": 0,
+            "max": 0
+          },
+          "inclusiveStageMs": {
+            "repository.inspectIdentity": {
+              "n": 20,
+              "min": 0,
+              "median": 0,
+              "p95": 0,
+              "p99": 0,
+              "max": 0
+            },
+            "repository.prepareSwitch": {
+              "n": 20,
+              "min": 0,
+              "median": 0,
+              "p95": 0,
+              "p99": 0,
+              "max": 0
+            },
+            "repository.assertCanSwitch": {
+              "n": 20,
+              "min": 0,
+              "median": 0,
+              "p95": 0,
+              "p99": 0,
+              "max": 0
+            },
+            "repository.checkout": {
+              "n": 20,
+              "min": 0,
+              "median": 0,
+              "p95": 0,
+              "p99": 0,
+              "max": 0
+            },
+            "provider.checkout": {
+              "n": 20,
+              "min": 0,
+              "median": 0,
+              "p95": 0,
+              "p99": 0,
+              "max": 0
+            },
+            "host.flush": {
+              "n": 20,
+              "min": 0.016474999996717088,
+              "median": 0.01934400000027381,
+              "p95": 0.023135000010370277,
+              "p99": 0.023195000001578592,
+              "max": 0.023195000001578592
+            },
+            "host.quiesce": {
+              "n": 20,
+              "min": 0,
+              "median": 0,
+              "p95": 0,
+              "p99": 0,
+              "max": 0
+            },
+            "host.waitForFiles": {
+              "n": 20,
+              "min": 1.087956999996095,
+              "median": 4.091246999996656,
+              "p95": 5.531161999999313,
+              "p99": 6.216689000008046,
+              "max": 6.216689000008046
+            },
+            "host.restore": {
+              "n": 20,
+              "min": 55.92802799999481,
+              "median": 64.09770249999565,
+              "p95": 71.00191099999938,
+              "p99": 72.43715900000825,
+              "max": 72.43715900000825
+            },
+            "repository.refreshPresentation": {
+              "n": 20,
+              "min": 0,
+              "median": 0,
+              "p95": 0,
+              "p99": 0,
+              "max": 0
+            },
+            "store.save": {
+              "n": 20,
+              "min": 54.609021000011126,
+              "median": 60.79946300001029,
+              "p95": 80.4429519999976,
+              "p99": 110.02979200000118,
+              "max": 110.02979200000118
+            }
+          }
+        }
+      },
+      "recorder": {
+        "schema": "obsidian-workspaces-sample-recorder-v1",
+        "mode": "append-only-streamed-final",
+        "runId": "530f7d22-d88e-4518-bb62-810e0ca7c312",
+        "complete": true,
+        "startedSamples": 150,
+        "completedSamples": 150,
+        "failedSamples": 0,
+        "journalFile": "/workspace/scratch/0a8d9baba8ea/runtime/perf-v2/final-small-s2-candidate.json.530f7d22-d88e-4518-bb62-810e0ca7c312.samples.ndjson",
+        "journalSHA256": "e64f83e608692de55357eb9908bc8f9e040a2c8ec6f9edba2f4fbf2754f42099",
+        "journalBytes": 5138194,
+        "rawSampleBytes": 4954152,
+        "rawSampleSerializations": 150,
+        "retainedDetailedSamplesBetweenSwitches": 0,
+        "finalAssembly": "streamed-after-timing",
+        "memoryScope": "renderer process; observations outside switch timers; no forced GC",
+        "initialMemory": {
+          "at": "2026-11-15T21:37:20.312Z",
+          "performanceMs": 13005.912903,
+          "rss": 256761856,
+          "heapTotal": 31588352,
+          "heapUsed": 21721624,
+          "external": 9049559,
+          "arrayBuffers": 0
+        },
+        "finalMemory": {
+          "at": "2026-11-15T21:38:23.762Z",
+          "performanceMs": 76455.78704,
+          "rss": 991272960,
+          "heapTotal": 131170304,
+          "heapUsed": 70043264,
+          "external": 10313222,
+          "arrayBuffers": 0
+        },
+        "costs": {
+          "sampleSerializationMs": 35.49339599997984,
+          "journalAppendMs": 112.36724500010678,
+          "compactProgressWriteMs": 101.7156540000451,
+          "compactProgressWrites": 154,
+          "finalAssemblyBeforePublicationMs": 141.9410130000033
+        },
+        "samplesSHA256": "a61b0d47ab85012f762f29b3ec1dd0eb50a78e1682049e1641554a8b254befc3"
+      }
+    },
+    {
+      "filename": "final-small-s2-baseline.json",
+      "sha256": "3e7e4c4867e697652d0851819d903f4ba54632f1cc4338fc94c347b8b065e98f",
+      "bytes": 5122284,
+      "runId": "20c28891-1a74-4b21-a1ff-80b3794264af",
+      "phase": "baseline",
+      "startedAt": "2026-11-15T21:39:53.943Z",
+      "finishedAt": "2026-11-15T21:41:32.923Z",
+      "session": {
+        "id": "78d776c0-704d-4ad0-90da-c57cb2f28aa4",
+        "processId": 17153,
+        "observedAt": "2026-11-15T21:37:20.718Z"
+      },
+      "sourceCommit": "026efdb60c6862f091dd2e382589e881a50875bf",
+      "productSourceCommit": "6b3ae45589132a7c37da14e94a20a4668b2f28b9",
+      "providers": {
+        "obsidian-workspaces": {
+          "version": "0.1.0",
+          "bundleSHA256": "9dee2cbb8b25f768f81d3b94ec1a7c57ddae55267ae29de459ad00a8d94d3400"
+        },
+        "obsidian-git": {
+          "version": "2.43.0",
+          "bundleSHA256": "58beb0981875c672fc83350e3b1f20db6ca1df3ca2047a25f49190b1e31e2443"
+        },
+        "darlal-switcher-plus": {
+          "version": "6.3.0",
+          "bundleSHA256": "6746dad3d6b132698b04c2a10ea0c2f71c03c8b5af7bec753ca76319c72e3f23"
+        },
+        "workspaces-switch-benchmark": {
+          "version": "0.1.0",
+          "bundleSHA256": "394466fd2c824d4f2f49a46f1b7848c91303f27ccf77cdf03a34233bddf80431"
+        }
+      },
+      "fixture": {
+        "alphaCommit": "16b513247d3d6c7b06a96e08cd66216f745765c6",
+        "betaCommit": "bc4e41676d573c09173dd9b77632f6713188ca35",
+        "catalogSize": 3,
+        "measuredSwitches": 100,
+        "warmups": 3,
+        "baselineSamples": 20,
+        "expectedNotes": {
+          "alpha": {
+            "alpha-exclusive.md": "# Alpha exclusive\n",
+            "sidebar-alpha.md": "# Alpha sidebar\n",
+            "shared.md": "ALPHA\n"
+          },
+          "beta": {
+            "beta-exclusive.md": "# Beta exclusive\n",
+            "sidebar-beta.md": "# Beta sidebar\n",
+            "shared.md": "BRAVO\n"
+          }
+        },
+        "workload": {
+          "schemaVersion": 1,
+          "profile": "small",
+          "unchangedNotes": 0,
+          "branchNotes": 0,
+          "noteKiB": 1,
+          "generatedBytes": 0,
+          "trackedFiles": {
+            "alpha": 4,
+            "beta": 4
+          },
+          "changedPaths": 5
+        },
+        "trackedFiles": 4,
+        "changedPaths": 5,
+        "markdownLeaves": 4
+      },
+      "verifiedSamples": 150,
+      "final": {
+        "branch": "alpha",
+        "activeId": "runtime-alpha",
+        "journal": null,
+        "gitStatus": ""
+      },
+      "groups": {
+        "branch": {
+          "selectionToCompleteMs": {
+            "n": 100,
+            "min": 527.5787269999855,
+            "median": 714.4923914999963,
+            "p95": 866.54527100001,
+            "p99": 923.102160999988,
+            "max": 1053.1530369999819
+          },
+          "selectionToNextFrameMs": {
+            "n": 100,
+            "min": 531.6360379999969,
+            "median": 718.7220320000051,
+            "p95": 870.6744199999957,
+            "p99": 926.8109739999927,
+            "max": 1058.6318690000044
+          },
+          "selectionToInputReleaseMs": {
+            "n": 100,
+            "min": 520.088631999999,
+            "median": 700.558296999996,
+            "p95": 860.9534770000027,
+            "p99": 917.812065999984,
+            "max": 1047.8143479999853
+          },
+          "endpointCaptureMs": {
+            "n": 100,
+            "min": 2.06978199997684,
+            "median": 2.463999000014155,
+            "p95": 3.456952000007732,
+            "p99": 4.874817999982042,
+            "max": 10.467700000008335
+          },
+          "modalCount": 98,
+          "rawGitCommandHistogram": {
+            "20": 98,
+            "22": 2
+          },
+          "gitRawUnionMs": {
+            "n": 100,
+            "min": 330.7584069999575,
+            "median": 494.64058349997504,
+            "p95": 617.8141430000251,
+            "p99": 677.0449930000468,
+            "max": 678.7369500000204
+          },
+          "repositoryQueueWaitMs": {
+            "n": 100,
+            "min": 0.0071909999824129045,
+            "median": 0.009113999985856935,
+            "p95": 0.011608000000705943,
+            "p99": 0.014311000006273389,
+            "max": 0.058357999980216846
+          },
+          "inclusiveStageMs": {
+            "repository.inspectIdentity": {
+              "n": 100,
+              "min": 83.34809100002167,
+              "median": 110.78410050002276,
+              "p95": 159.14775800000643,
+              "p99": 179.55583999998635,
+              "max": 268.97871600001235
+            },
+            "repository.prepareSwitch": {
+              "n": 100,
+              "min": 0,
+              "median": 0,
+              "p95": 0,
+              "p99": 0,
+              "max": 0
+            },
+            "repository.assertCanSwitch": {
+              "n": 100,
+              "min": 171.21739699997124,
+              "median": 267.4211614999949,
+              "p95": 396.1270369999693,
+              "p99": 419.19782299999497,
+              "max": 423.36672499999986
+            },
+            "repository.checkout": {
+              "n": 100,
+              "min": 133.3821529999841,
+              "median": 215.044573999985,
+              "p95": 310.21991000001435,
+              "p99": 376.58990800002357,
+              "max": 411.93540000001667
+            },
+            "provider.checkout": {
+              "n": 100,
+              "min": 14.052237000025343,
+              "median": 24.861217999990913,
+              "p95": 38.45813499999349,
+              "p99": 44.66931100000511,
+              "max": 46.43581500000437
+            },
+            "host.flush": {
+              "n": 100,
+              "min": 0.01465299999108538,
+              "median": 0.021783000003779307,
+              "p95": 0.04992600000696257,
+              "p99": 0.16931600001407787,
+              "max": 0.5338679999986198
+            },
+            "host.quiesce": {
+              "n": 100,
+              "min": 7.642056000011507,
+              "median": 10.44184650000534,
+              "p95": 14.661407000006875,
+              "p99": 38.87678799999412,
+              "max": 79.97643400001107
+            },
+            "host.waitForFiles": {
+              "n": 100,
+              "min": 74.94837100000586,
+              "median": 110.91439650001121,
+              "p95": 158.23078499999247,
+              "p99": 220.96077099998365,
+              "max": 257.7157099999895
+            },
+            "host.restore": {
+              "n": 100,
+              "min": 56.813354999991134,
+              "median": 73.00984250000329,
+              "p95": 91.76034599999548,
+              "p99": 104.31072599999607,
+              "max": 123.63573599999654
+            },
+            "repository.refreshPresentation": {
+              "n": 100,
+              "min": 44.493619999993825,
+              "median": 75.01756949999253,
+              "p95": 103.55428800001391,
+              "p99": 144.59530200000154,
+              "max": 230.8747250000015
+            },
+            "store.save": {
+              "n": 100,
+              "min": 21.213854999979958,
+              "median": 28.07087500001944,
+              "p95": 43.63911400001962,
+              "p99": 119.14204899998731,
+              "max": 274.6654619999754
+            }
+          },
+          "chronologicalQuartiles": [
+            {
+              "firstMeasuredIndex": 0,
+              "lastMeasuredIndex": 24,
+              "latencyMs": {
+                "n": 25,
+                "min": 527.5787269999855,
+                "median": 652.5385409999872,
+                "p95": 831.5556389999983,
+                "p99": 841.7173820000025,
+                "max": 841.7173820000025
+              },
+              "rawGitUnionMs": {
+                "n": 25,
+                "min": 330.7584069999575,
+                "median": 437.9439090000524,
+                "p95": 589.6487809999671,
+                "p99": 617.8141430000251,
+                "max": 617.8141430000251
+              },
+              "nativeRestoreMs": {
+                "n": 25,
+                "min": 56.813354999991134,
+                "median": 75.10907400000724,
+                "p95": 92.1121839999978,
+                "p99": 123.63573599999654,
+                "max": 123.63573599999654
+              }
+            },
+            {
+              "firstMeasuredIndex": 25,
+              "lastMeasuredIndex": 49,
+              "latencyMs": {
+                "n": 25,
+                "min": 574.2976980000094,
+                "median": 744.9518809999863,
+                "p95": 898.0364120000158,
+                "p99": 1053.1530369999819,
+                "max": 1053.1530369999819
+              },
+              "rawGitUnionMs": {
+                "n": 25,
+                "min": 382.53400299994973,
+                "median": 520.6624129999545,
+                "p95": 621.008290000027,
+                "p99": 678.7369500000204,
+                "max": 678.7369500000204
+              },
+              "nativeRestoreMs": {
+                "n": 25,
+                "min": 57.786836000013864,
+                "median": 68.37156299999333,
+                "p95": 83.19278099999065,
+                "p99": 83.69733200001065,
+                "max": 83.69733200001065
+              }
+            },
+            {
+              "firstMeasuredIndex": 50,
+              "lastMeasuredIndex": 74,
+              "latencyMs": {
+                "n": 25,
+                "min": 601.8397370000021,
+                "median": 697.6918270000024,
+                "p95": 825.2850460000045,
+                "p99": 857.6751379999914,
+                "max": 857.6751379999914
+              },
+              "rawGitUnionMs": {
+                "n": 25,
+                "min": 404.6023719999939,
+                "median": 483.5087749999366,
+                "p95": 572.9072039999883,
+                "p99": 576.9466490000195,
+                "max": 576.9466490000195
+              },
+              "nativeRestoreMs": {
+                "n": 25,
+                "min": 61.3725390000036,
+                "median": 73.08765200001653,
+                "p95": 91.76034599999548,
+                "p99": 94.80014700000174,
+                "max": 94.80014700000174
+              }
+            },
+            {
+              "firstMeasuredIndex": 75,
+              "lastMeasuredIndex": 99,
+              "latencyMs": {
+                "n": 25,
+                "min": 623.1397500000021,
+                "median": 771.9636639999808,
+                "p95": 916.8251689999888,
+                "p99": 923.102160999988,
+                "max": 923.102160999988
+              },
+              "rawGitUnionMs": {
+                "n": 25,
+                "min": 421.3785139999818,
+                "median": 546.9963639999914,
+                "p95": 661.8667800000403,
+                "p99": 677.0449930000468,
+                "max": 677.0449930000468
+              },
+              "nativeRestoreMs": {
+                "n": 25,
+                "min": 61.66996699999436,
+                "median": 73.22148099998594,
+                "p95": 96.27758999998332,
+                "p99": 104.31072599999607,
+                "max": 104.31072599999607
+              }
+            }
+          ],
+          "firstBeforeTimingRssMiB": 561.59765625,
+          "lastBeforeTimingRssMiB": 1002.94921875,
+          "peakBeforeTimingRssMiB": 1002.94921875
+        },
+        "same-branch": {
+          "selectionToCompleteMs": {
+            "n": 20,
+            "min": 231.74832300000708,
+            "median": 251.07676649998757,
+            "p95": 428.133708999987,
+            "p99": 430.6175450000155,
+            "max": 430.6175450000155
+          },
+          "selectionToNextFrameMs": {
+            "n": 20,
+            "min": 235.74824799998896,
+            "median": 255.40706249998766,
+            "p95": 432.13421799999196,
+            "p99": 434.81878300002427,
+            "max": 434.81878300002427
+          },
+          "selectionToInputReleaseMs": {
+            "n": 20,
+            "min": 224.19980899998336,
+            "median": 242.5141025000048,
+            "p95": 420.3348869999754,
+            "p99": 422.62648000000627,
+            "max": 422.62648000000627
+          },
+          "endpointCaptureMs": {
+            "n": 20,
+            "min": 2.892727999977069,
+            "median": 3.0359895000001416,
+            "p95": 3.826420999976108,
+            "p99": 4.269105999992462,
+            "max": 4.269105999992462
+          },
+          "modalCount": 0,
+          "rawGitCommandHistogram": {
+            "3": 19,
+            "5": 1
+          },
+          "gitRawUnionMs": {
+            "n": 20,
+            "min": 80.88866500000586,
+            "median": 90.87564950001251,
+            "p95": 110.77722799999174,
+            "p99": 178.04502600003616,
+            "max": 178.04502600003616
+          },
+          "repositoryQueueWaitMs": {
+            "n": 20,
+            "min": 0.007090999977663159,
+            "median": 0.008423000006587245,
+            "p95": 0.010666999995009974,
+            "p99": 0.05083700001705438,
+            "max": 0.05083700001705438
+          },
+          "inclusiveStageMs": {
+            "repository.inspectIdentity": {
+              "n": 20,
+              "min": 81.52677199998288,
+              "median": 93.31324950000271,
+              "p95": 115.57755299998098,
+              "p99": 125.59990400003153,
+              "max": 125.59990400003153
+            },
+            "repository.prepareSwitch": {
+              "n": 20,
+              "min": 0,
+              "median": 0,
+              "p95": 0,
+              "p99": 0,
+              "max": 0
+            },
+            "repository.assertCanSwitch": {
+              "n": 20,
+              "min": 0,
+              "median": 0,
+              "p95": 0,
+              "p99": 0,
+              "max": 0
+            },
+            "repository.checkout": {
+              "n": 20,
+              "min": 0,
+              "median": 0,
+              "p95": 0,
+              "p99": 0,
+              "max": 0
+            },
+            "provider.checkout": {
+              "n": 20,
+              "min": 0,
+              "median": 0,
+              "p95": 0,
+              "p99": 0,
+              "max": 0
+            },
+            "host.flush": {
+              "n": 20,
+              "min": 0.01747699998668395,
+              "median": 0.019814999992377125,
+              "p95": 0.023114999989047647,
+              "p99": 0.026210000010905787,
+              "max": 0.026210000010905787
+            },
+            "host.quiesce": {
+              "n": 20,
+              "min": 0,
+              "median": 0,
+              "p95": 0,
+              "p99": 0,
+              "max": 0
+            },
+            "host.waitForFiles": {
+              "n": 20,
+              "min": 3.4746930000255816,
+              "median": 7.104160999981104,
+              "p95": 12.23380599997472,
+              "p99": 24.978562000003876,
+              "max": 24.978562000003876
+            },
+            "host.restore": {
+              "n": 20,
+              "min": 60.47497000001022,
+              "median": 68.92128250001406,
+              "p95": 238.8804100000125,
+              "p99": 250.39947699999902,
+              "max": 250.39947699999902
+            },
+            "repository.refreshPresentation": {
+              "n": 20,
+              "min": 0,
+              "median": 0,
+              "p95": 0,
+              "p99": 0,
+              "max": 0
+            },
+            "store.save": {
+              "n": 20,
+              "min": 28.77125500002876,
+              "median": 33.32485750000342,
+              "p95": 42.62387700000545,
+              "p99": 91.83722800001851,
+              "max": 91.83722800001851
+            }
+          }
+        },
+        "unbound": {
+          "selectionToCompleteMs": {
+            "n": 20,
+            "min": 188.84239599999273,
+            "median": 212.53203750000102,
+            "p95": 246.18327400001,
+            "p99": 625.6287359999842,
+            "max": 625.6287359999842
+          },
+          "selectionToNextFrameMs": {
+            "n": 20,
+            "min": 194.42321299997275,
+            "median": 218.52854800000205,
+            "p95": 260.90745599998627,
+            "p99": 632.0748829999939,
+            "max": 632.0748829999939
+          },
+          "selectionToInputReleaseMs": {
+            "n": 20,
+            "min": 176.45685099999537,
+            "median": 196.76240049999615,
+            "p95": 230.33748300001025,
+            "p99": 611.647896999988,
+            "max": 611.647896999988
+          },
+          "endpointCaptureMs": {
+            "n": 20,
+            "min": 4.49207799998112,
+            "median": 4.800528999985545,
+            "p95": 6.467749000003096,
+            "p99": 27.18157199997222,
+            "max": 27.18157199997222
+          },
+          "modalCount": 1,
+          "rawGitCommandHistogram": {
+            "0": 20
+          },
+          "gitRawUnionMs": {
+            "n": 20,
+            "min": 0,
+            "median": 0,
+            "p95": 0,
+            "p99": 0,
+            "max": 0
+          },
+          "repositoryQueueWaitMs": {
+            "n": 20,
+            "min": 0,
+            "median": 0,
+            "p95": 0,
+            "p99": 0,
+            "max": 0
+          },
+          "inclusiveStageMs": {
+            "repository.inspectIdentity": {
+              "n": 20,
+              "min": 0,
+              "median": 0,
+              "p95": 0,
+              "p99": 0,
+              "max": 0
+            },
+            "repository.prepareSwitch": {
+              "n": 20,
+              "min": 0,
+              "median": 0,
+              "p95": 0,
+              "p99": 0,
+              "max": 0
+            },
+            "repository.assertCanSwitch": {
+              "n": 20,
+              "min": 0,
+              "median": 0,
+              "p95": 0,
+              "p99": 0,
+              "max": 0
+            },
+            "repository.checkout": {
+              "n": 20,
+              "min": 0,
+              "median": 0,
+              "p95": 0,
+              "p99": 0,
+              "max": 0
+            },
+            "provider.checkout": {
+              "n": 20,
+              "min": 0,
+              "median": 0,
+              "p95": 0,
+              "p99": 0,
+              "max": 0
+            },
+            "host.flush": {
+              "n": 20,
+              "min": 0.01956900002551265,
+              "median": 0.022069000013289042,
+              "p95": 0.025268000026699156,
+              "p99": 0.028442999988328665,
+              "max": 0.028442999988328665
+            },
+            "host.quiesce": {
+              "n": 20,
+              "min": 0,
+              "median": 0,
+              "p95": 0,
+              "p99": 0,
+              "max": 0
+            },
+            "host.waitForFiles": {
+              "n": 20,
+              "min": 1.1337360000470653,
+              "median": 4.980382499983534,
+              "p95": 6.442892000020947,
+              "p99": 20.377330999996047,
+              "max": 20.377330999996047
+            },
+            "host.restore": {
+              "n": 20,
+              "min": 59.5223850000184,
+              "median": 71.99922100000549,
+              "p95": 85.48654800001532,
+              "p99": 182.03872799998499,
+              "max": 182.03872799998499
+            },
+            "repository.refreshPresentation": {
+              "n": 20,
+              "min": 0,
+              "median": 0,
+              "p95": 0,
+              "p99": 0,
+              "max": 0
+            },
+            "store.save": {
+              "n": 20,
+              "min": 55.22176600000239,
+              "median": 61.42171199999575,
+              "p95": 83.70772000000579,
+              "p99": 351.64117600000463,
+              "max": 351.64117600000463
+            }
+          }
+        }
+      },
+      "recorder": {
+        "schema": "obsidian-workspaces-sample-recorder-v1",
+        "mode": "append-only-streamed-final",
+        "runId": "20c28891-1a74-4b21-a1ff-80b3794264af",
+        "complete": true,
+        "startedSamples": 150,
+        "completedSamples": 150,
+        "failedSamples": 0,
+        "journalFile": "/workspace/scratch/0a8d9baba8ea/runtime/perf-v2/final-small-s2-baseline.json.20c28891-1a74-4b21-a1ff-80b3794264af.samples.ndjson",
+        "journalSHA256": "7aef8618a35408b5e706bcd94b114acfae44d1174b58e893142090a5f94d3da2",
+        "journalBytes": 5181316,
+        "rawSampleBytes": 4997513,
+        "rawSampleSerializations": 150,
+        "retainedDetailedSamplesBetweenSwitches": 0,
+        "finalAssembly": "streamed-after-timing",
+        "memoryScope": "renderer process; observations outside switch timers; no forced GC",
+        "initialMemory": {
+          "at": "2026-11-15T21:39:53.948Z",
+          "performanceMs": 166641.537106,
+          "rss": 518549504,
+          "heapTotal": 55705600,
+          "heapUsed": 41981228,
+          "external": 9413068,
+          "arrayBuffers": 0
+        },
+        "finalMemory": {
+          "at": "2026-11-15T21:41:32.927Z",
+          "performanceMs": 265620.228072,
+          "rss": 1112621056,
+          "heapTotal": 149790720,
+          "heapUsed": 82755192,
+          "external": 10198383,
+          "arrayBuffers": 0
+        },
+        "costs": {
+          "sampleSerializationMs": 39.48921499995049,
+          "journalAppendMs": 156.1047670004191,
+          "compactProgressWriteMs": 81.91481600017869,
+          "compactProgressWrites": 154,
+          "finalAssemblyBeforePublicationMs": 89.19815500004916
+        },
+        "samplesSHA256": "55225dc525dbf472c0583f98ab9bd37bb162a586c572910c40209501777d6a0c"
+      }
+    },
+    {
+      "filename": "final-scale-s1-baseline.json",
+      "sha256": "1c6282feda63ec36a13ca904ed51fcddd3c7eda27e562ab5eae1674cce8a1f2a",
+      "bytes": 5099279,
+      "runId": "65774339-b404-45b5-b008-f12201ade7ea",
+      "phase": "baseline",
+      "startedAt": "2026-11-15T21:44:11.079Z",
+      "finishedAt": "2026-11-15T21:45:12.727Z",
+      "session": {
+        "id": "a40e941f-7e32-431a-b8ec-72865fd92b1d",
+        "processId": 22217,
+        "observedAt": "2026-11-15T21:44:11.464Z"
+      },
+      "sourceCommit": "026efdb60c6862f091dd2e382589e881a50875bf",
+      "productSourceCommit": "6b3ae45589132a7c37da14e94a20a4668b2f28b9",
+      "providers": {
+        "obsidian-workspaces": {
+          "version": "0.1.0",
+          "bundleSHA256": "9dee2cbb8b25f768f81d3b94ec1a7c57ddae55267ae29de459ad00a8d94d3400"
+        },
+        "obsidian-git": {
+          "version": "2.43.0",
+          "bundleSHA256": "58beb0981875c672fc83350e3b1f20db6ca1df3ca2047a25f49190b1e31e2443"
+        },
+        "darlal-switcher-plus": {
+          "version": "6.3.0",
+          "bundleSHA256": "6746dad3d6b132698b04c2a10ea0c2f71c03c8b5af7bec753ca76319c72e3f23"
+        },
+        "workspaces-switch-benchmark": {
+          "version": "0.1.0",
+          "bundleSHA256": "394466fd2c824d4f2f49a46f1b7848c91303f27ccf77cdf03a34233bddf80431"
+        }
+      },
+      "fixture": {
+        "alphaCommit": "f841afee3c420217d938e377335a529b2e429fd5",
+        "betaCommit": "f9d13122e49d4a94c232b94aa9fd2ecaf0feca68",
+        "catalogSize": 3,
+        "measuredSwitches": 100,
+        "warmups": 3,
+        "baselineSamples": 20,
+        "expectedNotes": {
+          "alpha": {
+            "alpha-exclusive.md": "# Alpha exclusive\n",
+            "sidebar-alpha.md": "# Alpha sidebar\n",
+            "shared.md": "ALPHA\n"
+          },
+          "beta": {
+            "beta-exclusive.md": "# Beta exclusive\n",
+            "sidebar-beta.md": "# Beta sidebar\n",
+            "shared.md": "BRAVO\n"
+          }
+        },
+        "workload": {
+          "schemaVersion": 1,
+          "profile": "representative",
+          "unchangedNotes": 1000,
+          "branchNotes": 50,
+          "noteKiB": 4,
+          "generatedBytes": 4505600,
+          "trackedFiles": {
+            "alpha": 1054,
+            "beta": 1054
+          },
+          "changedPaths": 105
+        },
+        "trackedFiles": 1054,
+        "changedPaths": 105,
+        "markdownLeaves": 4
+      },
+      "verifiedSamples": 150,
+      "final": {
+        "branch": "alpha",
+        "activeId": "runtime-alpha",
+        "journal": null,
+        "gitStatus": ""
+      },
+      "groups": {
+        "branch": {
+          "selectionToCompleteMs": {
+            "n": 100,
+            "min": 317.3733490000013,
+            "median": 453.47091400000136,
+            "p95": 581.892783000003,
+            "p99": 657.947708000007,
+            "max": 709.5829129999911
+          },
+          "selectionToNextFrameMs": {
+            "n": 100,
+            "min": 325.151807000002,
+            "median": 458.2659195000015,
+            "p95": 587.4513659999939,
+            "p99": 668.4908350000042,
+            "max": 717.418703000003
+          },
+          "selectionToInputReleaseMs": {
+            "n": 100,
+            "min": 316.6334300000017,
+            "median": 452.45520199999737,
+            "p95": 579.9282289999974,
+            "p99": 657.0885770000023,
+            "max": 708.7207979999948
+          },
+          "endpointCaptureMs": {
+            "n": 100,
+            "min": 0.611254999996163,
+            "median": 0.7031294999978854,
+            "p95": 0.9019650000045658,
+            "p99": 1.428332000003138,
+            "max": 2.63379600000917
+          },
+          "modalCount": 17,
+          "rawGitCommandHistogram": {
+            "20": 99,
+            "22": 1
+          },
+          "gitRawUnionMs": {
+            "n": 100,
+            "min": 119.77309400001104,
+            "median": 230.49868850001076,
+            "p95": 329.745966999988,
+            "p99": 351.24225399999705,
+            "max": 397.83918399999675
+          },
+          "repositoryQueueWaitMs": {
+            "n": 100,
+            "min": 0.005408000004536007,
+            "median": 0.007701999998971587,
+            "p95": 0.009834999989834614,
+            "p99": 0.030286000001069624,
+            "max": 0.07308000000193715
+          },
+          "inclusiveStageMs": {
+            "repository.inspectIdentity": {
+              "n": 100,
+              "min": 33.14288400000078,
+              "median": 64.85036500000933,
+              "p95": 90.21035599999595,
+              "p99": 176.334944000002,
+              "max": 183.4530689999956
+            },
+            "repository.prepareSwitch": {
+              "n": 100,
+              "min": 0,
+              "median": 0,
+              "p95": 0,
+              "p99": 0,
+              "max": 0
+            },
+            "repository.assertCanSwitch": {
+              "n": 100,
+              "min": 76.36271100000158,
+              "median": 128.36292850000245,
+              "p95": 200.61108499999682,
+              "p99": 270.8596120000075,
+              "max": 311.6595030000026
+            },
+            "repository.checkout": {
+              "n": 100,
+              "min": 56.46489400000428,
+              "median": 108.23891799999546,
+              "p95": 175.6604459999944,
+              "p99": 225.3276249999908,
+              "max": 246.38167299999623
+            },
+            "provider.checkout": {
+              "n": 100,
+              "min": 10.859045999997761,
+              "median": 16.731143999997585,
+              "p95": 26.178674000009778,
+              "p99": 36.36059500000556,
+              "max": 37.558061999996426
+            },
+            "host.flush": {
+              "n": 100,
+              "min": 0.01473299998906441,
+              "median": 0.023225000004458707,
+              "p95": 0.051027000008616596,
+              "p99": 0.10838399999920512,
+              "max": 1.7535740000021178
+            },
+            "host.quiesce": {
+              "n": 100,
+              "min": 7.3871109999963664,
+              "median": 9.796557999998186,
+              "p95": 12.69285200000013,
+              "p99": 42.49149499999476,
+              "max": 53.24855599999864
+            },
+            "host.waitForFiles": {
+              "n": 100,
+              "min": 46.74178599999868,
+              "median": 92.84146350000083,
+              "p95": 122.13425499999721,
+              "p99": 141.3363229999959,
+              "max": 147.72565300000133
+            },
+            "host.restore": {
+              "n": 100,
+              "min": 64.06435699999565,
+              "median": 87.10012799999822,
+              "p95": 156.79384500000015,
+              "p99": 198.96410099999048,
+              "max": 249.27053100000194
+            },
+            "repository.refreshPresentation": {
+              "n": 100,
+              "min": 13.234121000001323,
+              "median": 27.294083000000683,
+              "p95": 45.88006399999722,
+              "p99": 63.33824699999241,
+              "max": 112.0410880000054
+            },
+            "store.save": {
+              "n": 100,
+              "min": 10.373826000002737,
+              "median": 18.971406500004377,
+              "p95": 34.084229000007326,
+              "p99": 63.79699199999595,
+              "max": 77.22706900000048
+            }
+          },
+          "chronologicalQuartiles": [
+            {
+              "firstMeasuredIndex": 0,
+              "lastMeasuredIndex": 24,
+              "latencyMs": {
+                "n": 25,
+                "min": 317.3733490000013,
+                "median": 386.127293000005,
+                "p95": 517.2977649999957,
+                "p99": 626.9258810000028,
+                "max": 626.9258810000028
+              },
+              "rawGitUnionMs": {
+                "n": 25,
+                "min": 119.77309400001104,
+                "median": 162.91508900000917,
+                "p95": 275.7068240000008,
+                "p99": 329.745966999988,
+                "max": 329.745966999988
+              },
+              "nativeRestoreMs": {
+                "n": 25,
+                "min": 67.05609499999991,
+                "median": 105.53263100000186,
+                "p95": 177.7954019999961,
+                "p99": 249.27053100000194,
+                "max": 249.27053100000194
+              }
+            },
+            {
+              "firstMeasuredIndex": 25,
+              "lastMeasuredIndex": 49,
+              "latencyMs": {
+                "n": 25,
+                "min": 378.63222900000255,
+                "median": 420.7838949999932,
+                "p95": 557.1537249999965,
+                "p99": 573.3417800000025,
+                "max": 573.3417800000025
+              },
+              "rawGitUnionMs": {
+                "n": 25,
+                "min": 157.69649900001968,
+                "median": 209.82345299998997,
+                "p95": 274.21988399997645,
+                "p99": 313.72876400001405,
+                "max": 313.72876400001405
+              },
+              "nativeRestoreMs": {
+                "n": 25,
+                "min": 64.06435699999565,
+                "median": 90.85386600000493,
+                "p95": 123.52584099999513,
+                "p99": 157.7750240000023,
+                "max": 157.7750240000023
+              }
+            },
+            {
+              "firstMeasuredIndex": 50,
+              "lastMeasuredIndex": 74,
+              "latencyMs": {
+                "n": 25,
+                "min": 395.97053000000597,
+                "median": 470.25913199999195,
+                "p95": 581.892783000003,
+                "p99": 709.5829129999911,
+                "max": 709.5829129999911
+              },
+              "rawGitUnionMs": {
+                "n": 25,
+                "min": 206.99024899999495,
+                "median": 248.48356500000227,
+                "p95": 331.5526029999892,
+                "p99": 351.24225399999705,
+                "max": 351.24225399999705
+              },
+              "nativeRestoreMs": {
+                "n": 25,
+                "min": 64.36257800000021,
+                "median": 75.59013199999754,
+                "p95": 105.65280000001076,
+                "p99": 198.96410099999048,
+                "max": 198.96410099999048
+              }
+            },
+            {
+              "firstMeasuredIndex": 75,
+              "lastMeasuredIndex": 99,
+              "latencyMs": {
+                "n": 25,
+                "min": 418.070292000004,
+                "median": 476.9954540000035,
+                "p95": 611.2977050000045,
+                "p99": 657.947708000007,
+                "max": 657.947708000007
+              },
+              "rawGitUnionMs": {
+                "n": 25,
+                "min": 219.06122999999207,
+                "median": 268.416939000017,
+                "p95": 335.6451780000061,
+                "p99": 397.83918399999675,
+                "max": 397.83918399999675
+              },
+              "nativeRestoreMs": {
+                "n": 25,
+                "min": 68.86994000000414,
+                "median": 82.77152099998784,
+                "p95": 117.43631299999834,
+                "p99": 121.64986700000009,
+                "max": 121.64986700000009
+              }
+            }
+          ],
+          "firstBeforeTimingRssMiB": 273.33984375,
+          "lastBeforeTimingRssMiB": 678.80859375,
+          "peakBeforeTimingRssMiB": 678.80859375
+        },
+        "same-branch": {
+          "selectionToCompleteMs": {
+            "n": 20,
+            "min": 164.00248100000317,
+            "median": 182.624636499997,
+            "p95": 211.5208330000023,
+            "p99": 257.5414390000078,
+            "max": 257.5414390000078
+          },
+          "selectionToNextFrameMs": {
+            "n": 20,
+            "min": 170.75441999999748,
+            "median": 185.56663449999905,
+            "p95": 215.8685839999962,
+            "p99": 264.6025709999958,
+            "max": 264.6025709999958
+          },
+          "selectionToInputReleaseMs": {
+            "n": 20,
+            "min": 162.76422599999933,
+            "median": 181.18745599999238,
+            "p95": 210.03161900000123,
+            "p99": 256.25389000000723,
+            "max": 256.25389000000723
+          },
+          "endpointCaptureMs": {
+            "n": 20,
+            "min": 0.6484919999929843,
+            "median": 0.7775320000000647,
+            "p95": 1.0244610000081593,
+            "p99": 1.1052630000049248,
+            "max": 1.1052630000049248
+          },
+          "modalCount": 0,
+          "rawGitCommandHistogram": {
+            "3": 20
+          },
+          "gitRawUnionMs": {
+            "n": 20,
+            "min": 50.465703999987454,
+            "median": 66.88112500000716,
+            "p95": 76.08522000000812,
+            "p99": 76.92161700001452,
+            "max": 76.92161700001452
+          },
+          "repositoryQueueWaitMs": {
+            "n": 20,
+            "min": 0.007109999991371296,
+            "median": 0.008517999995092396,
+            "p95": 0.009533999997074716,
+            "p99": 0.00985499999660533,
+            "max": 0.00985499999660533
+          },
+          "inclusiveStageMs": {
+            "repository.inspectIdentity": {
+              "n": 20,
+              "min": 50.97464400000172,
+              "median": 67.75232350000442,
+              "p95": 76.89123000000836,
+              "p99": 77.98959199999808,
+              "max": 77.98959199999808
+            },
+            "repository.prepareSwitch": {
+              "n": 20,
+              "min": 0,
+              "median": 0,
+              "p95": 0,
+              "p99": 0,
+              "max": 0
+            },
+            "repository.assertCanSwitch": {
+              "n": 20,
+              "min": 0,
+              "median": 0,
+              "p95": 0,
+              "p99": 0,
+              "max": 0
+            },
+            "repository.checkout": {
+              "n": 20,
+              "min": 0,
+              "median": 0,
+              "p95": 0,
+              "p99": 0,
+              "max": 0
+            },
+            "provider.checkout": {
+              "n": 20,
+              "min": 0,
+              "median": 0,
+              "p95": 0,
+              "p99": 0,
+              "max": 0
+            },
+            "host.flush": {
+              "n": 20,
+              "min": 0.013741000002482906,
+              "median": 0.01843249999365071,
+              "p95": 0.027962000007391907,
+              "p99": 0.04901400000380818,
+              "max": 0.04901400000380818
+            },
+            "host.quiesce": {
+              "n": 20,
+              "min": 0,
+              "median": 0,
+              "p95": 0,
+              "p99": 0,
+              "max": 0
+            },
+            "host.waitForFiles": {
+              "n": 20,
+              "min": 0.8043870000110473,
+              "median": 1.0773499999922933,
+              "p95": 5.0583759999863105,
+              "p99": 9.179738999999245,
+              "max": 9.179738999999245
+            },
+            "host.restore": {
+              "n": 20,
+              "min": 70.12023800000316,
+              "median": 92.07272899999953,
+              "p95": 107.2891810000001,
+              "p99": 168.45378200001142,
+              "max": 168.45378200001142
+            },
+            "repository.refreshPresentation": {
+              "n": 20,
+              "min": 0,
+              "median": 0,
+              "p95": 0,
+              "p99": 0,
+              "max": 0
+            },
+            "store.save": {
+              "n": 20,
+              "min": 8.717684000002919,
+              "median": 10.757642500000657,
+              "p95": 15.046804999990854,
+              "p99": 15.417130000001634,
+              "max": 15.417130000001634
+            }
+          }
+        },
+        "unbound": {
+          "selectionToCompleteMs": {
+            "n": 20,
+            "min": 92.4720040000102,
+            "median": 104.52585599999293,
+            "p95": 120.53603600000497,
+            "p99": 165.87594700000773,
+            "max": 165.87594700000773
+          },
+          "selectionToNextFrameMs": {
+            "n": 20,
+            "min": 97.9835860000021,
+            "median": 108.74997900000017,
+            "p95": 126.79621100000804,
+            "p99": 167.93910900001356,
+            "max": 167.93910900001356
+          },
+          "selectionToInputReleaseMs": {
+            "n": 20,
+            "min": 90.85893300001044,
+            "median": 102.87677449999319,
+            "p95": 118.05079400000977,
+            "p99": 164.1675610000093,
+            "max": 164.1675610000093
+          },
+          "endpointCaptureMs": {
+            "n": 20,
+            "min": 0.8334620000096038,
+            "median": 0.934519000002183,
+            "p95": 1.0518920000031358,
+            "p99": 1.1079570000001695,
+            "max": 1.1079570000001695
+          },
+          "modalCount": 0,
+          "rawGitCommandHistogram": {
+            "0": 19,
+            "2": 1
+          },
+          "gitRawUnionMs": {
+            "n": 20,
+            "min": 0,
+            "median": 0,
+            "p95": 0,
+            "p99": 38.21654400000989,
+            "max": 38.21654400000989
+          },
+          "repositoryQueueWaitMs": {
+            "n": 20,
+            "min": 0,
+            "median": 0,
+            "p95": 0,
+            "p99": 0,
+            "max": 0
+          },
+          "inclusiveStageMs": {
+            "repository.inspectIdentity": {
+              "n": 20,
+              "min": 0,
+              "median": 0,
+              "p95": 0,
+              "p99": 0,
+              "max": 0
+            },
+            "repository.prepareSwitch": {
+              "n": 20,
+              "min": 0,
+              "median": 0,
+              "p95": 0,
+              "p99": 0,
+              "max": 0
+            },
+            "repository.assertCanSwitch": {
+              "n": 20,
+              "min": 0,
+              "median": 0,
+              "p95": 0,
+              "p99": 0,
+              "max": 0
+            },
+            "repository.checkout": {
+              "n": 20,
+              "min": 0,
+              "median": 0,
+              "p95": 0,
+              "p99": 0,
+              "max": 0
+            },
+            "provider.checkout": {
+              "n": 20,
+              "min": 0,
+              "median": 0,
+              "p95": 0,
+              "p99": 0,
+              "max": 0
+            },
+            "host.flush": {
+              "n": 20,
+              "min": 0.015093000009073876,
+              "median": 0.017406500002834946,
+              "p95": 0.020961999995051883,
+              "p99": 0.02385599999979604,
+              "max": 0.02385599999979604
+            },
+            "host.quiesce": {
+              "n": 20,
+              "min": 0,
+              "median": 0,
+              "p95": 0,
+              "p99": 0,
+              "max": 0
+            },
+            "host.waitForFiles": {
+              "n": 20,
+              "min": 0.8587189999961993,
+              "median": 3.225227000002633,
+              "p95": 8.651805000001332,
+              "p99": 8.97388299999875,
+              "max": 8.97388299999875
+            },
+            "host.restore": {
+              "n": 20,
+              "min": 64.52592600000207,
+              "median": 73.24377299999469,
+              "p95": 87.31338500000129,
+              "p99": 88.24788500000432,
+              "max": 88.24788500000432
+            },
+            "repository.refreshPresentation": {
+              "n": 20,
+              "min": 0,
+              "median": 0,
+              "p95": 0,
+              "p99": 0,
+              "max": 0
+            },
+            "store.save": {
+              "n": 20,
+              "min": 11.514678000006825,
+              "median": 16.98417199999676,
+              "p95": 19.18881400000828,
+              "p99": 69.75633199998992,
+              "max": 69.75633199998992
+            }
+          }
+        }
+      },
+      "recorder": {
+        "schema": "obsidian-workspaces-sample-recorder-v1",
+        "mode": "append-only-streamed-final",
+        "runId": "65774339-b404-45b5-b008-f12201ade7ea",
+        "complete": true,
+        "startedSamples": 150,
+        "completedSamples": 150,
+        "failedSamples": 0,
+        "journalFile": "/workspace/scratch/0a8d9baba8ea/runtime/perf-v2/final-scale-s1-baseline.json.65774339-b404-45b5-b008-f12201ade7ea.samples.ndjson",
+        "journalSHA256": "cfc50e4a425019debe0558e80591e465e523d0bcd8384718b84ff22905f86b07",
+        "journalBytes": 5158337,
+        "rawSampleBytes": 4974764,
+        "rawSampleSerializations": 150,
+        "retainedDetailedSamplesBetweenSwitches": 0,
+        "finalAssembly": "streamed-after-timing",
+        "memoryScope": "renderer process; observations outside switch timers; no forced GC",
+        "initialMemory": {
+          "at": "2026-11-15T21:44:11.083Z",
+          "performanceMs": 44482.285141,
+          "rss": 237633536,
+          "heapTotal": 23199744,
+          "heapUsed": 20601408,
+          "external": 9116347,
+          "arrayBuffers": 0
+        },
+        "finalMemory": {
+          "at": "2026-11-15T21:45:12.730Z",
+          "performanceMs": 106129.28969,
+          "rss": 893636608,
+          "heapTotal": 159281152,
+          "heapUsed": 77650348,
+          "external": 10081735,
+          "arrayBuffers": 0
+        },
+        "costs": {
+          "sampleSerializationMs": 37.78562000000966,
+          "journalAppendMs": 132.35769799994887,
+          "compactProgressWriteMs": 145.5469479999665,
+          "compactProgressWrites": 154,
+          "finalAssemblyBeforePublicationMs": 72.35416400000395
+        },
+        "samplesSHA256": "5b63276d6bb7d24dfac96bfeaa34d1c1ca2b04fa2415197efd627e89ec073108"
+      }
+    },
+    {
+      "filename": "final-scale-s1-candidate.json",
+      "sha256": "d9216afc893792ec3a0f49dc4ac1dee70a27b06334cc05b56884bda294efa996",
+      "bytes": 5102478,
+      "runId": "92a14ae8-c8b9-4700-83c7-079b7c34eb63",
+      "phase": "candidate",
+      "startedAt": "2026-11-15T21:47:36.126Z",
+      "finishedAt": "2026-11-15T21:49:08.584Z",
+      "session": {
+        "id": "a40e941f-7e32-431a-b8ec-72865fd92b1d",
+        "processId": 22217,
+        "observedAt": "2026-11-15T21:44:11.464Z"
+      },
+      "sourceCommit": "026efdb60c6862f091dd2e382589e881a50875bf",
+      "productSourceCommit": "d7399c2dd7b642e4e2c904bb55a02ad38039a67d",
+      "providers": {
+        "obsidian-workspaces": {
+          "version": "0.1.0",
+          "bundleSHA256": "f4a862e7fd3c90786e4474a1e7c4a0041cc9d73d8595cda448cf64b10d530020"
+        },
+        "obsidian-git": {
+          "version": "2.43.0",
+          "bundleSHA256": "58beb0981875c672fc83350e3b1f20db6ca1df3ca2047a25f49190b1e31e2443"
+        },
+        "darlal-switcher-plus": {
+          "version": "6.3.0",
+          "bundleSHA256": "6746dad3d6b132698b04c2a10ea0c2f71c03c8b5af7bec753ca76319c72e3f23"
+        },
+        "workspaces-switch-benchmark": {
+          "version": "0.1.0",
+          "bundleSHA256": "394466fd2c824d4f2f49a46f1b7848c91303f27ccf77cdf03a34233bddf80431"
+        }
+      },
+      "fixture": {
+        "alphaCommit": "f841afee3c420217d938e377335a529b2e429fd5",
+        "betaCommit": "f9d13122e49d4a94c232b94aa9fd2ecaf0feca68",
+        "catalogSize": 3,
+        "measuredSwitches": 100,
+        "warmups": 3,
+        "baselineSamples": 20,
+        "expectedNotes": {
+          "alpha": {
+            "alpha-exclusive.md": "# Alpha exclusive\n",
+            "sidebar-alpha.md": "# Alpha sidebar\n",
+            "shared.md": "ALPHA\n"
+          },
+          "beta": {
+            "beta-exclusive.md": "# Beta exclusive\n",
+            "sidebar-beta.md": "# Beta sidebar\n",
+            "shared.md": "BRAVO\n"
+          }
+        },
+        "workload": {
+          "schemaVersion": 1,
+          "profile": "representative",
+          "unchangedNotes": 1000,
+          "branchNotes": 50,
+          "noteKiB": 4,
+          "generatedBytes": 4505600,
+          "trackedFiles": {
+            "alpha": 1054,
+            "beta": 1054
+          },
+          "changedPaths": 105
+        },
+        "trackedFiles": 1054,
+        "changedPaths": 105,
+        "markdownLeaves": 4
+      },
+      "verifiedSamples": 150,
+      "final": {
+        "branch": "alpha",
+        "activeId": "runtime-alpha",
+        "journal": null,
+        "gitStatus": ""
+      },
+      "groups": {
+        "branch": {
+          "selectionToCompleteMs": {
+            "n": 100,
+            "min": 546.6739030000172,
+            "median": 712.3590245000087,
+            "p95": 896.1620220000041,
+            "p99": 993.8343919999897,
+            "max": 1116.1639060000307
+          },
+          "selectionToNextFrameMs": {
+            "n": 100,
+            "min": 548.6505950000137,
+            "median": 721.8601219999837,
+            "p95": 902.5497699999833,
+            "p99": 1004.8933109999634,
+            "max": 1125.3592340000323
+          },
+          "selectionToInputReleaseMs": {
+            "n": 100,
+            "min": 544.367362000019,
+            "median": 711.187010499998,
+            "p95": 895.3259259999613,
+            "p99": 993.0073609999963,
+            "max": 1115.3179150000215
+          },
+          "endpointCaptureMs": {
+            "n": 100,
+            "min": 0.5913549999822862,
+            "median": 0.6779815000190865,
+            "p95": 0.9428269999916665,
+            "p99": 1.1905919999990147,
+            "max": 1.201719000004232
+          },
+          "modalCount": 100,
+          "rawGitCommandHistogram": {
+            "19": 99,
+            "21": 1
+          },
+          "gitRawUnionMs": {
+            "n": 100,
+            "min": 327.5430729999789,
+            "median": 449.79393600006006,
+            "p95": 562.5943329999864,
+            "p99": 652.3047850001021,
+            "max": 658.5240720000002
+          },
+          "repositoryQueueWaitMs": {
+            "n": 100,
+            "min": 0.007901999983005226,
+            "median": 0.01039050001418218,
+            "p95": 0.012248999963048846,
+            "p99": 0.01368999999249354,
+            "max": 0.01630499999737367
+          },
+          "inclusiveStageMs": {
+            "repository.inspectIdentity": {
+              "n": 100,
+              "min": 66.66262700001244,
+              "median": 88.81354999996256,
+              "p95": 109.79184100002749,
+              "p99": 132.1805980001227,
+              "max": 166.7455740000005
+            },
+            "repository.prepareSwitch": {
+              "n": 100,
+              "min": 193.56683999998495,
+              "median": 272.84064499997476,
+              "p95": 367.21792300004745,
+              "p99": 463.37865900003817,
+              "max": 498.88913800002774
+            },
+            "repository.assertCanSwitch": {
+              "n": 100,
+              "min": 94.23855900001945,
+              "median": 135.5085165000055,
+              "p95": 201.80684799997834,
+              "p99": 264.3227089999709,
+              "max": 302.1069600000046
+            },
+            "repository.checkout": {
+              "n": 100,
+              "min": 162.59058200000436,
+              "median": 217.0095139999903,
+              "p95": 292.6246159999864,
+              "p99": 388.2801469999831,
+              "max": 392.04900499997893
+            },
+            "provider.checkout": {
+              "n": 100,
+              "min": 20.648351999989245,
+              "median": 28.2177789999987,
+              "p95": 42.216178000031505,
+              "p99": 43.252272000012454,
+              "max": 122.57897299999604
+            },
+            "host.flush": {
+              "n": 100,
+              "min": 0.018518000026233494,
+              "median": 0.024321499979123473,
+              "p95": 0.056865999998990446,
+              "p99": 0.07600499998079613,
+              "max": 0.34596399997826666
+            },
+            "host.quiesce": {
+              "n": 100,
+              "min": 7.529175999981817,
+              "median": 9.912242499995045,
+              "p95": 15.119914999988396,
+              "p99": 26.489913999976125,
+              "max": 29.162320000003092
+            },
+            "host.waitForFiles": {
+              "n": 100,
+              "min": 108.77467400001478,
+              "median": 150.88690150002367,
+              "p95": 252.65274699998554,
+              "p99": 379.8982880000258,
+              "max": 414.1773289999692
+            },
+            "host.restore": {
+              "n": 100,
+              "min": 62.82552199997008,
+              "median": 86.01625299999432,
+              "p95": 128.9975759999943,
+              "p99": 179.4934260000009,
+              "max": 183.24998100000084
+            },
+            "repository.refreshPresentation": {
+              "n": 100,
+              "min": 37.15179999999236,
+              "median": 62.09027299997979,
+              "p95": 96.57822900003521,
+              "p99": 112.43227300001308,
+              "max": 131.80569200002356
+            },
+            "store.save": {
+              "n": 100,
+              "min": 9.669916000042576,
+              "median": 18.973917499970412,
+              "p95": 31.239624999987427,
+              "p99": 54.69859099999303,
+              "max": 92.69564300001366
+            }
+          },
+          "chronologicalQuartiles": [
+            {
+              "firstMeasuredIndex": 0,
+              "lastMeasuredIndex": 24,
+              "latencyMs": {
+                "n": 25,
+                "min": 546.6739030000172,
+                "median": 748.7768880000222,
+                "p95": 888.8683279999532,
+                "p99": 922.610749000014,
+                "max": 922.610749000014
+              },
+              "rawGitUnionMs": {
+                "n": 25,
+                "min": 327.5430729999789,
+                "median": 466.96579600009136,
+                "p95": 561.597696999961,
+                "p99": 562.5943329999864,
+                "max": 562.5943329999864
+              },
+              "nativeRestoreMs": {
+                "n": 25,
+                "min": 74.8599979999999,
+                "median": 95.25617899995996,
+                "p95": 121.72450599999866,
+                "p99": 183.24998100000084,
+                "max": 183.24998100000084
+              }
+            },
+            {
+              "firstMeasuredIndex": 25,
+              "lastMeasuredIndex": 49,
+              "latencyMs": {
+                "n": 25,
+                "min": 622.0419140000013,
+                "median": 710.4156760000042,
+                "p95": 899.9896600000211,
+                "p99": 1116.1639060000307,
+                "max": 1116.1639060000307
+              },
+              "rawGitUnionMs": {
+                "n": 25,
+                "min": 373.14260199997807,
+                "median": 446.100078999938,
+                "p95": 586.667945000052,
+                "p99": 590.1788319999469,
+                "max": 590.1788319999469
+              },
+              "nativeRestoreMs": {
+                "n": 25,
+                "min": 69.49847099999897,
+                "median": 88.74746199999936,
+                "p95": 114.18900600000052,
+                "p99": 115.80930899997475,
+                "max": 115.80930899997475
+              }
+            },
+            {
+              "firstMeasuredIndex": 50,
+              "lastMeasuredIndex": 74,
+              "latencyMs": {
+                "n": 25,
+                "min": 615.804495999997,
+                "median": 694.9283360000118,
+                "p95": 908.3603759999969,
+                "p99": 993.8343919999897,
+                "max": 993.8343919999897
+              },
+              "rawGitUnionMs": {
+                "n": 25,
+                "min": 402.36756899999455,
+                "median": 435.3752759999479,
+                "p95": 550.454252000025,
+                "p99": 658.5240720000002,
+                "max": 658.5240720000002
+              },
+              "nativeRestoreMs": {
+                "n": 25,
+                "min": 62.82552199997008,
+                "median": 81.2731630000053,
+                "p95": 138.67755000002217,
+                "p99": 140.27895400003763,
+                "max": 140.27895400003763
+              }
+            },
+            {
+              "firstMeasuredIndex": 75,
+              "lastMeasuredIndex": 99,
+              "latencyMs": {
+                "n": 25,
+                "min": 614.0552950000274,
+                "median": 706.3886070000008,
+                "p95": 833.6092510000453,
+                "p99": 896.1620220000041,
+                "max": 896.1620220000041
+              },
+              "rawGitUnionMs": {
+                "n": 25,
+                "min": 383.51829700003145,
+                "median": 436.81910700007575,
+                "p95": 608.3641530000023,
+                "p99": 652.3047850001021,
+                "max": 652.3047850001021
+              },
+              "nativeRestoreMs": {
+                "n": 25,
+                "min": 66.89224600000307,
+                "median": 79.0613659999799,
+                "p95": 173.86224899999797,
+                "p99": 179.4934260000009,
+                "max": 179.4934260000009
+              }
+            }
+          ],
+          "firstBeforeTimingRssMiB": 606.40625,
+          "lastBeforeTimingRssMiB": 942.21484375,
+          "peakBeforeTimingRssMiB": 991.9609375
+        },
+        "same-branch": {
+          "selectionToCompleteMs": {
+            "n": 20,
+            "min": 193.3204670000123,
+            "median": 208.16524249999202,
+            "p95": 232.76594000001205,
+            "p99": 290.1813930000062,
+            "max": 290.1813930000062
+          },
+          "selectionToNextFrameMs": {
+            "n": 20,
+            "min": 194.64288800000213,
+            "median": 212.4688160000369,
+            "p95": 240.00752099999227,
+            "p99": 293.1188689999981,
+            "max": 293.1188689999981
+          },
+          "selectionToInputReleaseMs": {
+            "n": 20,
+            "min": 191.8793960000039,
+            "median": 206.86034250000375,
+            "p95": 231.49144100002013,
+            "p99": 289.0101910000085,
+            "max": 289.0101910000085
+          },
+          "endpointCaptureMs": {
+            "n": 20,
+            "min": 0.6698739999555983,
+            "median": 0.7997455000295304,
+            "p95": 0.9536240000161342,
+            "p99": 0.9649809999973513,
+            "max": 0.9649809999973513
+          },
+          "modalCount": 0,
+          "rawGitCommandHistogram": {
+            "3": 20
+          },
+          "gitRawUnionMs": {
+            "n": 20,
+            "min": 85.01011900004232,
+            "median": 92.08770500001265,
+            "p95": 103.83597399992868,
+            "p99": 156.23095299996203,
+            "max": 156.23095299996203
+          },
+          "repositoryQueueWaitMs": {
+            "n": 20,
+            "min": 0.007561000005807728,
+            "median": 0.010515499976463616,
+            "p95": 0.012008999998215586,
+            "p99": 0.012378000013995916,
+            "max": 0.012378000013995916
+          },
+          "inclusiveStageMs": {
+            "repository.inspectIdentity": {
+              "n": 20,
+              "min": 87.02939000003971,
+              "median": 93.11764600002789,
+              "p95": 107.78954800002975,
+              "p99": 161.44705700001214,
+              "max": 161.44705700001214
+            },
+            "repository.prepareSwitch": {
+              "n": 20,
+              "min": 0,
+              "median": 0,
+              "p95": 0,
+              "p99": 0,
+              "max": 0
+            },
+            "repository.assertCanSwitch": {
+              "n": 20,
+              "min": 0,
+              "median": 0,
+              "p95": 0,
+              "p99": 0,
+              "max": 0
+            },
+            "repository.checkout": {
+              "n": 20,
+              "min": 0,
+              "median": 0,
+              "p95": 0,
+              "p99": 0,
+              "max": 0
+            },
+            "provider.checkout": {
+              "n": 20,
+              "min": 0,
+              "median": 0,
+              "p95": 0,
+              "p99": 0,
+              "max": 0
+            },
+            "host.flush": {
+              "n": 20,
+              "min": 0.016645000025164336,
+              "median": 0.01914399999077432,
+              "p95": 0.07118799997260794,
+              "p99": 0.10935499996412545,
+              "max": 0.10935499996412545
+            },
+            "host.quiesce": {
+              "n": 20,
+              "min": 0,
+              "median": 0,
+              "p95": 0,
+              "p99": 0,
+              "max": 0
+            },
+            "host.waitForFiles": {
+              "n": 20,
+              "min": 0.8038969999761321,
+              "median": 1.1031795000017155,
+              "p95": 5.376698000007309,
+              "p99": 6.594592000008561,
+              "max": 6.594592000008561
+            },
+            "host.restore": {
+              "n": 20,
+              "min": 70.36793700000271,
+              "median": 88.68914800000493,
+              "p95": 103.03821699996479,
+              "p99": 103.28436500002863,
+              "max": 103.28436500002863
+            },
+            "repository.refreshPresentation": {
+              "n": 20,
+              "min": 0,
+              "median": 0,
+              "p95": 0,
+              "p99": 0,
+              "max": 0
+            },
+            "store.save": {
+              "n": 20,
+              "min": 8.50362099998165,
+              "median": 10.059789000020828,
+              "p95": 12.95785300002899,
+              "p99": 13.983334999997169,
+              "max": 13.983334999997169
+            }
+          }
+        },
+        "unbound": {
+          "selectionToCompleteMs": {
+            "n": 20,
+            "min": 103.06178399996134,
+            "median": 113.87804949999554,
+            "p95": 126.54089000000386,
+            "p99": 151.0267209999729,
+            "max": 151.0267209999729
+          },
+          "selectionToNextFrameMs": {
+            "n": 20,
+            "min": 104.78835699998308,
+            "median": 118.04468349998933,
+            "p95": 132.35213600000134,
+            "p99": 158.7577019999735,
+            "max": 158.7577019999735
+          },
+          "selectionToInputReleaseMs": {
+            "n": 20,
+            "min": 101.39990799996303,
+            "median": 112.07774200002314,
+            "p95": 124.8632809999981,
+            "p99": 148.77059599995846,
+            "max": 148.77059599995846
+          },
+          "endpointCaptureMs": {
+            "n": 20,
+            "min": 0.7832860000198707,
+            "median": 0.910959000029834,
+            "p95": 1.0296979999984615,
+            "p99": 1.2647439999855123,
+            "max": 1.2647439999855123
+          },
+          "modalCount": 0,
+          "rawGitCommandHistogram": {
+            "0": 20
+          },
+          "gitRawUnionMs": {
+            "n": 20,
+            "min": 0,
+            "median": 0,
+            "p95": 0,
+            "p99": 0,
+            "max": 0
+          },
+          "repositoryQueueWaitMs": {
+            "n": 20,
+            "min": 0,
+            "median": 0,
+            "p95": 0,
+            "p99": 0,
+            "max": 0
+          },
+          "inclusiveStageMs": {
+            "repository.inspectIdentity": {
+              "n": 20,
+              "min": 0,
+              "median": 0,
+              "p95": 0,
+              "p99": 0,
+              "max": 0
+            },
+            "repository.prepareSwitch": {
+              "n": 20,
+              "min": 0,
+              "median": 0,
+              "p95": 0,
+              "p99": 0,
+              "max": 0
+            },
+            "repository.assertCanSwitch": {
+              "n": 20,
+              "min": 0,
+              "median": 0,
+              "p95": 0,
+              "p99": 0,
+              "max": 0
+            },
+            "repository.checkout": {
+              "n": 20,
+              "min": 0,
+              "median": 0,
+              "p95": 0,
+              "p99": 0,
+              "max": 0
+            },
+            "provider.checkout": {
+              "n": 20,
+              "min": 0,
+              "median": 0,
+              "p95": 0,
+              "p99": 0,
+              "max": 0
+            },
+            "host.flush": {
+              "n": 20,
+              "min": 0.01631400000769645,
+              "median": 0.020200500002829358,
+              "p95": 0.021942999970633537,
+              "p99": 0.022393999970518053,
+              "max": 0.022393999970518053
+            },
+            "host.quiesce": {
+              "n": 20,
+              "min": 0,
+              "median": 0,
+              "p95": 0,
+              "p99": 0,
+              "max": 0
+            },
+            "host.waitForFiles": {
+              "n": 20,
+              "min": 0.8777480000280775,
+              "median": 2.7551450000028126,
+              "p95": 5.326352000003681,
+              "p99": 7.653714999963995,
+              "max": 7.653714999963995
+            },
+            "host.restore": {
+              "n": 20,
+              "min": 71.7880470000091,
+              "median": 79.20484099999885,
+              "p95": 99.03714599995874,
+              "p99": 107.76467000000412,
+              "max": 107.76467000000412
+            },
+            "repository.refreshPresentation": {
+              "n": 20,
+              "min": 0,
+              "median": 0,
+              "p95": 0,
+              "p99": 0,
+              "max": 0
+            },
+            "store.save": {
+              "n": 20,
+              "min": 13.432320999971125,
+              "median": 18.824392499984242,
+              "p95": 24.421304999967106,
+              "p99": 24.822626999986824,
+              "max": 24.822626999986824
+            }
+          }
+        }
+      },
+      "recorder": {
+        "schema": "obsidian-workspaces-sample-recorder-v1",
+        "mode": "append-only-streamed-final",
+        "runId": "92a14ae8-c8b9-4700-83c7-079b7c34eb63",
+        "complete": true,
+        "startedSamples": 150,
+        "completedSamples": 150,
+        "failedSamples": 0,
+        "journalFile": "/workspace/scratch/0a8d9baba8ea/runtime/perf-v2/final-scale-s1-candidate.json.92a14ae8-c8b9-4700-83c7-079b7c34eb63.samples.ndjson",
+        "journalSHA256": "246a81ad4dea47eb54a0265f3530c6f7f74262e8a5e3b5ca703e25604aabcdc0",
+        "journalBytes": 5161534,
+        "rawSampleBytes": 4977231,
+        "rawSampleSerializations": 150,
+        "retainedDetailedSamplesBetweenSwitches": 0,
+        "finalAssembly": "streamed-after-timing",
+        "memoryScope": "renderer process; observations outside switch timers; no forced GC",
+        "initialMemory": {
+          "at": "2026-11-15T21:47:36.133Z",
+          "performanceMs": 249532.465234,
+          "rss": 604545024,
+          "heapTotal": 67371008,
+          "heapUsed": 64576716,
+          "external": 11786388,
+          "arrayBuffers": 0
+        },
+        "finalMemory": {
+          "at": "2026-11-15T21:49:08.593Z",
+          "performanceMs": 341991.884916,
+          "rss": 1334468608,
+          "heapTotal": 185733120,
+          "heapUsed": 129757444,
+          "external": 19217277,
+          "arrayBuffers": 0
+        },
+        "costs": {
+          "sampleSerializationMs": 41.555006999959005,
+          "journalAppendMs": 159.32131599949207,
+          "compactProgressWriteMs": 169.67004500015173,
+          "compactProgressWrites": 154,
+          "finalAssemblyBeforePublicationMs": 64.33253200002946
+        },
+        "samplesSHA256": "bdc3f974b53577ce73e2ac4853dd3e3ecde409fad4e9fe2f2b2cf60d76fcc13a"
+      }
+    }
+  ]
+}

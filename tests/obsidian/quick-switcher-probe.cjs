@@ -3,6 +3,9 @@ const { Plugin, Notice, TFile, TextFileView, MarkdownView, apiVersion } = requir
 const fs = require('node:fs/promises');
 const path = require('node:path');
 const { createHash } = require('node:crypto');
+const nativeSession = require('./native-session.cjs');
+const reloadProduct = require('./reload-product.cjs');
+const { writeAtomicReport } = require('./atomic-report.cjs');
 
 const clone = (value) => JSON.parse(JSON.stringify(value));
 const assert = (condition, message) => {
@@ -90,10 +93,7 @@ module.exports = class QuickSwitcherProbe extends Plugin {
     }
   }
   async writeResult() {
-    const output = this.config.resultFile;
-    await fs.mkdir(path.dirname(output), { recursive: true });
-    await fs.writeFile(`${output}.tmp`, JSON.stringify(this.result, null, 2));
-    await fs.rename(`${output}.tmp`, output);
+    await writeAtomicReport(this.config.resultFile, this.result);
   }
   async step(name, action) {
     const entry = { name, status: 'running', startedAt: new Date().toISOString() };
@@ -648,6 +648,25 @@ module.exports = class QuickSwitcherProbe extends Plugin {
         assert((await this.branch()) === 'alpha', 'Fixture must start on alpha.');
         assert(!(await this.gitRaw(['remote'])).trim(), 'Disposable fixture has a Git remote.');
         assert(!(await this.gitRaw(['status', '--porcelain'])).trim(), 'Fixture must start clean.');
+        const reloaded = await reloadProduct({
+          app: this.app,
+          apiVersion,
+          readBundleHash: async () =>
+            createHash('sha256')
+              .update(
+                await fs.readFile(
+                  path.join(actualVault, '.obsidian/plugins/obsidian-workspaces/main.js'),
+                ),
+              )
+              .digest('hex'),
+          waitFor: this.waitFor.bind(this),
+        });
+        this.controller = reloaded.plugin.controller;
+        assert(
+          (await this.branch()) === 'alpha' &&
+            !(await this.gitRaw(['status', '--porcelain'])).trim(),
+          'Fixture changed during product reload.',
+        );
         for (const branch of ['alpha', 'beta']) {
           const record = this.controller.state.workspaces[`runtime-${branch}`];
           assert(
@@ -663,7 +682,12 @@ module.exports = class QuickSwitcherProbe extends Plugin {
         this.originalAlphaLayout = clone(this.app.workspace.getLayout());
         this.observeMethods();
         const hashes = {};
-        for (const id of ['obsidian-workspaces', 'obsidian-git', 'darlal-switcher-plus']) {
+        for (const id of [
+          'obsidian-workspaces',
+          'obsidian-git',
+          'darlal-switcher-plus',
+          this.manifest.id,
+        ]) {
           const content = await fs.readFile(
             path.join(actualVault, '.obsidian/plugins', id, 'main.js'),
           );
@@ -671,6 +695,14 @@ module.exports = class QuickSwitcherProbe extends Plugin {
         }
         return {
           commandId: this.commandId,
+          platform: process.platform,
+          architecture: process.arch,
+          nativeSession: nativeSession(),
+          productReload: reloaded.evidence,
+          workload: original.workload ?? {
+            profile: 'small',
+            declaration: 'Original fixed Alpha/Beta fixture',
+          },
           versions: {
             obsidian: apiVersion,
             git: this.gitPlugin.manifest.version,

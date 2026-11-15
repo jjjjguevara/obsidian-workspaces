@@ -3,6 +3,8 @@
  * Prepare a disposable vault for tests/obsidian/runtime-probe.cjs.
  * Usage: node scripts/prepare-runtime-vault.mjs /absolute/vault/path [--reset]
  *        [--git-plugin /absolute/obsidian-git/plugin/dir] [--results /absolute/results.json]
+ *        [--profile small|representative] [--unchanged-notes COUNT]
+ *        [--branch-notes COUNT] [--note-kib COUNT]
  * Obsidian Git 2.43.x assets must already be available locally. No network or app launch occurs.
  * Close the fixture vault before --reset; this script removes only an identified test fixture.
  */
@@ -21,6 +23,12 @@ import { createHash, randomUUID } from 'node:crypto';
 import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { homedir } from 'node:os';
 import { fileURLToPath } from 'node:url';
+import { generateWorkload, parseWorkload } from './runtime-workload.mjs';
+import {
+  archiveEvidenceOutput,
+  publishPreparedReport,
+  resolveEvidenceOutput,
+} from './benchmark-output.mjs';
 
 const repo = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const args = process.argv.slice(2);
@@ -31,6 +39,7 @@ const vault = resolve(positional);
 let reset = false;
 let gitPlugin = join(vault, '.obsidian', 'plugins', 'obsidian-git');
 let resultFile = join(dirname(vault), 'native-validation.json');
+const workloadArguments = {};
 while (args.length) {
   const flag = args.shift();
   if (flag === '--reset') reset = true;
@@ -39,8 +48,12 @@ while (args.length) {
     if (!value || !isAbsolute(value)) throw new Error(`${flag} requires an absolute path.`);
     if (flag === '--git-plugin') gitPlugin = resolve(value);
     else resultFile = resolve(value);
+  } else if (['--profile', '--unchanged-notes', '--branch-notes', '--note-kib'].includes(flag)) {
+    if (Object.hasOwn(workloadArguments, flag)) throw new Error(`Repeated argument: ${flag}`);
+    workloadArguments[flag] = args.shift();
   } else throw new Error(`Unknown argument: ${flag}`);
 }
+const workload = parseWorkload(workloadArguments);
 const within = (parent, candidate) => {
   const part = relative(parent, candidate);
   return part === '' || (part !== '..' && !part.startsWith(`..${sep}`) && !isAbsolute(part));
@@ -57,6 +70,7 @@ if (gitManifest.id !== 'obsidian-git' || !/^2\.43\.\d+$/.test(gitManifest.versio
 
 await mkdir(vault, { recursive: true });
 const canonical = await realpath(vault);
+resultFile = await resolveEvidenceOutput(canonical, resultFile);
 const probeDirectory = join(vault, '.obsidian', 'plugins', 'workspaces-runtime-probe');
 const marker = join(probeDirectory, 'data.json');
 let existing;
@@ -79,6 +93,14 @@ if (isFixture) {
   throw new Error(
     'Refusing to replace a directory that is not this test fixture. A new vault may contain only .obsidian.',
   );
+}
+try {
+  const previous = JSON.parse(await readFile(resultFile, 'utf8'));
+  if (previous.status === 'running')
+    throw new Error('The previous native validation is running; close it before preparing.');
+  await archiveEvidenceOutput(resultFile);
+} catch (error) {
+  if (error.code !== 'ENOENT') throw error;
 }
 
 const base =
@@ -138,15 +160,27 @@ const notes = {
 };
 for (const [file, content] of Object.entries(notes.alpha))
   await writeFile(join(vault, file), content);
-git('add', '.gitignore', ...Object.keys(notes.alpha));
+await generateWorkload(vault, workload, 'common');
+await generateWorkload(vault, workload, 'alpha');
+git('add', '--', '.');
 git('commit', '-m', 'Native fixture alpha');
 git('checkout', '-b', 'beta');
 git('rm', 'alpha-exclusive.md', 'sidebar-alpha.md');
+if (workload.branchNotes) git('rm', '-r', '--', 'benchmark-notes/alpha');
 for (const [file, content] of Object.entries(notes.beta))
   await writeFile(join(vault, file), content);
-git('add', ...Object.keys(notes.beta));
+await generateWorkload(vault, workload, 'beta');
+git('add', '--', '.');
 git('commit', '-m', 'Native fixture beta');
 git('checkout', 'alpha');
+const entriesIn = (output) => output.split('\0').filter(Boolean).length;
+workload.trackedFiles = {
+  alpha: entriesIn(git('ls-tree', '-r', '--name-only', '-z', 'alpha')),
+  beta: entriesIn(git('ls-tree', '-r', '--name-only', '-z', 'beta')),
+};
+workload.changedPaths = entriesIn(
+  git('diff', '--name-only', '--no-renames', '-z', 'alpha', 'beta', '--'),
+);
 
 const plugins = join(vault, '.obsidian', 'plugins');
 await mkdir(join(plugins, 'obsidian-workspaces'), { recursive: true });
@@ -212,6 +246,7 @@ await writeFile(
       resultFile,
       runId: randomUUID(),
       notes,
+      workload,
       expectedGitVersion: gitManifest.version,
     },
     null,
@@ -225,28 +260,22 @@ await writeFile(
 // Prevent a stale fixture layout from reopening notes before alpha is indexed.
 for (const file of ['workspace.json', 'workspace-mobile.json'])
   await rm(join(vault, '.obsidian', file), { force: true });
-await mkdir(dirname(resultFile), { recursive: true });
-await writeFile(
-  resultFile,
-  JSON.stringify(
-    {
-      status: 'prepared',
-      vault: canonical,
-      preparedAt: new Date().toISOString(),
-      gitVersion: gitManifest.version,
-      stateDirectory,
-      note: 'Open this vault in Obsidian and trust its three fixture plugins to run validation.',
-    },
-    null,
-    2,
-  ),
-);
+await publishPreparedReport(resultFile, {
+  status: 'prepared',
+  vault: canonical,
+  preparedAt: new Date().toISOString(),
+  gitVersion: gitManifest.version,
+  stateDirectory,
+  workload,
+  note: 'Open this vault in Obsidian and trust its three fixture plugins to run validation.',
+});
 console.log(
   JSON.stringify(
     {
       vault: canonical,
       resultFile,
       stateDirectory,
+      workload,
       gitVersion: gitManifest.version,
       branch: git('branch', '--show-current').trim(),
       clean: git('status', '--porcelain').trim() === '',

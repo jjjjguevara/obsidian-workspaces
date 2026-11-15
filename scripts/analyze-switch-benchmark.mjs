@@ -11,6 +11,7 @@ const stats = (values) => {
     n,
     median: round((sorted[Math.floor((n - 1) / 2)] + sorted[Math.ceil((n - 1) / 2)]) / 2),
     p95: round(sorted[Math.ceil(n * 0.95) - 1]),
+    p99: round(sorted[Math.ceil(n * 0.99) - 1]),
     min: round(sorted[0]),
     max: round(sorted[n - 1]),
   };
@@ -29,7 +30,9 @@ const union = (ranges) => {
 
 function stages(sample) {
   const spans = sample.spans;
-  const guards = spans.filter((span) => span.name === 'repository.assertCanSwitch');
+  const guards = spans.filter((span) =>
+    ['repository.assertCanSwitch', 'repository.prepareSwitch'].includes(span.name),
+  );
   const identities = spans.filter((span) => span.name === 'repository.inspectIdentity');
   const result = {};
   const ranges = [];
@@ -40,8 +43,10 @@ function stages(sample) {
       if (guards.some((guard) => contains(guard, span))) continue;
       if (identities.some((identity) => contains(identity, span))) continue;
       name = 'repository inspection outside guards';
-    } else if (span.name === 'repository.assertCanSwitch') name = 'checkout safeguards';
-    else if (span.name === 'provider.checkout') name = 'native Git checkout';
+    } else if (['repository.assertCanSwitch', 'repository.prepareSwitch'].includes(span.name)) {
+      if (guards.some((guard) => contains(guard, span))) continue;
+      name = 'checkout safeguards';
+    } else if (span.name === 'provider.checkout') name = 'native Git checkout';
     else if (span.name === 'repository.refreshPresentation') name = 'Git presentation refresh';
     else if (span.name === 'store.save') name = 'durable state writes';
     else if (span.name === 'host.flush') name = 'editor flush';
@@ -70,6 +75,10 @@ for (const filename of process.argv.slice(2)) {
   const report = JSON.parse(
     (filename.endsWith('.gz') ? gunzipSync(bytes) : bytes).toString('utf8'),
   );
+  if (!Array.isArray(report.samples))
+    throw new Error(
+      `${filename}: no finalized raw report; preserve its journal and inspect compact progress first.`,
+    );
   const groups = {};
   for (const scenario of ['branch', 'same-branch', 'unbound']) {
     const samples = report.samples.filter(
@@ -86,6 +95,12 @@ for (const filename of process.argv.slice(2)) {
       ),
       selectionToNextFrameMs: stats(samples.map((sample) => sample.timingsMs.selectionToNextFrame)),
       modalOpened: samples.filter((sample) => sample.transitionModalOpened).length,
+      endpointValidated: samples.filter((sample) => sample.endpointValidation?.status === 'passed')
+        .length,
+      endpointCaptureMs: stats(samples.map((sample) => sample.timingsMs.endpointCapture)),
+      selectionToInputReleaseMs: stats(
+        samples.map((sample) => sample.timingsMs.selectionToInputRelease),
+      ),
       rawGitCalls: stats(samples.map((sample) => sample.rawGitCommandCount)),
       stageMs: Object.fromEntries(
         [...new Set(costs.flatMap(Object.keys))].map((key) => [
@@ -96,6 +111,37 @@ for (const filename of process.argv.slice(2)) {
     };
   }
   console.log(
-    JSON.stringify({ filename, status: report.status, phase: report.phase, groups }, null, 2),
+    JSON.stringify(
+      {
+        filename,
+        status: report.status,
+        phase: report.phase,
+        recorder: report.recorder ?? {
+          mode: 'legacy whole-report writer; diagnostic evidence only',
+        },
+        memory: report.recorder
+          ? {
+              beforeTimingRssBytes: stats(
+                report.samples.map((sample) => sample.memory?.beforeTiming?.rss),
+              ),
+              afterAppendRssBytes: stats(
+                report.samples.map((sample) => sample.recorderObservation?.memoryAfterAppend?.rss),
+              ),
+              beforeTimingHeapUsedBytes: stats(
+                report.samples.map((sample) => sample.memory?.beforeTiming?.heapUsed),
+              ),
+              rawSerializationMs: stats(
+                report.samples.map((sample) => sample.recorderObservation?.serializationMs),
+              ),
+              sampleAppendMs: stats(
+                report.samples.map((sample) => sample.recorderObservation?.appendMs),
+              ),
+            }
+          : null,
+        groups,
+      },
+      null,
+      2,
+    ),
   );
 }

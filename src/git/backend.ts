@@ -16,6 +16,8 @@ export interface GitRepository {
   inspectIdentity?(): Promise<GitIdentity>;
   /** Start presentation immediately, but let its refresh overlap the rest of this queue scope. */
   overlapPresentation?(): void;
+  /** Full switch preflight that also returns its freshly observed source identity. */
+  prepareSwitch?(branch: string): Promise<GitIdentity>;
   assertCanSwitch(branch: string): Promise<void>;
   /** Revalidates current checkout safety even after an earlier preflight. */
   checkout(branch: string): Promise<GitIdentity>;

@@ -1,0 +1,68 @@
+{
+  "reviewedCommit": "1baf59ed89f733af5972524d11033ef84118d447",
+  "status": "passed",
+  "reports": 6,
+  "samples": 900,
+  "results": [
+    {
+      "report": "final-scale-s1-baseline.json.gz",
+      "status": "passed",
+      "runId": "65774339-b404-45b5-b008-f12201ade7ea",
+      "rawSHA256": "cfc50e4a425019debe0558e80591e465e523d0bcd8384718b84ff22905f86b07",
+      "rawBytes": 5158337,
+      "started": 150,
+      "completed": 150,
+      "failed": 0
+    },
+    {
+      "report": "final-scale-s1-candidate.json.gz",
+      "status": "passed",
+      "runId": "92a14ae8-c8b9-4700-83c7-079b7c34eb63",
+      "rawSHA256": "246a81ad4dea47eb54a0265f3530c6f7f74262e8a5e3b5ca703e25604aabcdc0",
+      "rawBytes": 5161534,
+      "started": 150,
+      "completed": 150,
+      "failed": 0
+    },
+    {
+      "report": "final-small-s1-baseline.json.gz",
+      "status": "passed",
+      "runId": "429fe472-b4cd-472f-a5c7-a99f07e4e1ab",
+      "rawSHA256": "48735df3137cda2f60c1d281598876d81f1763a99e55c2affbdf9a7e6afee571",
+      "rawBytes": 5157558,
+      "started": 150,
+      "completed": 150,
+      "failed": 0
+    },
+    {
+      "report": "final-small-s1-candidate.json.gz",
+      "status": "passed",
+      "runId": "05fc7f18-1688-4a71-b7a7-ab263a187333",
+      "rawSHA256": "a4fe81c7e4ebc76552e473c833c7300eaae18ac71cfb92eb30eed2c8d9b1027c",
+      "rawBytes": 5162515,
+      "started": 150,
+      "completed": 150,
+      "failed": 0
+    },
+    {
+      "report": "final-small-s2-baseline.json.gz",
+      "status": "passed",
+      "runId": "20c28891-1a74-4b21-a1ff-80b3794264af",
+      "rawSHA256": "7aef8618a35408b5e706bcd94b114acfae44d1174b58e893142090a5f94d3da2",
+      "rawBytes": 5181316,
+      "started": 150,
+      "completed": 150,
+      "failed": 0
+    },
+    {
+      "report": "final-small-s2-candidate.json.gz",
+      "status": "passed",
+      "runId": "530f7d22-d88e-4518-bb62-810e0ca7c312",
+      "rawSHA256": "e64f83e608692de55357eb9908bc8f9e040a2c8ec6f9edba2f4fbf2754f42099",
+      "rawBytes": 5138194,
+      "started": 150,
+      "completed": 150,
+      "failed": 0
+    }
+  ]
+}

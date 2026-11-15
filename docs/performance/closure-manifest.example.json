@@ -1,0 +1,169 @@
+{
+  "schema": "obsidian-workspaces-performance-closure-v1",
+  "platform": "darwin",
+  "baseline": {
+    "commit": "6b3ae45589132a7c37da14e94a20a4668b2f28b9",
+    "bundleSHA256": "REPLACE_WITH_BASELINE_MAIN_JS_SHA256"
+  },
+  "candidate": {
+    "commit": "REPLACE_WITH_FINAL_PRODUCT_COMMIT",
+    "bundleSHA256": "REPLACE_WITH_CANDIDATE_MAIN_JS_SHA256"
+  },
+  "probeSHA256": "REPLACE_WITH_INSTALLED_BENCHMARK_MAIN_JS_SHA256",
+  "safetyProbeSHA256": "REPLACE_WITH_INSTALLED_SAFETY_PROBE_MAIN_JS_SHA256",
+  "versions": {
+    "obsidian": "1.15.1",
+    "git": "2.43.0",
+    "quickSwitcher": "6.3.0"
+  },
+  "scope": {
+    "small": {
+      "description": "Fixed Alpha/Beta fixture with four Markdown editors, three required pin regions, and shared-path content changes.",
+      "minimumTrackedFiles": 4,
+      "minimumChangedPaths": 5,
+      "minimumMarkdownLeaves": 4
+    },
+    "representative": {
+      "description": "REPLACE_WITH_MEASURED_LOCAL_WORKLOAD_SCOPE",
+      "basis": "REPLACE_WITH_SOURCE_OF_FILE_COUNTS_CHANGE_VOLUME_NOTE_SIZES_AND_LAYOUT_SIZE_AND_ANY_LIMITATIONS",
+      "suitabilityConfirmed": false,
+      "minimumTrackedFiles": 5204,
+      "minimumChangedPaths": 405,
+      "minimumMarkdownLeaves": 4
+    }
+  },
+  "sessions": [
+    {
+      "label": "small-1",
+      "profile": "small",
+      "baseline": {
+        "path": "small-s1-baseline.json",
+        "sha256": "REPLACE_WITH_SHA256_OF_REPORT_BYTES",
+        "journal": {
+          "path": "small-s1-baseline.json.REPLACE_WITH_RUN_ID.samples.ndjson",
+          "sha256": "REPLACE_WITH_SHA256_OF_JOURNAL_FILE_BYTES"
+        }
+      },
+      "candidate": {
+        "path": "small-s1-candidate.json",
+        "sha256": "REPLACE_WITH_SHA256_OF_REPORT_BYTES",
+        "journal": {
+          "path": "small-s1-candidate.json.REPLACE_WITH_RUN_ID.samples.ndjson",
+          "sha256": "REPLACE_WITH_SHA256_OF_JOURNAL_FILE_BYTES"
+        }
+      }
+    },
+    {
+      "label": "small-2",
+      "profile": "small",
+      "baseline": {
+        "path": "small-s2-baseline.json",
+        "sha256": "REPLACE_WITH_SHA256_OF_REPORT_BYTES",
+        "journal": {
+          "path": "small-s2-baseline.json.REPLACE_WITH_RUN_ID.samples.ndjson",
+          "sha256": "REPLACE_WITH_SHA256_OF_JOURNAL_FILE_BYTES"
+        }
+      },
+      "candidate": {
+        "path": "small-s2-candidate.json",
+        "sha256": "REPLACE_WITH_SHA256_OF_REPORT_BYTES",
+        "journal": {
+          "path": "small-s2-candidate.json.REPLACE_WITH_RUN_ID.samples.ndjson",
+          "sha256": "REPLACE_WITH_SHA256_OF_JOURNAL_FILE_BYTES"
+        }
+      }
+    },
+    {
+      "label": "small-3",
+      "profile": "small",
+      "baseline": {
+        "path": "small-s3-baseline.json",
+        "sha256": "REPLACE_WITH_SHA256_OF_REPORT_BYTES",
+        "journal": {
+          "path": "small-s3-baseline.json.REPLACE_WITH_RUN_ID.samples.ndjson",
+          "sha256": "REPLACE_WITH_SHA256_OF_JOURNAL_FILE_BYTES"
+        }
+      },
+      "candidate": {
+        "path": "small-s3-candidate.json",
+        "sha256": "REPLACE_WITH_SHA256_OF_REPORT_BYTES",
+        "journal": {
+          "path": "small-s3-candidate.json.REPLACE_WITH_RUN_ID.samples.ndjson",
+          "sha256": "REPLACE_WITH_SHA256_OF_JOURNAL_FILE_BYTES"
+        }
+      }
+    },
+    {
+      "label": "representative-1",
+      "profile": "representative",
+      "baseline": {
+        "path": "representative-s1-baseline.json",
+        "sha256": "REPLACE_WITH_SHA256_OF_REPORT_BYTES",
+        "journal": {
+          "path": "representative-s1-baseline.json.REPLACE_WITH_RUN_ID.samples.ndjson",
+          "sha256": "REPLACE_WITH_SHA256_OF_JOURNAL_FILE_BYTES"
+        }
+      },
+      "candidate": {
+        "path": "representative-s1-candidate.json",
+        "sha256": "REPLACE_WITH_SHA256_OF_REPORT_BYTES",
+        "journal": {
+          "path": "representative-s1-candidate.json.REPLACE_WITH_RUN_ID.samples.ndjson",
+          "sha256": "REPLACE_WITH_SHA256_OF_JOURNAL_FILE_BYTES"
+        }
+      }
+    },
+    {
+      "label": "representative-2",
+      "profile": "representative",
+      "baseline": {
+        "path": "representative-s2-baseline.json",
+        "sha256": "REPLACE_WITH_SHA256_OF_REPORT_BYTES",
+        "journal": {
+          "path": "representative-s2-baseline.json.REPLACE_WITH_RUN_ID.samples.ndjson",
+          "sha256": "REPLACE_WITH_SHA256_OF_JOURNAL_FILE_BYTES"
+        }
+      },
+      "candidate": {
+        "path": "representative-s2-candidate.json",
+        "sha256": "REPLACE_WITH_SHA256_OF_REPORT_BYTES",
+        "journal": {
+          "path": "representative-s2-candidate.json.REPLACE_WITH_RUN_ID.samples.ndjson",
+          "sha256": "REPLACE_WITH_SHA256_OF_JOURNAL_FILE_BYTES"
+        }
+      }
+    },
+    {
+      "label": "representative-3",
+      "profile": "representative",
+      "baseline": {
+        "path": "representative-s3-baseline.json",
+        "sha256": "REPLACE_WITH_SHA256_OF_REPORT_BYTES",
+        "journal": {
+          "path": "representative-s3-baseline.json.REPLACE_WITH_RUN_ID.samples.ndjson",
+          "sha256": "REPLACE_WITH_SHA256_OF_JOURNAL_FILE_BYTES"
+        }
+      },
+      "candidate": {
+        "path": "representative-s3-candidate.json",
+        "sha256": "REPLACE_WITH_SHA256_OF_REPORT_BYTES",
+        "journal": {
+          "path": "representative-s3-candidate.json.REPLACE_WITH_RUN_ID.samples.ndjson",
+          "sha256": "REPLACE_WITH_SHA256_OF_JOURNAL_FILE_BYTES"
+        }
+      }
+    }
+  ],
+  "safetyReports": [
+    {
+      "profile": "small",
+      "path": "small-quick-switcher-fixed.json",
+      "sha256": "REPLACE_WITH_SHA256_OF_REPORT_BYTES"
+    },
+    {
+      "profile": "representative",
+      "path": "representative-quick-switcher-fixed.json",
+      "sha256": "REPLACE_WITH_SHA256_OF_REPORT_BYTES"
+    }
+  ]
+}

@@ -83,7 +83,9 @@ The current work concentrates on dependable workspace restoration, native presen
 - [Architecture](docs/architecture.md): state, storage, and transition boundaries.
 - [Development](docs/development.md): build and validation workflow.
 - [Validation](docs/validation.md): automated checks, native application results, and remaining platform coverage.
-- [Architecture decisions](docs/adr/0001-workspace-authority-and-persistence.md): the four adopted foundations.
+- [Native performance measurements](docs/validation/native-completion-budget/README.md): matched Linux sessions, measured limitations and the current acceptance decision.
+- [Local Mac performance gate](docs/performance/local-mac-closure.md): reproduce native benchmarks, compare identified builds and document the result required before performance issue closure.
+- [Architecture decisions](docs/adr/0001-workspace-authority-and-persistence.md): state, native integration, Git, transitions and [performance acceptance](docs/adr/0005-performance-measurement-and-closure.md).
 
 ## Attribution and license
 
