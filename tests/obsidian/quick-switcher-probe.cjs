@@ -5,6 +5,7 @@ const path = require('node:path');
 const { createHash } = require('node:crypto');
 const nativeSession = require('./native-session.cjs');
 const reloadProduct = require('./reload-product.cjs');
+const { writeAtomicReport } = require('./atomic-report.cjs');
 
 const clone = (value) => JSON.parse(JSON.stringify(value));
 const assert = (condition, message) => {
@@ -92,10 +93,7 @@ module.exports = class QuickSwitcherProbe extends Plugin {
     }
   }
   async writeResult() {
-    const output = this.config.resultFile;
-    await fs.mkdir(path.dirname(output), { recursive: true });
-    await fs.writeFile(`${output}.tmp`, JSON.stringify(this.result, null, 2));
-    await fs.rename(`${output}.tmp`, output);
+    await writeAtomicReport(this.config.resultFile, this.result);
   }
   async step(name, action) {
     const entry = { name, status: 'running', startedAt: new Date().toISOString() };

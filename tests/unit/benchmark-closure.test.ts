@@ -26,6 +26,75 @@ test('complete paired synthetic Mac evidence satisfies the local evaluator', () 
   assert.equal(result.pooled.representative.candidate.branch.n, 300);
 });
 
+function resealSamples(report: any) {
+  const digest = createHash('sha256');
+  for (const sample of report.samples) digest.update(`${JSON.stringify(sample)}\n`);
+  report.recorder.samplesSHA256 = digest.digest('hex');
+}
+
+for (const [name, mutate] of [
+  [
+    'target sidebar ownership',
+    (sample: any) => {
+      for (const layout of [sample.endpointExpected.layout, sample.completionEndpoint.layout])
+        layout.right.children.push(layout.left.children.pop());
+    },
+  ],
+  [
+    'target duplicate editor multiplicity',
+    (sample: any) => {
+      const file = `${sample.expectedBranch}-exclusive.md`;
+      for (const layout of [sample.endpointExpected.layout, sample.completionEndpoint.layout])
+        layout.right.children[0].state.state.file = file;
+      const editor = sample.completionEndpoint.views.find((view: any) => view.id === 'right');
+      editor.state.state.file = file;
+      editor.content = sample.endpointExpected.notes[file];
+    },
+  ],
+  [
+    'source-only sidebar ownership',
+    (sample: any) => {
+      sample.sourceLayout.right.children.push(sample.sourceLayout.left.children.pop());
+    },
+  ],
+] as const) {
+  test(`paired evidence rejects different ${name} despite valid completion endpoints`, () => {
+    const { manifest, evidence } = closure();
+    const report = evidence.get(manifest.sessions[0].candidate.path).report;
+    // A control sample must have the same workload too, not just measured
+    // branch samples. Preserve endpoint correctness and the recorder digest.
+    const sample = report.samples.find((value: any) => value.scenario === 'same-branch');
+    mutate(sample);
+    const { assertCompletionEndpoint } = require('../obsidian/completion-endpoint.cjs');
+    assert.doesNotThrow(() =>
+      assertCompletionEndpoint(sample.completionEndpoint, sample.endpointExpected),
+    );
+    resealSamples(report);
+    const result = evaluateClosure(manifest, evidence);
+    assert.equal(result.closureAllowed, false);
+    assert.match(result.failures.join('\n'), /Pair differs in source\/target file leaves/);
+  });
+}
+
+test('paired workload comparison ignores generated IDs and tab metadata', () => {
+  const { manifest, evidence } = closure();
+  const report = evidence.get(manifest.sessions[0].candidate.path).report;
+  for (const sample of report.samples) {
+    for (const layout of [sample.sourceLayout, sample.endpointExpected.layout]) {
+      for (const region of ['main', 'left', 'right']) {
+        layout[region].id = `generated-${sample.index}-${region}`;
+        layout[region].currentTab = 0;
+        for (const leaf of layout[region].children)
+          leaf.id = `generated-${sample.index}-${leaf.id}`;
+      }
+      layout.active = `generated-${sample.index}-main`;
+    }
+  }
+  resealSamples(report);
+  const result = evaluateClosure(manifest, evidence);
+  assert.equal(result.closureAllowed, true, JSON.stringify(result.failures));
+});
+
 test('percentiles use nearest rank without rounding away an exceeded budget', () => {
   const stats = statistics([...Array(98).fill(10), 300.00001, 400]);
   assert.equal(stats.p99, 300.00001);

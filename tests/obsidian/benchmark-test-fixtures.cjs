@@ -89,6 +89,7 @@ function sample(
     toId: id,
     direction: `${other}->${branch}`,
     expectedBranch: branch,
+    sourceLayout: layout(scenario === 'branch' ? other : branch),
     status: 'passed',
     documentVisibility: 'visible',
     documentHasFocus: true,

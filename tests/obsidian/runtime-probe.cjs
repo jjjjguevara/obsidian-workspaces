@@ -10,6 +10,7 @@ const {
 } = require('obsidian');
 const fs = require('node:fs/promises');
 const path = require('node:path');
+const { writeAtomicReport } = require('./atomic-report.cjs');
 
 const clone = (value) => JSON.parse(JSON.stringify(value));
 const assert = (condition, message) => {
@@ -87,11 +88,7 @@ module.exports = class RuntimeProbe extends Plugin {
 
   async writeResult() {
     if (!this.result) return;
-    const output = this.config.resultFile;
-    await fs.mkdir(path.dirname(output), { recursive: true });
-    const temporary = `${output}.tmp`;
-    await fs.writeFile(temporary, JSON.stringify(this.result, null, 2));
-    await fs.rename(temporary, output);
+    await writeAtomicReport(this.config.resultFile, this.result);
   }
 
   async step(name, action) {

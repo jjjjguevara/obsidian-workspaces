@@ -9,6 +9,7 @@ const QuickSwitcherProbe = require('./quick-switcher-probe.cjs');
 const nativeSession = require('./native-session.cjs');
 const reloadProduct = require('./reload-product.cjs');
 const { SampleRecorder, memoryObservation } = require('./sample-recorder.cjs');
+const { writeAtomicReport } = require('./atomic-report.cjs');
 const {
   captureMeasurementEnvironment,
   assertMeasurementEnvironment,
@@ -797,14 +798,7 @@ module.exports = class SwitchBenchmark extends QuickSwitcherProbe {
     const io = this.traceCheckpointIo;
     const pending = (async () => {
       try {
-        await Reflect.apply(io.writeFile, fs, [
-          `${this.traceCheckpointFile}.tmp`,
-          JSON.stringify(checkpoint, null, 2),
-        ]);
-        await Reflect.apply(io.rename, fs, [
-          `${this.traceCheckpointFile}.tmp`,
-          this.traceCheckpointFile,
-        ]);
+        await writeAtomicReport(this.traceCheckpointFile, checkpoint, { io });
       } catch (error) {
         this.diagnostic(() => {
           throw error;
@@ -1404,7 +1398,12 @@ module.exports = class SwitchBenchmark extends QuickSwitcherProbe {
     this.deepWrappedTargets = new WeakMap();
     this.result.deepTrace.capabilities.asyncContext = false;
     this.traceCheckpointFile = `${this.config.resultFile}.${this.config.runId}.progress.json`;
-    this.traceCheckpointIo = { writeFile: fs.writeFile, rename: fs.rename };
+    // Capture the original I/O before tracing hooks so diagnostic report writes
+    // cannot instrument themselves. Random exclusive temporaries remain local
+    // to the report directory and cannot follow a preexisting alias.
+    this.traceCheckpointIo = Object.fromEntries(
+      ['mkdir', 'open', 'rename', 'lstat', 'unlink'].map((method) => [method, fs[method].bind(fs)]),
+    );
     this.result.deepTrace.progressFile = this.traceCheckpointFile;
     await this.writeTraceCheckpoint('installing-targeted-hooks');
     this.restorers.push(() => {

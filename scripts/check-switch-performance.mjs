@@ -122,6 +122,23 @@ function getEvidence(reference, evidence, used, label) {
   return item.report;
 }
 
+function pairedLayoutEvidence(report) {
+  const leaves = (layout) =>
+    endpoint
+      .fileLeaves(layout)
+      .map((leaf) => JSON.stringify([leaf.region, leaf.path, leaf.type, leaf.pinned]))
+      .sort();
+  // Saved/generated IDs and native tab metadata may differ across restores.
+  // Keep duplicate file tuples: a second editor is additional timed work.
+  return report.samples.map((sample) => [
+    sample.scenario,
+    sample.temperature,
+    sample.expectedBranch,
+    leaves(sample.sourceLayout),
+    leaves(sample.endpointExpected.layout),
+  ]);
+}
+
 function verifyReport(report, manifest, role, profile) {
   requireThat(
     report?.benchmarkSchema === CONTRACT.benchmarkSchema &&
@@ -226,6 +243,12 @@ function verifyReport(report, manifest, role, profile) {
     requireThat(
       sample.status === 'passed' && !sample.error && !sample.completionCaptureError,
       'A transition failed or lacks completion evidence.',
+    );
+    requireThat(
+      sample.sourceLayout &&
+        typeof sample.sourceLayout === 'object' &&
+        !Array.isArray(sample.sourceLayout),
+      'Missing observed source layout workload.',
     );
     requireThat(
       validMemory(sample.memory?.beforeTiming) &&
@@ -535,6 +558,10 @@ export function evaluateClosure(manifest, evidence) {
           'expectedNotes',
         ])
           requireThat(equal(a.fixture[key], b.fixture[key]), `Pair differs in fixture ${key}.`);
+        requireThat(
+          equal(pairedLayoutEvidence(a), pairedLayoutEvidence(b)),
+          'Pair differs in source/target file leaves, regions, types, pins or editor multiplicities.',
+        );
         sessions.push({
           label: entry.label,
           profile: entry.profile,
