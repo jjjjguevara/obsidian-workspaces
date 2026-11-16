@@ -2,6 +2,32 @@
 
 Validated on 2026-11-13. This document distinguishes native application observations from automated simulations.
 
+## Switches with no checkout, and missing notes — 2026-11-16
+
+This change follows the [ADR 0004 amendment](adr/0004-workspace-transitions-and-recovery.md#amendment-2026-11-16-switches-with-no-checkout-and-missing-notes). `npm run check` passed **488 tests**, type checking and the build. The checks are automated only. This change was not run in native Obsidian.
+
+The new tests use fake hosts and a fake Obsidian module. They cover these cases:
+
+- An unbound switch, and a bound switch on the current branch, call no readiness wait and ask for no hydration. They commit the target with a null journal. A switch with a checkout still waits and hydrates. Recovery follows the same rule.
+- The flush saves loaded text views and does not load a deferred leaf. The checkout preflight loads deferred leaves before its checks and still rejects an unsupported editable view.
+- A restore without hydration loads no view and still verifies the file leaves.
+- A missing note does not start a readiness wait, does not fail verification, and appears in one notice. A note that exists keeps each requirement.
+
+The new tests fail against the earlier product source.
+
+These native probes were changed for the new rule and were **not run natively** after the change:
+
+| File                                                                          | Change                                                                                                                                                                                                |
+| ----------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `tests/obsidian/completion-endpoint.cjs`                                      | With `branchChanged: false`, a hidden view can be deferred. The active view must be loaded, and each loaded Markdown editor must hold the expected bytes. Without the flag, each requirement applies. |
+| `tests/obsidian/switch-benchmark.cjs`                                         | Records `branchChanged` for each sample. After a sample with no checkout, the live verification loads deferred views in the probe.                                                                    |
+| `tests/obsidian/quick-switcher-probe.cjs`, `tests/obsidian/runtime-probe.cjs` | The verification has a `loadDeferred` option for checks after a switch with no checkout. Checks after a branch change keep the strict assertion.                                                      |
+| `scripts/check-switch-performance.mjs`                                        | Rejects a branch sample that declares no branch change.                                                                                                                                               |
+
+The validator, the benchmark fixtures and the evaluator have unit tests. The probe plugins themselves have none; their changes were only checked for syntax.
+
+Not yet observed in native Obsidian: the switch time between unbound workspaces in a large vault, the behavior of a hidden deferred tab when it is shown, the layout that Obsidian builds for a missing note, and the notice. The owner must confirm these in the affected vault. The switch benchmark and the Quick Switcher++ probe were not run again.
+
 ## Core Workspaces bridge — 2026-11-16
 
 `npm run check` passed **459 tests**, type checking and the build. The 60 [bridge](adr/0006-native-core-catalog-bridge.md) tests use a fake core instance with the real controller. They cover each routed method, the optimistic save entry, projection content and timing, every reconciliation rule, the baseline, lifecycle, an unsupported core shape and state migration.

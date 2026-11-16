@@ -124,6 +124,9 @@ export class TestHost implements WorkspaceHost {
   current: Layout;
   readonly events: string[] = [];
   readonly restored: Layout[] = [];
+  /** One entry for each readiness wait and each restore, in call order. */
+  readonly waits: Array<{ afterCheckout?: boolean }> = [];
+  readonly hydrations: Array<boolean | undefined> = [];
   flushHook: (() => Promise<void>) | undefined;
   restoreHook: ((layout: Layout) => Promise<void>) | undefined;
   allowDiscard = true;
@@ -145,10 +148,16 @@ export class TestHost implements WorkspaceHost {
     this.events.push('quiesce');
     this.current = { main: { type: 'split', children: [] } };
   }
-  async waitForFiles(): Promise<void> {
+  async waitForFiles(
+    _target?: Layout,
+    _previous?: Layout,
+    options: { afterCheckout?: boolean } = {},
+  ): Promise<void> {
     this.events.push('wait');
+    this.waits.push({ ...options });
   }
-  async restore(target: Layout): Promise<void> {
+  async restore(target: Layout, options: { hydrate?: boolean } = {}): Promise<void> {
+    this.hydrations.push(options.hydrate);
     this.activeRestores += 1;
     this.maxRestores = Math.max(this.maxRestores, this.activeRestores);
     try {

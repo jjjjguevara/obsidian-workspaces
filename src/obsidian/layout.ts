@@ -1,8 +1,13 @@
-import { App, FileView, Modal, TextFileView, TFile, type WorkspaceLeaf } from 'obsidian';
+import { App, FileView, Modal, Notice, TextFileView, TFile, type WorkspaceLeaf } from 'obsidian';
 import type { WorkspaceHost } from '../workspaces/controller';
 import type { Layout } from '../workspaces/model';
 import { cloneJson } from './clone-json';
-import { assertRestoredFiles, fileLeaves, waitForVaultFiles } from './layout-files';
+import {
+  assertRestoredFiles,
+  fileLeaves,
+  ownedFileLeaves,
+  waitForVaultFiles,
+} from './layout-files';
 import { reconcileVaultFiles } from './vault-reconcile';
 
 // These core FileViews have no editable document buffer to flush. In particular,
@@ -44,10 +49,23 @@ class TransitionModal extends Modal {
   }
 }
 
+/** Name at most three notes; a long list would hide the count. */
+function missingNotesMessage(paths: string[]): string {
+  const named = paths
+    .slice(0, 3)
+    .map((path) => `“${path}”`)
+    .join(', ');
+  const more = paths.length > 3 ? ` and ${paths.length - 3} more` : '';
+  return `Workspaces opened this layout without ${paths.length} missing ${paths.length === 1 ? 'note' : 'notes'}: ${named}${more}.`;
+}
+
 export class ObsidianWorkspaceHost implements WorkspaceHost {
   constructor(
     private readonly app: App,
     private readonly askDiscard: (name: string) => Promise<boolean>,
+    private readonly notify: (message: string) => void = (message) => {
+      new Notice(message, 8000);
+    },
   ) {}
   private leaves(): WorkspaceLeaf[] {
     const leaves: WorkspaceLeaf[] = [];
@@ -60,14 +78,19 @@ export class ObsidianWorkspaceHost implements WorkspaceHost {
     return cloneJson(this.app.workspace.getLayout()) as Layout;
   }
   async flush(): Promise<void> {
+    // Only a loaded text view can hold unsaved edits. A deferred leaf has no
+    // editor buffer, so it is not loaded here; a checkout loads it in
+    // assertCanQuiesce() before the unload.
     for (const leaf of this.leaves()) {
-      await leaf.loadIfDeferred();
       // requestSave() is a debounce, not a durability barrier. Use the awaited API.
       if (leaf.view instanceof TextFileView) await leaf.view.save();
     }
   }
   async assertCanQuiesce(): Promise<void> {
     const leaves = this.leaves();
+    // A deferred leaf does not show its real view type yet. Load each one, in
+    // order, so that the checks below and the unload see the actual views.
+    for (const leaf of leaves) await leaf.loadIfDeferred();
     // Unknown editable view types have no universal public flush contract.
     // Reject before closing any leaves, so their buffers cannot later save across branches.
     for (const leaf of leaves) {
@@ -170,18 +193,31 @@ export class ObsidianWorkspaceHost implements WorkspaceHost {
       },
     });
   }
-  async restore(layout: Layout): Promise<void> {
-    await this.app.workspace.changeLayout(cloneJson(layout));
-    // Native layout restoration already hydrates visible leaves concurrently.
-    // Finish the remaining leaves together, retaining ownership until every
-    // started hydration settles even when another leaf has already failed.
-    const hydrated = await Promise.allSettled(
-      this.leaves().map(async (leaf) => leaf.loadIfDeferred()),
+  async restore(layout: Layout, options: { hydrate?: boolean } = {}): Promise<void> {
+    // Read the index before the layout changes. A note that no longer exists
+    // does not fail the switch; Obsidian opens the layout without it.
+    const vault = this.app.vault;
+    const missing = new Set(
+      ownedFileLeaves(layout)
+        .map((leaf) => leaf.path)
+        .filter((path) => !(vault.getAbstractFileByPath(path) instanceof TFile)),
     );
-    for (const result of hydrated) {
-      if (result.status === 'rejected') throw result.reason;
+    await this.app.workspace.changeLayout(cloneJson(layout));
+    if (options.hydrate) {
+      // After a checkout every editor must show the bytes of the new branch.
+      // Native layout restoration already hydrates visible leaves concurrently.
+      // Finish the remaining leaves together, retaining ownership until every
+      // started hydration settles even when another leaf has already failed.
+      const hydrated = await Promise.allSettled(
+        this.leaves().map(async (leaf) => leaf.loadIfDeferred()),
+      );
+      for (const result of hydrated) {
+        if (result.status === 'rejected') throw result.reason;
+      }
     }
-    assertRestoredFiles(layout, this.capture());
+    // The native layout includes deferred leaves, so this needs no loading.
+    assertRestoredFiles(layout, this.capture(), (path) => missing.has(path));
+    if (missing.size) this.notify(missingNotesMessage([...missing]));
   }
   block(message: string): () => void {
     const modal = new TransitionModal(this.app, message);

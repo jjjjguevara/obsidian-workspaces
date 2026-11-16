@@ -219,7 +219,18 @@ module.exports = class RuntimeProbe extends Plugin {
     );
   }
 
-  async verifyWorkspace(branch, id, overrides = {}) {
+  // `loadDeferred` is for a check after a switch that did not change the branch.
+  // The product then leaves hidden views deferred, as Obsidian does, so the probe
+  // loads them before it reads their content. After a branch change the option
+  // stays off: the product itself must have loaded every view.
+  async verifyWorkspace(branch, id, overrides = {}, { loadDeferred = false } = {}) {
+    let probeLoaded = 0;
+    if (loadDeferred)
+      for (const leaf of this.leaves()) {
+        if (!leaf.isDeferred) continue;
+        await leaf.loadIfDeferred();
+        probeLoaded += 1;
+      }
     const actualBranch = await this.branch();
     assert(actualBranch === branch, `Expected Git branch ${branch}, observed ${actualBranch}.`);
     const state = this.controller.state;
@@ -269,6 +280,7 @@ module.exports = class RuntimeProbe extends Plugin {
       layout,
       views,
       inactiveSavedPins: fileLeaves(inactive.contexts.desktop.layout).filter((leaf) => leaf.pinned),
+      deferredViewsLoadedByProbe: probeLoaded,
     };
   }
 
@@ -438,9 +450,17 @@ module.exports = class RuntimeProbe extends Plugin {
       await this.step('same-branch layout activation retains dirty note edits', async () => {
         const duplicate = await this.controller.duplicate('runtime-alpha');
         await this.controller.activate(duplicate);
-        const verified = await this.verifyWorkspace('alpha', duplicate, {
-          'alpha-exclusive.md': edited,
-        });
+        const active = this.app.workspace.activeLeaf;
+        assert(
+          active && !active.isDeferred,
+          'The active view is missing or deferred after a same-branch activation.',
+        );
+        const verified = await this.verifyWorkspace(
+          'alpha',
+          duplicate,
+          { 'alpha-exclusive.md': edited },
+          { loadDeferred: true },
+        );
         assert(
           (await this.gitRaw(['status', '--porcelain'])).includes('alpha-exclusive.md'),
           'The fixture edit was unexpectedly committed or discarded.',

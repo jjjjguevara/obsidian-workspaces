@@ -46,19 +46,23 @@ The initial backend is the installed Obsidian Git plugin. The adapter accepts 2.
 
 Before a checkout, the controller finishes applicable note saves, captures the source layout, checks the actual source branch, validates the target local branch, and checks working-tree status. A dirty working tree blocks a branch change, including tracked and untracked changes reported by Git. Switching layouts on the already-active branch does not require checkout and may retain pending file changes. Workspaces does not stash, commit, push, force checkout, or create a target branch as a side effect.
 
-The host awaits the public save operation for `TextFileView` instances. Before checkout it unloads outgoing file views; native PDF, image, audio, and video views are supported. Other editable file views and file-backed views with no supported save lifecycle must be closed first. Their presence blocks checkout with a view-specific error. This is not a universal flush contract for arbitrary community-plugin editors.
+The host awaits the public save operation for loaded `TextFileView` instances. A deferred view has no editor buffer, so a save does not load it. Before checkout the host loads every deferred view, checks each view, and unloads outgoing file views; native PDF, image, audio, and video views are supported. Other editable file views and file-backed views with no supported save lifecycle must be closed first. Their presence blocks checkout with a view-specific error. This is not a universal flush contract for arbitrary community-plugin editors.
 
 Status and checkout protections also reject conflicts, detached HEAD, an ongoing merge/rebase or similar Git operation, recursive submodule checkout, and ignored local files that the target branch would replace. Checkout requires native `workspace.json` and `workspace-mobile.json` to be untracked in both branches. Changes to the integration plugin directories or `community-plugins.json` across branches are rejected so checkout cannot reload its own runtime. Symlink aliases for these runtime paths are also rejected. The adapter refreshes Obsidian Git's source-control view and branch indicator after checkout; presentation failure does not change the reported Git outcome.
 
 An unbound workspace changes only the layout. Activating it leaves the repository's current branch unchanged. On mobile, bound activation is unavailable; unbound workspaces remain usable.
 
+A switch does no checkout when the target is unbound, or when the target's branch is already checked out. Such a switch restores the layout as Obsidian does. It does not wait for vault files and it does not load hidden deferred views. Obsidian loads a hidden view when the view is shown. A switch that does a checkout waits for the vault files and loads every restored view, so each editor shows the new branch's content.
+
 ## Transition contract
 
 Only one transition may own workspace activation at a time. A slow valid operation does not lose ownership because a fixed timeout has elapsed. The controller serializes or rejects later requests explicitly.
 
-During activation, background capture, history snapshots, and competing layout changes must not save a partially updated view. The controller records the source and target context, performs the checkout when necessary, observes the resulting vault files, applies the target layout, and then persists the active workspace identity. UI indicators follow committed state.
+During activation, background capture, history snapshots, and competing layout changes must not save a partially updated view. The controller records the source and target context, performs the checkout when necessary, observes the resulting vault files after a checkout, applies the target layout, and then persists the active workspace identity. UI indicators follow committed state.
 
-Short transitions do not open a progress modal. Input protection begins immediately; “Switching workspace” appears only if the protected operation remains active after 500 ms. File observation reacts to vault events and still verifies every readiness condition before loading the target.
+Short transitions do not open a progress modal. Input protection begins immediately; “Switching workspace” appears only if the protected operation remains active after 500 ms. File observation runs only after a checkout. It reacts to vault events and still verifies every readiness condition before loading the target.
+
+A note that no longer exists never fails a switch. A saved layout can refer to a note that was deleted, renamed, or left on another branch. Readiness does not wait for a path that is absent from disk and from the vault index. Restoration verification ignores that note. Each note that exists must still be restored with its region, view type, and pin. After the switch, one notice gives the number of missing notes and at most three names.
 
 Failure must leave an accurate outcome. If failure occurs before checkout, retain the source context. If the branch changed but restoration failed, retain the recovery record and report the observed branch and incomplete target. Attempt only recovery that the implementation can verify; do not announce that the source was restored merely because a rollback was attempted.
 
@@ -95,6 +99,8 @@ No import format enables live catalog synchronization, Modes, workspace-specific
 | ---------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
 | Save, rename, duplicate                        | Identity survives rename; duplicate receives a new ID and independent metadata/layouts.                           |
 | Clean A → B → A                                | Each branch becomes active before its saved notes and pins are restored. Returning to A restores A's own pin set. |
+| Unbound switch                                 | The layout changes with no readiness wait and no forced loading of hidden views. The branch does not change.      |
+| Missing note                                   | The layout opens without the note. One notice names it. The switch commits and leaves no recovery journal.        |
 | Branch-exclusive notes                         | Notes absent from the current branch remain referenced in inactive saved contexts.                                |
 | Pinned sidebar note                            | Switching restores the target sidebar's note and pin state instead of retaining the source branch's note.         |
 | Dirty working tree and different target branch | No checkout occurs; the source context remains identifiable and the reason is shown.                              |

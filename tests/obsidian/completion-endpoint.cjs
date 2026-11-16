@@ -52,8 +52,21 @@ function captureCompletionEndpoint(port) {
 const key = (leaf) => JSON.stringify([leaf.region, leaf.path, leaf.type, leaf.pinned]);
 const multiset = (values, serialize) => values.map(serialize).sort();
 
-/** Reusable offline: assertions use the immutable endpoint, never the later live UI. */
+/**
+ * Reusable offline: assertions use the immutable endpoint, never the later live UI.
+ *
+ * `expected.branchChanged === false` marks a switch that did no checkout
+ * (same-branch and unbound samples). The product then restores the layout as
+ * Obsidian does, so a hidden view may still be deferred. The active view must
+ * be loaded, and each loaded Markdown editor must hold the expected bytes.
+ * Without the flag, or with `true`, every requirement applies.
+ */
 function assertCompletionEndpoint(endpoint, expected) {
+  insist(
+    expected?.branchChanged === undefined || typeof expected.branchChanged === 'boolean',
+    'invalid branch-change expectation',
+  );
+  const branchChanged = expected.branchChanged !== false;
   insist(endpoint?.schema === SCHEMA, 'missing or unsupported snapshot');
   insist(endpoint.boundary === 'first-controller-settlement-observer', 'wrong capture boundary');
   insist(
@@ -121,9 +134,14 @@ function assertCompletionEndpoint(endpoint, expected) {
   );
   insist(Array.isArray(endpoint.views), 'missing native views');
   insist(
-    endpoint.views.every((view) => view.deferred === false),
-    'a hidden native view is still deferred',
+    endpoint.views.every((view) => typeof view.deferred === 'boolean'),
+    'a native view has no deferred flag',
   );
+  if (branchChanged)
+    insist(
+      endpoint.views.every((view) => view.deferred === false),
+      'a hidden native view is still deferred',
+    );
   const expectedEditors = requested.filter((leaf) => leaf.type === 'markdown');
   const editors = endpoint.views.filter(
     (view) => view.state?.type === 'markdown' && typeof view.state?.state?.file === 'string',
@@ -142,6 +160,8 @@ function assertCompletionEndpoint(endpoint, expected) {
   for (const editor of editors) {
     const name = editor.state.state.file;
     insist(Object.hasOwn(expected.notes, name), `${name} has no independent expected contents`);
+    // A deferred editor has no buffer yet. It is permitted only without a checkout.
+    if (!branchChanged && editor.deferred) continue;
     insist(
       editor.content === expected.notes[name],
       `${name} editor contains stale or missing bytes`,
@@ -150,7 +170,7 @@ function assertCompletionEndpoint(endpoint, expected) {
   for (const name of Object.keys(expected.notes))
     insist(
       editors.some((view) => view.state.state.file === name),
-      `${name} has no hydrated editor`,
+      branchChanged ? `${name} has no hydrated editor` : `${name} has no editor`,
     );
   for (const name of expected.absentPaths ?? [])
     insist(endpoint.indexed?.[name] === false, `${name} remains in the native index`);
@@ -158,6 +178,8 @@ function assertCompletionEndpoint(endpoint, expected) {
     status: 'passed',
     fileLeaves: actual.length,
     editors: editors.length,
+    branchChanged,
+    deferredViews: endpoint.views.filter((view) => view.deferred).length,
     capturedBeforeAnyAwait: true,
   };
 }

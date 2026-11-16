@@ -137,6 +137,7 @@ function sample(
       id,
       name: id,
       branch,
+      branchChanged: scenario === 'branch',
       layout: JSON.parse(JSON.stringify(expectedLayout)),
       activeFile: `${branch}-exclusive.md`,
       notes: notes[branch],

@@ -4,6 +4,8 @@
 
 **Date:** 2026-11-15
 
+**Amended:** 2026-11-16. See [the amendment](#amendment-2026-11-16-deferred-views-after-a-switch-with-no-checkout) at the end.
+
 ## Context
 
 The performance objective is near-instant workspace and branch activation with no progress modal during normal successful switches. A small Linux fixture, an earlier fast exploratory run, or a delayed indicator cannot establish that behavior on the user's Mac. Completion must include the requested native notes and pins, current file contents, final branch validation, and durable active workspace state.
@@ -12,7 +14,7 @@ The performance objective is near-instant workspace and branch activation with n
 
 Measure the actual Quick Switcher++ command and selection route in native Obsidian with the installed Obsidian Git plugin. Preserve the production controller's promise and input-release callback. Measure selection through settlement of that original promise, including the provider repository scope. Record input release, the next rendering opportunity, modal openings and the first switch separately. A frame callback is not a physical display measurement.
 
-Capture an immutable synchronous snapshot at controller completion before awaiting a frame, a Git query or an independent verifier. It records native layout, active leaf, every file editor's content and deferred state, input ownership, visible identifiers, active workspace and journal. Independently validate that captured state afterward against the target and disk/Git evidence. Verification must not repair views or grant an incomplete operation additional settling time.
+Capture an immutable synchronous snapshot at controller completion before awaiting a frame, a Git query or an independent verifier. It records native layout, active leaf, every file editor's content and deferred state, input ownership, visible identifiers, active workspace and journal. Independently validate that captured state afterward against the target and disk/Git evidence. Verification must not repair views or grant an incomplete operation additional settling time. _Amended on 2026-11-16: the requirement of no deferred views applies to switches that change the branch._
 
 The performance budget for normal measured branch and layout switches is median at most 100 ms, p95 at most 200 ms and p99 at most 300 ms, with zero progress openings. The first switch is reported separately and must finish within the unchanged 500 ms progress threshold without a modal. These are acceptance requirements, not claims about current performance.
 
@@ -30,10 +32,22 @@ The gate fails closed for missing evidence, wrong platforms, mismatched artifact
 
 Keep the performance issue open until the final report, raw evidence, artifact identities, local workload declaration and independent review are attached and every required gate passes. A partial optimization may be reviewed and merged while the issue remains open. Such a PR must reference the issue without an automatic closing directive.
 
-Retain the safety and recovery contract from ADRs 0003 and 0004. Performance changes cannot remove the post-unload checkout safeguard, carry source editable buffers across checkout, accept stale cached text, defer hidden pinned notes beyond completion or remove either durable state boundary. Provider execution remains through the installed Obsidian Git integration unless a separately validated capability is adopted.
+Retain the safety and recovery contract from ADRs 0003 and 0004. Performance changes cannot remove the post-unload checkout safeguard, carry source editable buffers across checkout, accept stale cached text, defer hidden pinned notes beyond completion or remove either durable state boundary. _Amended on 2026-11-16: the rule about hidden pinned notes applies to switches that change the branch._ Provider execution remains through the installed Obsidian Git integration unless a separately validated capability is adopted.
 
 ## Consequences
 
 Performance becomes a reproducible acceptance decision tied to a product build and workload. Linux validation supplies useful implementation evidence and regression detection, while the Mac gate establishes the required local result. A failed gate leaves an actionable report instead of an unsupported completion claim.
 
 See the [local Mac runbook](../performance/local-mac-closure.md), [closure manifest](../performance/closure-manifest.example.json) and [closure evaluator](../../scripts/check-switch-performance.mjs).
+
+## Amendment 2026-11-16: deferred views after a switch with no checkout
+
+The [ADR 0004 amendment](0004-workspace-transitions-and-recovery.md#amendment-2026-11-16-switches-with-no-checkout-and-missing-notes) changes what a completed switch contains. A switch with no checkout (the same-branch and unbound samples) no longer loads hidden deferred views.
+
+- The "no deferred views" requirement of the completion snapshot now applies to switches that change the branch. Each other requirement of the snapshot stays for all switches.
+- For a switch with no checkout, the validator requires a loaded active view. It requires the expected bytes in each loaded Markdown editor of a requested note. A hidden view can be deferred.
+- The benchmark records `endpointExpected.branchChanged` for each sample. A sample without that field keeps every requirement, so earlier evidence is validated as before. The closure evaluator rejects a branch sample that declares no branch change.
+- After timing, the live verification of a sample with no checkout loads the deferred views in the probe before it reads their content. The frozen snapshot is not changed by this.
+- The latency budgets and the two durable state boundaries did not change.
+
+The changed probes and the changed evaluator have unit tests. They were not run in native Obsidian after the change.

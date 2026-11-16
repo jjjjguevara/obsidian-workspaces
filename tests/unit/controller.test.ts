@@ -5,7 +5,7 @@ import { CommittedWriteError } from '../../src/storage/store.ts';
 import { addWorkspace } from '../../src/workspaces/catalog.ts';
 import { migrateState } from '../../src/storage/migrations.ts';
 import { WorkspaceController } from '../../src/workspaces/controller.ts';
-import { emptyState, snapshot, type Layout } from '../../src/workspaces/model.ts';
+import { emptyState, snapshot } from '../../src/workspaces/model.ts';
 import { deferred, fixture, layout } from './controller-fixtures.ts';
 
 test('fresh identity checks retain branch validation without treating identity as clean status', async () => {
@@ -147,7 +147,8 @@ test('same-branch and unbound paths do not opt into cross-branch preparation', a
       assert.equal(f.git.status.dirty, true);
       assert.deepEqual(f.git.preflights, []);
       assert.deepEqual(f.git.checkouts, []);
-      assert.deepEqual(f.host.events, ['flush', 'wait', 'restore']);
+      // No checkout: no file changed, so there is no readiness wait.
+      assert.deepEqual(f.host.events, ['flush', 'restore']);
       assert.equal(f.controller.state.journal, null);
     });
   }
@@ -183,32 +184,89 @@ test('identity mismatch after native restoration retains recovery rather than co
   assert.equal(host.blocked, 0);
 });
 
-test('readiness accelerates only a completed checkout, including explicit recovery', async () => {
-  const { controller, git, host, ids } = fixture(['alpha', 'beta', 'alpha', null]);
-  const observed: Array<{ branch: string | null; afterCheckout?: boolean }> = [];
-  host.waitForFiles = async (
-    _target?: Layout,
-    _previous?: Layout,
-    options?: { afterCheckout?: boolean },
-  ) => {
-    observed.push({ branch: git.status.branch, afterCheckout: options?.afterCheckout });
-  };
-  await controller.activate(ids[2]!);
-  await controller.activate(ids[3]!);
-  await controller.activate(ids[0]!);
-  assert.deepEqual(
-    observed.map((entry) => entry.afterCheckout),
-    [false, false, false],
-  );
-  host.restoreHook = async () => {
-    throw new Error('Native restore failed');
-  };
-  await assert.rejects(controller.activate(ids[1]!), /Native restore failed/);
-  assert.deepEqual(observed.at(-1), { branch: 'beta', afterCheckout: true });
-  host.restoreHook = undefined;
-  await controller.recover();
-  assert.deepEqual(observed.at(-1), { branch: 'alpha', afterCheckout: true });
-  assert.equal(controller.state.journal, null);
+test('an unbound switch restores the layout without a readiness wait or forced view loading', async (t) => {
+  for (const device of ['desktop', 'mobile'] as const) {
+    await t.test(device, async () => {
+      const f = fixture([null, null], { device });
+      await f.controller.activate(f.ids[1]!);
+      assert.deepEqual(f.host.waits, [], 'No file changes, so nothing is awaited');
+      assert.deepEqual(f.host.hydrations, [false]);
+      assert.deepEqual(f.host.events, ['flush', 'restore']);
+      assert.equal(f.git.entered, 0);
+      assert.deepEqual(f.host.current, layout('B', device));
+      assert.equal(f.controller.state.activeId, f.ids[1]);
+      assert.equal(f.controller.state.journal, null);
+      assert.equal((await f.store.load()).journal, null);
+      assert.equal(f.host.blocked, 0);
+    });
+  }
+});
+
+test('a switch with a checkout still waits for the vault and loads every restored view', async () => {
+  const f = fixture();
+  await f.controller.activate(f.ids[1]!);
+  assert.deepEqual(f.git.checkouts, ['beta']);
+  assert.deepEqual(f.host.waits, [{ afterCheckout: true }]);
+  assert.deepEqual(f.host.hydrations, [true]);
+  assert.deepEqual(f.host.events, ['flush', 'quiesce', 'wait', 'restore']);
+  assert.equal(f.controller.state.activeId, f.ids[1]);
+  assert.equal(f.controller.state.journal, null);
+});
+
+test('a bound switch on the branch that is already checked out behaves like an unbound switch', async () => {
+  // A: alpha, B: beta, C: alpha, D: unbound. Git starts on alpha.
+  const f = fixture(['alpha', 'beta', 'alpha', null]);
+  await f.controller.activate(f.ids[2]!);
+  await f.controller.activate(f.ids[3]!);
+  await f.controller.activate(f.ids[0]!);
+  assert.deepEqual(f.git.checkouts, []);
+  assert.deepEqual(f.host.waits, []);
+  assert.deepEqual(f.host.hydrations, [false, false, false]);
+  assert.equal(f.host.events.includes('quiesce'), false);
+  assert.equal(f.controller.state.activeId, f.ids[0]);
+  assert.equal(f.controller.state.journal, null);
+});
+
+test('recovery waits and loads views only when it checks out the original branch', async (t) => {
+  await t.test('after a checkout', async () => {
+    const f = fixture();
+    f.host.restoreHook = async () => {
+      throw new Error('Native restore failed');
+    };
+    await assert.rejects(f.controller.activate(f.ids[1]!), /Native restore failed/);
+    assert.equal(f.git.status.branch, 'beta');
+    assert.deepEqual(f.host.waits, [{ afterCheckout: true }]);
+    assert.deepEqual(f.host.hydrations, [true]);
+    f.host.restoreHook = undefined;
+    await f.controller.recover();
+    assert.equal(f.git.status.branch, 'alpha');
+    assert.deepEqual(f.host.waits, [{ afterCheckout: true }, { afterCheckout: true }]);
+    assert.deepEqual(f.host.hydrations, [true, true]);
+    assert.deepEqual(f.host.current, layout('A'));
+    assert.equal(f.controller.state.journal, null);
+  });
+  for (const branches of [
+    [null, null],
+    ['alpha', 'alpha'],
+  ] as const) {
+    await t.test(`without a checkout ${JSON.stringify(branches)}`, async () => {
+      const f = fixture([...branches]);
+      f.host.restoreHook = async () => {
+        throw new Error('Native restore failed');
+      };
+      await assert.rejects(f.controller.activate(f.ids[1]!), /Native restore failed/);
+      assert.equal(f.controller.state.journal?.phase, 'recovery');
+      f.host.restoreHook = undefined;
+      await f.controller.recover();
+      assert.deepEqual(f.git.checkouts, []);
+      assert.deepEqual(f.host.waits, []);
+      assert.deepEqual(f.host.hydrations, [false, false]);
+      assert.equal(f.host.events.includes('quiesce'), false);
+      assert.deepEqual(f.host.current, layout('A'));
+      assert.equal(f.controller.state.activeId, f.ids[0]);
+      assert.equal(f.controller.state.journal, null);
+    });
+  }
 });
 
 test('a malformed imported workspace ID cannot mutate the catalog or disable saving', async () => {
@@ -304,7 +362,8 @@ test('same-branch layout switches retain dirty note edits without issuing checko
   assert.equal(f.git.status.dirty, true);
   assert.deepEqual(f.git.preflights, []);
   assert.deepEqual(f.git.checkouts, []);
-  assert.deepEqual(f.host.events, ['flush', 'wait', 'restore']);
+  assert.deepEqual(f.host.events, ['flush', 'restore']);
+  assert.deepEqual(f.host.hydrations, [false]);
   assert.deepEqual(f.host.current, layout('B'));
   assert.equal(f.controller.state.journal, null);
 });
@@ -350,8 +409,11 @@ test('transitions durably prepare before side effects and commit completion with
         assert.equal(persisted.revision, 1);
         await quiesce();
       };
-      const waitForFiles = f.host.waitForFiles.bind(f.host);
-      f.host.waitForFiles = async () => {
+      // Only a checkout waits for files, so observe the restoring phase at
+      // the restore itself. Every scenario reaches it.
+      let restoringObserved = 0;
+      f.host.restoreHook = async () => {
+        restoringObserved += 1;
         const persisted = await f.store.load();
         assert.equal(persisted.journal?.phase, 'prepared');
         assert.equal(persisted.activeId, f.ids[0]);
@@ -362,9 +424,12 @@ test('transitions durably prepare before side effects and commit completion with
           1,
           'live phase updates must not advance CAS revision',
         );
-        await waitForFiles();
       };
       await f.controller.activate(f.ids[1]!);
+      assert.equal(restoringObserved, 1);
+      const checkout = scenario.name === 'branch change';
+      assert.deepEqual(f.host.waits, checkout ? [{ afterCheckout: true }] : []);
+      assert.deepEqual(f.host.hydrations, [checkout]);
       assert.deepEqual(
         f.store.writes.map((state) => [
           state.revision,

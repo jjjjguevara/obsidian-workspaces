@@ -54,19 +54,26 @@ export function fileLeaves(layout: Layout): FileLeaf[] {
 }
 
 /** File leaves that a workspace owns: every file leaf except the follower panes. */
-function ownedFileLeaves(layout: Layout): FileLeaf[] {
+export function ownedFileLeaves(layout: Layout): FileLeaf[] {
   return fileLeaves(layout).filter((leaf) => !FOLLOW_ACTIVE_FILE_VIEWS.has(leaf.type));
 }
 
-export function assertRestoredFiles(expected: Layout, actual: Layout): void {
+export function assertRestoredFiles(
+  expected: Layout,
+  actual: Layout,
+  isMissing: (path: string) => boolean = () => false,
+): void {
   // A follower pane can hold a different file, or none, after restore. Native
   // layout restoration owns it like any other panel. Compare owned notes only.
+  // A note that no longer exists is not compared on either side: Obsidian can
+  // keep its leaf with the saved file state, or replace it with an empty tab.
+  const compared = (layout: Layout): FileLeaf[] =>
+    ownedFileLeaves(layout).filter((leaf) => !isMissing(leaf.path));
   const key = (leaf: FileLeaf): string =>
     JSON.stringify([leaf.region, leaf.path, leaf.type, leaf.pinned]);
   const counts = new Map<string, number>();
-  for (const leaf of ownedFileLeaves(actual))
-    counts.set(key(leaf), (counts.get(key(leaf)) ?? 0) + 1);
-  for (const leaf of ownedFileLeaves(expected)) {
+  for (const leaf of compared(actual)) counts.set(key(leaf), (counts.get(key(leaf)) ?? 0) + 1);
+  for (const leaf of compared(expected)) {
     const remaining = counts.get(key(leaf)) ?? 0;
     if (!remaining)
       throw new Error(
@@ -143,7 +150,16 @@ export async function waitForVaultFiles(
       const observedRevision = revision;
       let ready = true;
       for (const path of targetPaths) {
-        if (!vault.hasFile(path) || !(await vault.exists(path))) {
+        const indexed = vault.hasFile(path);
+        if (!(await vault.exists(path))) {
+          // A note that no longer exists cannot become ready, and it must not
+          // fail the switch. Only a stale index entry for it is still awaited.
+          if (!indexed) continue;
+          ready = false;
+          reason = `the removed note “${path}” is still in the vault index`;
+          break;
+        }
+        if (!indexed) {
           ready = false;
           reason = `“${path}” is not available in the vault`;
           break;

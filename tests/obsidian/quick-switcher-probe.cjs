@@ -357,8 +357,20 @@ module.exports = class QuickSwitcherProbe extends Plugin {
       'Missing unpinned shared background editor.',
     );
   }
-  async verify(branch, id, { status = true } = {}) {
+  // `loadDeferred` is for a check after a switch that did not change the branch.
+  // The product then leaves hidden views deferred, as Obsidian does, so the probe
+  // loads them before it reads their content. After a branch change the option
+  // stays off: the product itself must have loaded every view.
+  async verify(branch, id, { status = true, loadDeferred = false } = {}) {
+    let probeLoaded = 0;
+    if (loadDeferred)
+      for (const leaf of this.leaves()) {
+        if (!leaf.isDeferred) continue;
+        await leaf.loadIfDeferred();
+        probeLoaded += 1;
+      }
     const snapshot = await this.snapshot();
+    snapshot.deferredViewsLoadedByProbe = probeLoaded;
     assert(snapshot.branch === branch, `Expected branch ${branch}, got ${snapshot.branch}.`);
     assert(
       snapshot.activeId === id && snapshot.journal === null,
@@ -677,7 +689,7 @@ module.exports = class QuickSwitcherProbe extends Plugin {
         }
         // The previously completed fixture may have reopened with deferred tabs.
         // Hydrate its starting editors only; target verification never repairs
-        // a workspace restored by the production transition under test.
+        // a workspace that the production transition restored after a branch change.
         for (const leaf of this.leaves()) await leaf.loadIfDeferred();
         this.originalAlphaLayout = clone(this.app.workspace.getLayout());
         this.observeMethods();

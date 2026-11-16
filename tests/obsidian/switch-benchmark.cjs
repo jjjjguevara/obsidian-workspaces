@@ -1692,6 +1692,9 @@ module.exports = class SwitchBenchmark extends QuickSwitcherProbe {
         id: targetId,
         name: source.workspaces[targetId].name,
         branch: expectedBranch,
+        // Without a checkout the product does not load hidden deferred views.
+        // The endpoint validator keeps every requirement when the branch changes.
+        branchChanged: this.expectedBranch !== expectedBranch,
         layout: clone(source.workspaces[targetId].contexts.desktop.layout),
         activeFile: `${expectedBranch}-exclusive.md`,
         notes: clone(this.expectedNotes[expectedBranch]),
@@ -1803,7 +1806,11 @@ module.exports = class SwitchBenchmark extends QuickSwitcherProbe {
         sample.completionEndpoint,
         sample.endpointExpected,
       );
-      sample.verification = await this.verify(expectedBranch, targetId);
+      // After a switch with no checkout the probe loads deferred views itself
+      // before it reads their content. The endpoint above is already frozen.
+      sample.verification = await this.verify(expectedBranch, targetId, {
+        loadDeferred: !sample.endpointExpected.branchChanged,
+      });
       sample.verificationDurationMs = now() - verificationStart;
       sample.status = 'passed';
       this.expectedBranch = expectedBranch;
@@ -1954,7 +1961,7 @@ module.exports = class SwitchBenchmark extends QuickSwitcherProbe {
         queue:
           'actual provider addTask enqueue to task invocation; withRepository callback wait additionally includes backend setup and repository initialization',
         verification:
-          'immutable native snapshot synchronously in the first controller-settlement observer, independently validated after timing; later QuickSwitcherProbe checks actual Git, disk and live state without repairing views',
+          'immutable native snapshot synchronously in the first controller-settlement observer, independently validated after timing; later QuickSwitcherProbe checks actual Git, disk and live state without repairing views after a branch change; after a switch with no checkout hidden views may be deferred, the endpoint requires only the active view and loaded editors, and the probe loads the deferred views outside timing before it reads their content',
         endpoint:
           'state, full layout, active view, all editor buffers/deferred flags, native index, indicators and input-listener release captured before any await; snapshot overhead excluded from controller latency and recorded separately; next-frame interval includes that observation overhead',
         instrumentation:
@@ -2201,7 +2208,8 @@ module.exports = class SwitchBenchmark extends QuickSwitcherProbe {
           for (const id of this.temporaryIds) {
             if (this.controller.state.workspaces[id]) await this.controller.remove(id);
           }
-          this.result.final = await this.verify('alpha', 'runtime-alpha');
+          // The last switch can be one with no checkout, so hidden views may be deferred.
+          this.result.final = await this.verify('alpha', 'runtime-alpha', { loadDeferred: true });
           this.result.finalGitStatus = await this.gitRaw(['status', '--porcelain']);
           assert(!this.result.finalGitStatus.trim(), 'The fixture did not finish clean.');
           this.result.restoredAlpha = true;

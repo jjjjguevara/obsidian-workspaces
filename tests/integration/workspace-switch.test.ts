@@ -126,6 +126,7 @@ class TestHost implements WorkspaceHost {
   current: Layout;
   readonly cachedText = new Map<string, string>();
   readonly restored: Layout[] = [];
+  readonly hydrations: Array<boolean | undefined> = [];
   readonly events: string[] = [];
   readonly waiting = deferred();
   waitGate: Promise<void> | undefined;
@@ -143,6 +144,16 @@ class TestHost implements WorkspaceHost {
   async seedCache(): Promise<void> {
     for (const path of notePaths(this.current))
       this.cachedText.set(path, await readFile(join(this.root, path), 'utf8'));
+  }
+  /** A started Obsidian has indexed the files that are on disk now. */
+  async indexVault(...layouts: Layout[]): Promise<void> {
+    for (const path of layouts.flatMap(notePaths)) {
+      try {
+        this.cachedText.set(path, await readFile(join(this.root, path), 'utf8'));
+      } catch {
+        this.cachedText.delete(path);
+      }
+    }
   }
   capture(): Layout {
     return structuredClone(this.current);
@@ -178,11 +189,14 @@ class TestHost implements WorkspaceHost {
     }
     this.readyLayout = JSON.stringify(target);
   }
-  async restore(layout: Layout): Promise<void> {
+  async restore(layout: Layout, options: { hydrate?: boolean } = {}): Promise<void> {
+    this.hydrations.push(options.hydrate);
+    // After a checkout the readiness barrier comes first. Without a checkout
+    // there is no wait: no file changed, so the cache already matches disk.
     assert.equal(
       this.readyLayout,
-      JSON.stringify(layout),
-      "Restoration must follow the target's readiness barrier",
+      options.hydrate ? JSON.stringify(layout) : undefined,
+      "Restoration after a checkout must follow the target's readiness barrier",
     );
     for (const path of notePaths(layout)) {
       assert.equal(
@@ -374,6 +388,7 @@ test('controller round trips exclusive pinned notes and waits for changed same-s
   await assert.rejects(access(join(f.root, 'notes', 'beta-only.md')));
   assert.equal(f.host.blockDepth, 0);
   assert.deepEqual(f.checkouts, ['beta', 'alpha']);
+  assert.deepEqual(f.host.hydrations, [true, true], 'Each checkout loads the restored views');
   const persisted = await f.store.load();
   assert.equal(persisted.activeId, f.alphaId);
   assert.equal(persisted.journal, null);
@@ -641,6 +656,12 @@ test('the prepared journal recovers actual process interruptions at every checko
         );
 
         const host = new TestHost(f.root, stopped.liveLayout);
+        // Recovery waits for files only after its own checkout. Model the
+        // restarted application: its cache holds the files that are on disk.
+        await host.indexVault(
+          interrupted.journal!.source.layout,
+          interrupted.journal!.target.layout,
+        );
         const { adapter, checkouts } = gitBackend(f.root, f.git, diskStore);
         const restarted = new WorkspaceController(interrupted, diskStore, host, adapter, 'desktop');
         assert.deepEqual(checkouts, [], 'Constructing a controller never checks out a branch');
@@ -650,6 +671,14 @@ test('the prepared journal recovers actual process interruptions at every checko
         await restarted.recover();
         assert.equal((await f.git(['branch', '--show-current'])).trim(), 'alpha');
         assert.deepEqual(checkouts, checkpoint === 'before-checkout' ? [] : ['alpha']);
+        assert.deepEqual(
+          host.events,
+          checkpoint === 'before-checkout'
+            ? ['flush', 'restore']
+            : ['flush', 'quiesce', 'wait', 'restore'],
+          'Recovery waits for files only when it checked out the original branch',
+        );
+        assert.deepEqual(host.hydrations, [checkpoint !== 'before-checkout']);
         assert.deepEqual(
           host.current,
           liveLayout,

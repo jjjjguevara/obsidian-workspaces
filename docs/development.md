@@ -39,6 +39,8 @@ Use the actual configuration directory for the vault. Ignore rules do not stop t
 | ------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
 | Save A and B with different pins                  | Each record retains its own main-area and sidebar pin state.                                                         |
 | Switch A → B → A                                  | Actual Git branch, visible notes, pin flags, active workspace, and saved state agree after each transition.          |
+| Switch between unbound workspaces with many tabs  | The switch does not load hidden tabs. A hidden tab loads when it is shown, with current content.                     |
+| Delete a saved note, then open its workspace      | The layout opens, one notice names the note, and no recovery is required.                                            |
 | Edit a tracked note                               | A checkout is blocked until changes are handled explicitly through Git.                                              |
 | Add an untracked note                             | The dirty-status check blocks checkout and preserves the source context.                                             |
 | Disable Git or select a missing branch            | The error identifies the missing capability/ref; no target is reported active.                                       |
