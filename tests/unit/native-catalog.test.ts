@@ -378,6 +378,19 @@ const reconciliationCases: Array<{
     expected: { remove: ['a'] },
   },
   {
+    name: 'a branch-bound record that core no longer lists is kept and projected again',
+    state: catalog(
+      [
+        { id: 'a', name: 'A', binding: { root: '/repo', branch: 'alpha' } },
+        { id: 'b', name: 'B' },
+        { id: 'c', name: 'C' },
+      ],
+      { nativeCatalog: { projected: { a: 'A', b: 'B', c: 'C' } } },
+    ),
+    core: { C: entry('c') },
+    expected: { remove: ['b'] },
+  },
+  {
     name: 'a record renamed since its projection still owns its old core name',
     state: catalog([{ id: 'a', name: 'Renamed' }], { nativeCatalog: { projected: { a: 'Old' } } }),
     core: { Old: entry('a') },

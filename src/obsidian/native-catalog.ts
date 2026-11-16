@@ -195,8 +195,16 @@ export function planReconciliation(
     plan.add.push(converted);
   }
   // An empty core list is a lost or reset file, not a request to delete every record.
+  // A branch-bound record is never removed here: the core file cannot hold its binding,
+  // and a file that Git or a sync tool replaced must not delete it. It is projected again.
   if (names.length)
-    for (const [name, id] of projectedAs) if (!Object.hasOwn(core, name)) plan.remove.push(id);
+    for (const [name, id] of projectedAs) {
+      if (Object.hasOwn(core, name)) continue;
+      const bound = Object.values(state.workspaces[id]!.contexts).some(
+        (context) => !!context?.binding,
+      );
+      if (!bound) plan.remove.push(id);
+    }
   return plan;
 }
 
