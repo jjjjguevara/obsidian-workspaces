@@ -310,12 +310,6 @@ class QueuedRepository implements GitRepository {
   private readonly pendingPresentation = new Set<Promise<void>>();
   private readonly expectedRoot: string;
   private expectedCanonicalRoot: string | null = null;
-  /**
-   * Commit IDs seen by the previous safeguard for one target in this queue
-   * scope. They only select which immutable commits a later safeguard may
-   * begin comparing early; they are never treated as current repository state.
-   */
-  private observedCommits: { branch: string; sourceOID: string; targetOID: string } | null = null;
 
   constructor(
     private readonly plugin: InstalledGitPlugin,
@@ -567,24 +561,11 @@ class QueuedRepository implements GitRepository {
       'BISECT_LOG',
       'index.lock',
     ];
-    // A second safeguard in this scope rereads every mutable input. The first
-    // one already showed which two commits the target tree was built from, so
-    // start that comparison now instead of after status and the ref return.
-    // Its result is used only if the fresh status and ref name the same commits.
-    const expected = this.observedCommits?.branch === branch ? this.observedCommits : null;
-    const [refsOutput, statusOutput, paths, recurseOutput, early] = await awaitReads([
+    const [refsOutput, statusOutput, paths, recurseOutput] = await awaitReads([
       this.raw(['for-each-ref', '--format=%(refname)%00%(objectname)', ref]),
       this.raw([...STATUS_ARGUMENTS, '--ignored=traditional']),
       this.guardPaths(markers),
       this.raw(['config', '--type=bool', '--default=false', '--get', 'submodule.recurse']),
-      expected
-        ? this.readTargetTree(expected.sourceOID, expected.targetOID).then(
-            (tree) => tree,
-            // A failed early read proves nothing. The ordinary read below
-            // repeats it against the fresh commits and reports its own error.
-            () => null,
-          )
-        : Promise.resolve(null),
     ]);
     const targetRef = refsOutput
       .split(/\r?\n/)
@@ -679,15 +660,7 @@ class QueuedRepository implements GitRepository {
         throw new GitBackendError('invalid-status', 'Git did not report the source commit.', {
           status,
         });
-      const usable =
-        early && expected?.sourceOID === headOID && expected.targetOID === targetOID ? early : null;
-      // Commits are immutable, and the early index read is as fresh as status
-      // in this safeguard. Any moved ref or new source commit discards it.
-      targetTree = await this.assertRuntimeFilesStable(
-        () => (usable ? Promise.resolve(usable) : this.readTargetTree(headOID, targetOID, status)),
-        status,
-      );
-      this.observedCommits = { branch, sourceOID: headOID, targetOID };
+      targetTree = await this.assertRuntimeFilesStable(headOID, targetOID, status);
     }
 
     // Native checkout can overwrite ignored files without treating them as dirty.
@@ -727,11 +700,12 @@ class QueuedRepository implements GitRepository {
   }
 
   private async assertRuntimeFilesStable(
-    readTree: () => Promise<TargetTree>,
+    sourceOID: string,
+    targetOID: string,
     status: GitStatus,
   ): Promise<string[]> {
     const guard = this.checkoutGuard;
-    if (!guard) return (await readTree()).target;
+    if (!guard) return (await this.readTargetTree(sourceOID, targetOID, status)).target;
     const outside = (parent: string, candidate: string): boolean => {
       const relative = this.native.relative(parent, candidate);
       return (
@@ -823,7 +797,7 @@ class QueuedRepository implements GitRepository {
     const runtime = new Set([`${prefix}workspace.json`, `${prefix}workspace-mobile.json`]);
     // Full repository paths avoid interpreting configurable directories as
     // pathspecs, and also include entries expanded from a sparse index.
-    const tree = await readTree();
+    const tree = await this.readTargetTree(sourceOID, targetOID, status);
     const trackedRuntime = [...tree.current, ...tree.target].find((path) => runtime.has(path));
     if (trackedRuntime) {
       throw new GitBackendError(
@@ -862,7 +836,7 @@ class QueuedRepository implements GitRepository {
   private async readTargetTree(
     sourceOID: string,
     targetOID: string,
-    status?: GitStatus,
+    status: GitStatus,
   ): Promise<TargetTree> {
     const [indexOutput, diffOutput] = await awaitReads([
       // A fixed top-level pathspec covers the whole repository even if the
@@ -888,7 +862,7 @@ class QueuedRepository implements GitRepository {
       throw new GitBackendError(
         'invalid-status',
         'Git did not return a complete index and target tree comparison.',
-        status ? { status } : {},
+        { status },
       );
     };
     const records = (output: string): string[] => {
