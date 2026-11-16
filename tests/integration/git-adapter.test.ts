@@ -1195,6 +1195,22 @@ test('an early tree comparison is discarded when the source or target commit mov
   }
 });
 
+test('a source commit that became unsafe after the first safeguard is not hidden by the early comparison', async (t) => {
+  const f = await fixture(t);
+  const integration = join(f.root, '.obsidian', 'plugins', 'obsidian-git');
+  await guardedAdapter(f).withRepository(async (repository) => {
+    await repository.assertCanSwitch('beta');
+    // Only the comparison of the new source commit with the target shows this path.
+    await mkdir(integration, { recursive: true });
+    await writeFile(join(integration, 'main.js'), 'Integration code tracked only on the source\n');
+    await f.git(['add', '.obsidian/plugins/obsidian-git/main.js']);
+    await f.git(['commit', '-m', 'Source commit that changes integration code']);
+    await assert.rejects(repository.checkout('beta'), hasCode('unsafe-runtime-files'));
+  });
+  assert.deepEqual(f.checkouts, []);
+  assert.equal((await f.git(['branch', '--show-current'])).trim(), 'alpha');
+});
+
 test('a failed or malformed early tree comparison is repeated instead of trusted or reported', async (t) => {
   for (const fault of ['rejects', 'malformed'] as const) {
     await t.test(fault, async (subtest) => {
