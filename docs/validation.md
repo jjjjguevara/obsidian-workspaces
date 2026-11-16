@@ -4,9 +4,21 @@ Validated on 2026-11-13. This document distinguishes native application observat
 
 ## Core Workspaces bridge — 2026-11-16
 
-The [core catalog bridge](adr/0006-native-core-catalog-bridge.md) has automated evidence only. `npm run check` passed **458 tests**, type checking and the build. The 59 bridge tests use a fake core instance with the real controller. They cover each routed method, the optimistic save entry, projection content and timing, every reconciliation rule, the baseline, lifecycle, an unsupported core shape and state migration.
+`npm run check` passed **459 tests**, type checking and the build. The 60 [bridge](adr/0006-native-core-catalog-bridge.md) tests use a fake core instance with the real controller. They cover each routed method, the optimistic save entry, projection content and timing, every reconciliation rule, the baseline, lifecycle, an unsupported core shape and state migration.
 
-The bridge has **not** run in the native application. The method names, the synchronous save sequence of the core dialog and the `change` event of `app.internalPlugins` were read from the Obsidian 1.15.1 application code, not observed in a session. The [native scenarios](development.md#core-workspaces-bridge) are pending on a desktop. The Quick Switcher++ probe and the switch benchmark were not run again; switch latency with core Workspaces enabled is not measured.
+The bridge also ran in native Obsidian 1.15.1 on macOS (arm64) in a disposable vault with unbound workspaces and no Git. An agent drove it through the Obsidian CLI; the window was minimized. Build `ae5b531e…`, source `4a2e223`. Every observation matched the catalog, the in-memory core list and `workspaces.json`:
+
+| Scenario                                                                           | Observed                                                                                             |
+| ---------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| Core alone saves two layouts, then Workspaces is enabled                           | Both entries were imported; the baseline named both.                                                 |
+| Core `loadWorkspace`                                                               | The controller activated the record; the saved note opened; no journal remained.                     |
+| Core save of a new name                                                            | The entry was in the core list at once; the catalog then held the record as active.                  |
+| Rename and delete in the product                                                   | The core list and file showed the new name and lost the deleted entry.                               |
+| Workspaces disabled; core saves one layout and deletes another; Workspaces enabled | The new entry was imported and the deleted record was removed, without a transition.                 |
+| The real "Manage workspace layouts" dialog: Save, the delete icon, Load            | The list was correct after each action; Load closed the dialog and activated through the controller. |
+| Core Workspaces disabled, then enabled                                             | The bridge detached and restored the core methods, then attached again.                              |
+
+Not observed natively: branch-bound workspaces through the core dialog, mobile, the notices after a reconciliation, and a core list with Workspaces Plus `mode:` entries. The Quick Switcher++ probe and the switch benchmark were not run again; switch latency with core Workspaces enabled is not measured.
 
 ## Completion benchmark and performance closure — 2026-11-15
 
