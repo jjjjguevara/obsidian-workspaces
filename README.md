@@ -29,6 +29,8 @@ Suppose `Research` belongs to `research` and pins `Research/Working notes.md`, w
 
 A branch change requires a clean working tree. Switching layouts on the already-active branch can retain pending changes because it does not require checkout. If a branch change encounters pending changes, a missing branch, an unavailable Git backend, or a repository mismatch, the switch stops and explains the cause. Workspaces does not force checkout, create branches, stash changes automatically, commit, or push. Those remain explicit Git operations.
 
+A switch with no checkout, to an unbound workspace or to a workspace on the current branch, restores the layout as Obsidian does. Hidden tabs load when you show them. A saved note that no longer exists does not stop a switch: the layout opens without it and a notice names it.
+
 Changing the branch outside Workspaces can leave the displayed context and saved binding out of alignment. The plugin detects that mismatch before capturing or switching a bound context, so that notes from one branch do not silently replace another branch's saved layout.
 
 Before changing branches, Workspaces awaits saves for text-backed note views and unloads outgoing file views. Native media views and the built-in Backlinks, Outgoing links, and Outline panes are supported. Other editable view types with no supported save lifecycle must be closed first; the plugin reports the view that needs attention.

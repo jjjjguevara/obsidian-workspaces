@@ -264,13 +264,17 @@ test('probe errors after an event wakeup release the timer and subscription', as
     port({
       subscribe: events.subscribe,
       hasFile: () => indexed,
+      // Disk is now probed on every pass. Fail only after the wakeup, so that
+      // the error still arrives while a timer and a waiter exist.
       exists: async () => {
+        if (!indexed) return true;
         throw new Error('broken adapter');
       },
     }),
   );
   const rejected = assert.rejects(pending, /broken adapter/);
   await settle();
+  assert.equal(timers.scheduled.mock.callCount(), 1, 'the first pass is waiting');
   indexed = true;
   events.emit();
   await rejected;
@@ -375,28 +379,100 @@ test('a file-following pane saved on another branch does not block readiness', a
 });
 
 test(
-  'a missing target fails within the configured readiness budget',
+  'a target on disk that is never indexed fails within the configured readiness budget',
   { timeout: 1_000 },
   async () => {
+    // Before, this case used a note absent from disk too. Such a note is now
+    // not a requirement, so the budget is tested with a file that does exist.
     let probes = 0;
     await assert.rejects(
       waitForVaultFiles(
-        layout('missing.md'),
+        layout('unindexed.md'),
         { main: { type: 'split', children: [] } },
         port({
           hasFile: () => {
             probes += 1;
             return false;
           },
-          exists: async () => false,
         }),
         { timeoutMs: 15, pollMs: 1 },
       ),
-      /missing\.md.*not available/,
+      /unindexed\.md.*not available/,
     );
     assert.ok(probes >= 2);
   },
 );
+
+test('a note absent from disk and from the index is not a readiness requirement', async (t) => {
+  const timers = clock(t);
+  const events = changes();
+  const target = {
+    main: { type: 'split', children: [leaf('gone.md'), leaf('present.md')] },
+  };
+  const probed: string[] = [];
+  let ready = false;
+  const pending = waitForVaultFiles(
+    target,
+    layout('gone.md'),
+    port({
+      subscribe: events.subscribe,
+      hasFile: (path) => path !== 'gone.md',
+      exists: async (path) => path !== 'gone.md',
+      matchesStat: async (path) => {
+        probed.push(path);
+        return true;
+      },
+    }),
+  ).then(() => {
+    ready = true;
+  });
+  // The clock is mocked. Assert before the await, so that a wait fails this test at once.
+  await settle();
+  assert.equal(ready, true, 'A missing note must not start a wait');
+  await pending;
+  assert.deepEqual(probed, ['present.md'], 'Notes that exist keep every readiness condition');
+  assert.equal(timers.scheduled.mock.callCount(), 0);
+  assert.equal(events.releases, 1);
+  assert.equal(events.active, 0);
+});
+
+test('a missing target note still waits while the index lists it', async (t) => {
+  const timers = clock(t);
+  const events = changes();
+  let staleIndexed = true;
+  let ready = false;
+  const pending = waitForVaultFiles(
+    layout('gone.md'),
+    { main: { type: 'split', children: [] } },
+    port({
+      subscribe: events.subscribe,
+      hasFile: () => staleIndexed,
+      exists: async () => false,
+    }),
+  ).then(() => {
+    ready = true;
+  });
+  await settle();
+  assert.equal(ready, false, 'A stale index entry from the outgoing branch is still awaited');
+  assert.equal(timers.scheduled.mock.callCount(), 1);
+  staleIndexed = false;
+  events.emit();
+  await settle();
+  assert.equal(ready, true, 'Readiness ends when the index drops the missing note');
+  await pending;
+  assert.equal(events.active, 0);
+
+  await assert.rejects(
+    waitForVaultFiles(
+      layout('gone.md'),
+      { main: { type: 'split', children: [] } },
+      port({ hasFile: () => true, exists: async () => false }),
+      { timeoutMs: 0 },
+    ),
+    /the removed note “gone\.md” is still in the vault index/,
+  );
+});
+
 test('binary readiness waits on matching file metadata without using text reads', async () => {
   let metadataMatches = false;
   const checked = deferred();
@@ -543,4 +619,42 @@ test('restoration preserves file region and duplicate-leaf multiplicity', () => 
     floating: { children: [leaf('same.md')] },
   };
   assert.throws(() => assertRestoredFiles(sidebar, floating), /same\.md.*left/);
+});
+
+test('verification with a missing-note predicate ignores those leaves on both sides', () => {
+  const tabs = (...children: object[]): Layout => ({ main: { type: 'tabs', children } });
+  const empty = { id: 'empty', type: 'leaf', state: { type: 'empty', state: {} } };
+  const expected = tabs(leaf('present.md'), leaf('gone.md'));
+  const isMissing = (path: string) => path === 'gone.md';
+  // Obsidian reports the leaf as an empty tab, or keeps it with its file state.
+  assert.doesNotThrow(() =>
+    assertRestoredFiles(expected, tabs(leaf('present.md'), empty), isMissing),
+  );
+  assert.doesNotThrow(() => assertRestoredFiles(expected, structuredClone(expected), isMissing));
+  // A missing leaf that the request did not hold is ignored on the actual side too.
+  assert.doesNotThrow(() => assertRestoredFiles(tabs(leaf('present.md')), expected, isMissing));
+  // Without the predicate the same layouts fail, as before.
+  assert.throws(
+    () => assertRestoredFiles(expected, tabs(leaf('present.md'), empty)),
+    /did not restore the pinned note “gone\.md”/,
+  );
+  // Notes that exist keep the complete contract.
+  assert.throws(
+    () => assertRestoredFiles(expected, tabs(leaf('gone.md')), isMissing),
+    /did not restore the pinned note “present\.md” in main/,
+  );
+  assert.throws(
+    () =>
+      assertRestoredFiles(expected, tabs(leaf('present.md', false), leaf('gone.md')), isMissing),
+    /pinned note “present\.md”/,
+  );
+  assert.throws(
+    () =>
+      assertRestoredFiles(
+        expected,
+        tabs(leaf('present.md'), leaf('gone.md'), leaf('extra.md')),
+        isMissing,
+      ),
+    /retained a file leaf outside the requested workspace/,
+  );
 });

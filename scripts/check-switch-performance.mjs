@@ -345,6 +345,12 @@ function verifyReport(report, manifest, role, profile) {
       equal(sample.endpointExpected.notes, fixture.expectedNotes[sample.expectedBranch]),
       'Endpoint content expectations differ from the independent fixture.',
     );
+    // Only a switch with no checkout may leave hidden views deferred (ADR 0004,
+    // amendment of 2026-11-16). A branch sample always gets every requirement.
+    requireThat(
+      sample.scenario !== 'branch' || sample.endpointExpected.branchChanged !== false,
+      'A branch switch was validated without the deferred-view requirement.',
+    );
     endpoint.assertCompletionEndpoint(sample.completionEndpoint, sample.endpointExpected);
     requireThat(
       endpoint

@@ -40,6 +40,81 @@ test('complete native endpoint verifies all required pins, duplicate editors and
   );
 });
 
+test('a switch with no checkout may leave hidden views deferred, with strict loaded editors', async (t) => {
+  // Hidden main tab and right sidebar note stay deferred, as Obsidian restores them.
+  const relaxed = () => {
+    const record = structuredClone(sample('alpha', 'unbound'));
+    assert.equal(record.endpointExpected.branchChanged, false);
+    for (const index of [1, 3]) {
+      record.completionEndpoint.views[index].deferred = true;
+      record.completionEndpoint.views[index].content = null;
+    }
+    return record;
+  };
+  const validate = (record: any) =>
+    assertCompletionEndpoint(record.completionEndpoint, record.endpointExpected);
+
+  await t.test('accepted for same-branch and unbound samples', () => {
+    const result = validate(relaxed());
+    assert.equal(result.status, 'passed');
+    assert.equal(result.branchChanged, false);
+    assert.equal(result.deferredViews, 2);
+    assert.equal(validate(structuredClone(sample('alpha', 'same-branch'))).deferredViews, 0);
+  });
+  await t.test('the same snapshot is rejected when the branch changed', () => {
+    for (const branchChanged of [true, undefined]) {
+      const record = relaxed();
+      if (branchChanged === undefined) delete record.endpointExpected.branchChanged;
+      else record.endpointExpected.branchChanged = branchChanged;
+      assert.throws(() => validate(record), /still deferred/);
+    }
+    assert.equal(sample('beta', 'branch').endpointExpected.branchChanged, true);
+  });
+  for (const [name, mutate, message] of [
+    [
+      'a deferred active view',
+      (r: any) => {
+        r.completionEndpoint.views[0].deferred = true;
+      },
+      /active view is still deferred/,
+    ],
+    [
+      'stale bytes in a loaded editor',
+      (r: any) => {
+        r.completionEndpoint.views[2].content = 'stale';
+      },
+      /stale or missing bytes/,
+    ],
+    [
+      'a missing editor for a requested note',
+      (r: any) => {
+        r.completionEndpoint.views.splice(3, 1);
+      },
+      /multiplicities/,
+    ],
+    [
+      'a view with no deferred flag',
+      (r: any) => {
+        delete r.completionEndpoint.views[1].deferred;
+      },
+      /no deferred flag/,
+    ],
+    [
+      'a branch-change flag that is not a boolean',
+      (r: any) => {
+        r.endpointExpected.branchChanged = 'no';
+      },
+      /invalid branch-change expectation/,
+    ],
+  ] as const) {
+    await t.test(`still rejects ${name}`, () => {
+      const record = relaxed();
+      mutate(record);
+      assert.throws(() => validate(record), message);
+    });
+  }
+});
+
 for (const [name, mutate, message] of [
   [
     'extra source sidebar leaf',

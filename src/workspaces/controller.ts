@@ -26,7 +26,11 @@ export interface WorkspaceHost {
     previous: Layout,
     options?: { afterCheckout?: boolean },
   ): Promise<void>;
-  restore(layout: Layout): Promise<void>;
+  /**
+   * Applies the layout and verifies its file leaves. `hydrate` also loads every
+   * deferred view; the controller asks for it only after a checkout.
+   */
+  restore(layout: Layout, options?: { hydrate?: boolean }): Promise<void>;
   /** Blocks user interaction during the transition; returns its release callback. */
   block(message: string): () => void;
   confirmDiscard(name: string): Promise<boolean>;
@@ -560,8 +564,11 @@ export class WorkspaceController {
           this.assertBinding(result, target.binding!);
         }
         this.setTransitionPhase('restoring');
-        await this.host.waitForFiles(target.layout, source.layout, { afterCheckout: checkout });
-        await this.host.restore(target.layout);
+        // Without a checkout no file changed. The layout is then restored as
+        // Obsidian does it: no readiness wait and no forced view loading.
+        if (checkout)
+          await this.host.waitForFiles(target.layout, source.layout, { afterCheckout: checkout });
+        await this.host.restore(target.layout, { hydrate: checkout });
         if (target.binding && repository)
           this.assertBinding(await this.inspectIdentity(repository), target.binding);
         const done = this.state;
@@ -639,10 +646,11 @@ export class WorkspaceController {
                 checkedOut = true;
               }
             }
-            await this.host.waitForFiles(journal.source.layout, journal.target.layout, {
-              afterCheckout: checkedOut,
-            });
-            await this.host.restore(journal.source.layout);
+            if (checkedOut)
+              await this.host.waitForFiles(journal.source.layout, journal.target.layout, {
+                afterCheckout: checkedOut,
+              });
+            await this.host.restore(journal.source.layout, { hydrate: checkedOut });
             if (journal.originalBranch && repository)
               this.assertBinding(await repository.inspect(), journal.originalBranch);
             const next = this.state;

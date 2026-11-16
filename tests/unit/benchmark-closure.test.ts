@@ -76,6 +76,37 @@ for (const [name, mutate] of [
   });
 }
 
+test('the evaluator permits deferred hidden views only on samples with no checkout', () => {
+  const defer = (sample: any) => {
+    const hidden = sample.completionEndpoint.views.find((view: any) => view.id === 'shared');
+    hidden.deferred = true;
+    hidden.content = null;
+  };
+  const evaluate = (scenario: string, mutate: (sample: any) => void) => {
+    const { manifest, evidence } = closure();
+    const report = evidence.get(manifest.sessions[0].candidate.path).report;
+    for (const sample of report.samples) if (sample.scenario === scenario) mutate(sample);
+    resealSamples(report);
+    attachJournal(manifest.sessions[0].candidate, evidence);
+    return evaluateClosure(manifest, evidence);
+  };
+  const control = evaluate('unbound', defer);
+  assert.equal(control.closureAllowed, true, JSON.stringify(control.failures));
+  const branch = evaluate('branch', defer);
+  assert.equal(branch.closureAllowed, false);
+  assert.match(branch.failures.join('\n'), /still deferred/);
+  // A report cannot relax a branch sample by its own declaration.
+  const declared = evaluate('branch', (sample) => {
+    defer(sample);
+    sample.endpointExpected.branchChanged = false;
+  });
+  assert.equal(declared.closureAllowed, false);
+  assert.match(
+    declared.failures.join('\n'),
+    /branch switch was validated without the deferred-view requirement/,
+  );
+});
+
 test('paired workload comparison ignores generated IDs and tab metadata', () => {
   const { manifest, evidence } = closure();
   const report = evidence.get(manifest.sessions[0].candidate.path).report;

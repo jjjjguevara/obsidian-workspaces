@@ -49,8 +49,10 @@ interface ViewState {
 }
 interface Leaf {
   view: object;
+  isDeferred?: boolean;
   getViewState(): ViewState;
   setViewState(state: ViewState): Promise<void>;
+  loadIfDeferred(): Promise<void>;
 }
 
 function deferred() {
@@ -105,8 +107,123 @@ function leaf(type: string, view: object, close: (state: ViewState) => Promise<v
     view,
     getViewState: () => ({ type, state: { file: 'alpha-exclusive.md' } }),
     setViewState: close,
+    loadIfDeferred: async () => {},
   };
 }
+
+/** Obsidian keeps a placeholder view, not a FileView, until a deferred leaf loads. */
+function deferredLeaf(
+  type: string,
+  loaded: object,
+  log: string[],
+  gate?: Promise<void>,
+): Leaf & { isDeferred: boolean } {
+  const value = {
+    view: {} as object,
+    isDeferred: true,
+    getViewState: () => ({ type, state: { file: 'alpha-exclusive.md' } }),
+    setViewState: async (state: ViewState) => {
+      log.push(`close:${type}:${state.type}`);
+    },
+    async loadIfDeferred() {
+      if (!value.isDeferred) return;
+      log.push(`load:${type}:start`);
+      await gate;
+      value.view = loaded;
+      value.isDeferred = false;
+      log.push(`load:${type}:end`);
+    },
+  };
+  return value;
+}
+
+test('flush saves loaded text views and leaves a deferred leaf deferred', async () => {
+  const log: string[] = [];
+  const saving = deferred();
+  const text = (name: string, wait?: Promise<void>) =>
+    Object.assign(new TextFileView(), {
+      async save() {
+        log.push(`save:${name}:start`);
+        await wait;
+        log.push(`save:${name}:end`);
+      },
+    });
+  const hidden = deferredLeaf('markdown', new TextFileView(), log);
+  const workspace = await host([
+    leaf('markdown', text('first', saving.promise), async () => {}),
+    hidden,
+    leaf('pdf', new FileView(), async () => {}),
+    leaf('markdown', text('second'), async () => {}),
+  ]);
+  let finished = false;
+  const pending = workspace.flush().then(() => {
+    finished = true;
+  });
+  await new Promise<void>((resolve) => setImmediate(resolve));
+  assert.deepEqual(log, ['save:first:start'], 'Each save is awaited before the next one starts');
+  assert.equal(finished, false);
+  saving.resolve();
+  await pending;
+  assert.deepEqual(log, [
+    'save:first:start',
+    'save:first:end',
+    'save:second:start',
+    'save:second:end',
+  ]);
+  assert.equal(hidden.isDeferred, true, 'A deferred leaf has no buffer and must not be loaded');
+});
+
+test('the checkout preflight loads deferred leaves in order before its checks', async () => {
+  const log: string[] = [];
+  const first = deferred();
+  const leaves = [
+    deferredLeaf('markdown', new TextFileView(), log, first.promise),
+    deferredLeaf('outline', new FileView(), log),
+  ];
+  const workspace = await host(leaves);
+  let finished = false;
+  const pending = workspace.assertCanQuiesce().then(() => {
+    finished = true;
+  });
+  await new Promise<void>((resolve) => setImmediate(resolve));
+  assert.deepEqual(log, ['load:markdown:start'], 'Deferred leaves load one after another');
+  assert.equal(finished, false);
+  first.resolve();
+  // Unloaded, the Markdown leaf is a file-backed non-FileView and would be rejected.
+  await pending;
+  assert.deepEqual(log, [
+    'load:markdown:start',
+    'load:markdown:end',
+    'load:outline:start',
+    'load:outline:end',
+  ]);
+  await workspace.quiesce();
+  assert.deepEqual(log.slice(4).sort(), ['close:markdown:empty', 'close:outline:empty']);
+});
+
+test('a deferred unsupported editor is loaded, then blocks the checkout before any unload', async () => {
+  const log: string[] = [];
+  const leaves = [
+    deferredLeaf('markdown', new TextFileView(), log),
+    deferredLeaf('custom-editor', new FileView(), log),
+  ];
+  for (const check of ['assertCanQuiesce', 'quiesce'] as const) {
+    const workspace = await host(leaves);
+    await assert.rejects(
+      workspace[check](),
+      /Close the “custom-editor” editor before switching branches/,
+    );
+  }
+  assert.equal(
+    leaves.every((value) => !value.isDeferred),
+    true,
+  );
+  assert.equal(
+    log.some((entry) => entry.startsWith('close:')),
+    false,
+    'A rejected preflight must not unload a leaf',
+  );
+});
 
 test('native file-following sidebar views unload independently and every unload is awaited', async () => {
   const started = deferred();
@@ -405,7 +522,7 @@ test('a slow transition shows progress without releasing input or allowing dismi
   assert.equal(modal.opens, 1);
 });
 
-test('restoration hydrates every leaf after native layout creation and waits for completion', async () => {
+test('restoration after a checkout hydrates every leaf after native layout creation and waits for completion', async () => {
   const Constructor = await Host;
   const layoutReady = deferred();
   const leafReady = [deferred(), deferred()];
@@ -433,7 +550,7 @@ test('restoration hydrates every leaf after native layout creation and waits for
     } as unknown as App,
     async () => true,
   );
-  const pending = workspace.restore({});
+  const pending = workspace.restore({}, { hydrate: true });
   assert.deepEqual(started, []);
   layoutReady.resolve();
   await new Promise<void>((resolve) => setImmediate(resolve));
@@ -475,7 +592,7 @@ test('a failed hydration retains transition ownership until every started leaf s
     } as unknown as App,
     async () => true,
   );
-  const pending = workspace.restore({}).finally(() => {
+  const pending = workspace.restore({}, { hydrate: true }).finally(() => {
     finished = true;
   });
   const rejected = assert.rejects(pending, (error) => error === failure);
@@ -485,6 +602,107 @@ test('a failed hydration retains transition ownership until every started leaf s
   delayed.resolve();
   await rejected;
   assert.equal(finished, true);
+});
+
+/** A native workspace that applies the requested layout, or the layout that a test substitutes. */
+async function restoring(options: {
+  indexed: string[];
+  applied?: (requested: Layout) => Layout;
+  leaves?: object[];
+}) {
+  const Constructor = await Host;
+  const calls: string[] = [];
+  const notices: string[] = [];
+  let live: Layout = {};
+  const workspace = new Constructor(
+    {
+      vault: {
+        getAbstractFileByPath: (path: string) => {
+          calls.push(`index:${path}`);
+          return options.indexed.includes(path) ? new TFile(path) : null;
+        },
+      },
+      workspace: {
+        changeLayout: async (requested: Layout) => {
+          calls.push('changeLayout');
+          live = options.applied ? options.applied(requested) : requested;
+        },
+        iterateAllLeaves: (visit: (leaf: object) => void) => (options.leaves ?? []).forEach(visit),
+        getLayout: () => live,
+      },
+    } as unknown as App,
+    async () => true,
+    (message) => notices.push(message),
+  );
+  return { workspace, calls, notices };
+}
+
+const note = (path: string, pinned = false) => ({
+  type: 'leaf',
+  state: { type: 'markdown', pinned, state: { file: path } },
+});
+const tabs = (...children: object[]): Layout => ({ main: { type: 'tabs', children } });
+
+test('restoration without a checkout loads no deferred view and still verifies the file leaves', async () => {
+  const hidden = {
+    loadIfDeferred: () => assert.fail('A layout-only switch must not load a deferred view'),
+  };
+  const complete = await restoring({ indexed: ['a.md', 'b.md'], leaves: [hidden] });
+  for (const options of [undefined, {}, { hydrate: false }])
+    await complete.workspace.restore(tabs(note('a.md', true), note('b.md')), options);
+  assert.deepEqual(complete.notices, []);
+
+  const lostPin = await restoring({
+    indexed: ['a.md', 'b.md'],
+    leaves: [hidden],
+    applied: () => tabs(note('a.md'), note('b.md')),
+  });
+  await assert.rejects(
+    lostPin.workspace.restore(tabs(note('a.md', true), note('b.md')), { hydrate: false }),
+    /did not restore the pinned note “a\.md”/,
+  );
+});
+
+test('a layout with a missing note restores, is verified without it, and names it in one notice', async (t) => {
+  const requested = tabs(note('present.md', true), note('gone.md', true));
+  for (const [name, applied] of [
+    // Obsidian can keep the leaf with its saved file state (a deferred leaf).
+    ['the leaf keeps its file state', (layout: Layout) => layout],
+    [
+      'the leaf becomes an empty tab',
+      () => tabs(note('present.md', true), { type: 'leaf', state: { type: 'empty', state: {} } }),
+    ],
+  ] as const) {
+    await t.test(name, async () => {
+      for (const hydrate of [false, true]) {
+        const f = await restoring({ indexed: ['present.md'], applied });
+        await f.workspace.restore(requested, { hydrate });
+        assert.deepEqual(f.notices, [
+          'Workspaces opened this layout without 1 missing note: “gone.md”.',
+        ]);
+        assert.ok(
+          f.calls.indexOf('index:gone.md') < f.calls.indexOf('changeLayout'),
+          'Missing notes are read from the index before the layout changes',
+        );
+      }
+    });
+  }
+  await t.test('a present note that was not restored still fails, with no notice', async () => {
+    const f = await restoring({
+      indexed: ['present.md'],
+      applied: () => tabs(note('gone.md', true)),
+    });
+    await assert.rejects(f.workspace.restore(requested), /did not restore.*present\.md/);
+    assert.deepEqual(f.notices, []);
+  });
+  await t.test('the notice lists at most three names', async () => {
+    const paths = ['a.md', 'b.md', 'b.md', 'c.md', 'd.md', 'e.md'];
+    const f = await restoring({ indexed: [] });
+    await f.workspace.restore(tabs(...paths.map((path) => note(path))));
+    assert.deepEqual(f.notices, [
+      'Workspaces opened this layout without 5 missing notes: “a.md”, “b.md”, “c.md” and 2 more.',
+    ]);
+  });
 });
 
 test('post-checkout reconciliation drains failed hints before running full readiness probes', async () => {
@@ -545,5 +763,6 @@ test('post-checkout reconciliation drains failed hints before running full readi
     calls.some((call) => call.startsWith('update:')),
     false,
   );
-  assert.ok(calls.includes('disk'), 'Ordinary switches still perform full readiness');
+  // The controller waits only after a checkout. A wait without the hint still probes fully.
+  assert.ok(calls.includes('disk'), 'A wait without the checkout hint keeps full readiness');
 });
