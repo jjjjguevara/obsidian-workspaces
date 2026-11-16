@@ -1,0 +1,17 @@
+{
+  "vault": "/Users/josueguevara/Workspaces-performance/vault-small",
+  "pluginId": "workspaces-switch-benchmark",
+  "phase": "diag8-candidate-deep",
+  "resultFile": "/Users/josueguevara/Workspaces-performance/diagnostics/diag8-candidate-deep.json",
+  "journalFile": "/Users/josueguevara/Workspaces-performance/diagnostics/diag8-candidate-deep.json.969b6012-b1f9-4dce-b204-da6e4e6c15a2.samples.ndjson",
+  "samples": 20,
+  "warmups": 3,
+  "baselineSamples": 6,
+  "deepTrace": true,
+  "cpuProfile": false,
+  "manualStart": true,
+  "diagnosticOnly": true,
+  "probeSHA256": "375711885e013bd1a0bc8acb48fe4e77c3d75ff87d03c821556d2d6cfe516792",
+  "expectedProductSHA256": "098d3854b89c6968eedc88c174d2fcd946fa78122e428babecd3bdf98321655b",
+  "next": "The currently installed Workspaces bundle is pinned by SHA-256. Enable/reload Workspaces and Quick Switcher++, then enable this benchmark. Close Settings, then run the benchmark plugin command “Run switch benchmark” from the command palette. Rearming requires disabling the benchmark first. Install a different Workspaces bundle BEFORE preparing again. Workspaces assets were not changed. Deep tracing adds diagnostic observation; CPU profiling is optional, requires deep tracing, and depends on native runtime capability."
+}

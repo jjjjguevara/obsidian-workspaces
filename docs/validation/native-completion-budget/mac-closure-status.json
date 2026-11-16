@@ -1,13 +1,13 @@
 {
   "schema": "obsidian-workspaces-local-closure-status-v1",
-  "status": "pending",
+  "status": "blocked",
   "issue": "https://github.com/jjjjguevara/obsidian-workspaces/issues/4",
   "issueMustRemainOpen": true,
   "targetPlatform": "darwin",
-  "actualMacReports": 0,
-  "macGateExecuted": false,
+  "actualMacReports": 12,
+  "macGateExecuted": true,
   "macGatePassed": false,
-  "productProtocolCommit": "3f0c0ed8df50efb1fb29b6bf402ad1084b2e9939",
+  "productProtocolCommit": "a2d738afaefa38f3e3847963ab768ca83fdeca2f",
   "candidateBundleSHA256": "f4a862e7fd3c90786e4474a1e7c4a0041cc9d73d8595cda448cf64b10d530020",
   "finalBenchmarkSHA256": "375711885e013bd1a0bc8acb48fe4e77c3d75ff87d03c821556d2d6cfe516792",
   "finalSafetyProbeSHA256": "312307db21297eb859580186123c1f6f03ad02a280f7c449adf4f0f89cfaf652",
@@ -34,11 +34,48 @@
     "acceptanceClaim": false
   },
   "remainingRequirements": [
-    "Collect actual Darwin evidence using the final installed product and one identical final benchmark bundle for both builds.",
-    "Document representative file counts, change volume, note sizes, editor/layout dimensions and suitability for normal use.",
-    "Collect three complete paired renderer sessions for each of the small and representative profiles, with 100 branch and 20+20 control samples per report.",
-    "Meet median <=100ms, p95 <=200ms and p99 <=300ms in every candidate session and pooled profile; no progress openings; completion and next-frame opportunities below 500 ms for all attempts.",
-    "Attach matching final safety evidence, raw reports and journals, hashes, manifest and unedited passing gate output.",
-    "Publish final local performance and independent review before closing the issue."
-  ]
+    "The budget is not met on the local Mac: candidate branch medians are 415.3 ms (small) and 568.9 ms (representative), and progress opened in every candidate report.",
+    "A switch with no Git process has a 136 ms pooled median. Native layout restore and the two durable state writes exceed 100 ms together. Meeting the budget needs a product decision on the budget, the durable-write boundary, Git read transport or layout restore.",
+    "After any product change, collect new paired Darwin evidence with the final bundle and run the gate again.",
+    "Keep the issue open until a gate run passes and an independent review accepts it, or until the owner changes the acceptance contract."
+  ],
+  "macClosure": {
+    "executedAt": "2026-11-16",
+    "platform": "darwin",
+    "architecture": "arm64",
+    "evidence": "../mac-closure/README.md",
+    "manifest": "../mac-closure/closure-manifest.json",
+    "gateResult": "../mac-closure/closure-result.json",
+    "gateExitCode": 1,
+    "pairedSessions": {
+      "small": 3,
+      "representative": 3
+    },
+    "completedSamples": 1800,
+    "exactEndpointPasses": 1800,
+    "safetyRunsPassed": 2,
+    "candidatePooledBranchMs": {
+      "small": {
+        "median": 415.3,
+        "p95": 527.7,
+        "p99": 573.2
+      },
+      "representative": {
+        "median": 568.9,
+        "p95": 654.6,
+        "p99": 725.3
+      }
+    },
+    "candidatePooledUnboundMedianMs": {
+      "small": 136.9,
+      "representative": 136.4
+    },
+    "candidateMeasuredBranchModals": {
+      "small": [2, 8, 3],
+      "representative": [64, 67, 86]
+    },
+    "acceptanceClaim": false,
+    "representativeSuitabilityConfirmed": false,
+    "independentReview": "../mac-closure/review.md"
+  }
 }

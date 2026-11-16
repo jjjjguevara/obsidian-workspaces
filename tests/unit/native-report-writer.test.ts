@@ -164,3 +164,31 @@ test('native serialization failure cleans its own temporary without publishing p
   assert.equal(await fs.readFile(output, 'utf8'), '{"status":"previous"}\n');
   await assert.rejects(fs.lstat(`${output}.serialize.tmp`), { code: 'ENOENT' });
 });
+
+test('every native probe that imports a sibling module is installed as a bundle', async () => {
+  // Obsidian resolves a plugin's require() from the renderer, not from the
+  // plugin directory. A copied probe with a relative import cannot load.
+  const root = fileURLToPath(new URL('../..', import.meta.url));
+  const installers: Record<string, string> = {
+    'runtime-probe.cjs': 'prepare-runtime-vault.mjs',
+    'quick-switcher-probe.cjs': 'prepare-quick-switcher-probe.mjs',
+    'switch-benchmark.cjs': 'prepare-switch-benchmark.mjs',
+    'runtime-extras.cjs': 'prepare-native-extras.mjs',
+    'git-read-transport-probe.cjs': 'prepare-git-read-transport-probe.mjs',
+  };
+  let bundled = 0;
+  for (const [probe, installer] of Object.entries(installers)) {
+    const source = await fs.readFile(join(root, 'tests', 'obsidian', probe), 'utf8');
+    if (!/\brequire\(\s*['"]\.{1,2}\//.test(source)) continue;
+    bundled += 1;
+    const script = await fs.readFile(join(root, 'scripts', installer), 'utf8');
+    const name = probe.replace(/\.cjs$/, '');
+    assert.match(script, /\bbuild\(\{/, `${installer} must bundle ${probe}`);
+    assert.doesNotMatch(
+      script,
+      new RegExp(`copyFile\\([^;]*${name}`),
+      `${installer} must not copy ${probe} without its imports`,
+    );
+  }
+  assert.ok(bundled >= 3, 'The probes that share the atomic report writer are covered');
+});

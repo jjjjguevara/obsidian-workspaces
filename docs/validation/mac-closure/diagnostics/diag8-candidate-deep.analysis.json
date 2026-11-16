@@ -1,0 +1,398 @@
+{
+  "filename": "/Users/josueguevara/Workspaces-performance/diagnostics/diag8-candidate-deep.json",
+  "status": "passed",
+  "phase": "diag8-candidate-deep",
+  "recorder": {
+    "schema": "obsidian-workspaces-sample-recorder-v1",
+    "mode": "append-only-streamed-final",
+    "runId": "969b6012-b1f9-4dce-b204-da6e4e6c15a2",
+    "complete": true,
+    "startedSamples": 42,
+    "completedSamples": 42,
+    "failedSamples": 0,
+    "journalFile": "/Users/josueguevara/Workspaces-performance/diagnostics/diag8-candidate-deep.json.969b6012-b1f9-4dce-b204-da6e4e6c15a2.samples.ndjson",
+    "journalSHA256": "0a5b1badecb0e498b8803566416fbee8ec5c88fe829350afd20fbd6f1d884cdb",
+    "journalBytes": 11006409,
+    "rawSampleBytes": 10836593,
+    "rawSampleSerializations": 42,
+    "retainedDetailedSamplesBetweenSwitches": 0,
+    "finalAssembly": "streamed-after-timing",
+    "memoryScope": "renderer process; observations outside switch timers; no forced GC",
+    "initialMemory": {
+      "at": "2026-11-16T08:42:18.615Z",
+      "performanceMs": 480398.235083,
+      "rss": 715997184,
+      "heapTotal": 65273856,
+      "heapUsed": 62426292,
+      "external": 9301860,
+      "arrayBuffers": 0
+    },
+    "finalMemory": {
+      "at": "2026-11-16T08:42:34.519Z",
+      "performanceMs": 496302.733667,
+      "rss": 772554752,
+      "heapTotal": 118472704,
+      "heapUsed": 80738588,
+      "external": 11213806,
+      "arrayBuffers": 0
+    },
+    "costs": {
+      "sampleSerializationMs": 49.00962600018829,
+      "journalAppendMs": 115.62583599996287,
+      "compactProgressWriteMs": 56.99233100010315,
+      "compactProgressWrites": 46,
+      "finalAssemblyBeforePublicationMs": 156.9167090000119
+    },
+    "samplesSHA256": "a333f07510d35bdd5de9006d50b90c01f18eca371848abcb09bb68e53b1711dd"
+  },
+  "memory": {
+    "beforeTimingRssBytes": {
+      "n": 42,
+      "median": 749715456,
+      "p95": 770539520,
+      "p99": 772063232,
+      "min": 717930496,
+      "max": 772063232
+    },
+    "afterAppendRssBytes": {
+      "n": 42,
+      "median": 754704384,
+      "p95": 770588672,
+      "p99": 772063232,
+      "min": 722616320,
+      "max": 772063232
+    },
+    "beforeTimingHeapUsedBytes": {
+      "n": 42,
+      "median": 63357902,
+      "p95": 81812472,
+      "p99": 85292092,
+      "min": 47675796,
+      "max": 85292092
+    },
+    "rawSerializationMs": {
+      "n": 42,
+      "median": 1.279,
+      "p95": 1.593,
+      "p99": 1.927,
+      "min": 0.657,
+      "max": 1.927
+    },
+    "sampleAppendMs": {
+      "n": 42,
+      "median": 0.671,
+      "p95": 1.821,
+      "p99": 13.337,
+      "min": 0.342,
+      "max": 13.337
+    }
+  },
+  "groups": {
+    "branch": {
+      "selectionToCompleteMs": {
+        "n": 20,
+        "median": 405.054,
+        "p95": 498.229,
+        "p99": 543.047,
+        "min": 363.14,
+        "max": 543.047
+      },
+      "selectionToNextFrameMs": {
+        "n": 20,
+        "median": 407.054,
+        "p95": 500.001,
+        "p99": 544.949,
+        "min": 375.475,
+        "max": 544.949
+      },
+      "modalOpened": 0,
+      "endpointValidated": 20,
+      "endpointCaptureMs": {
+        "n": 20,
+        "median": 0.903,
+        "p95": 1.097,
+        "p99": 1.114,
+        "min": 0.802,
+        "max": 1.114
+      },
+      "selectionToInputReleaseMs": {
+        "n": 20,
+        "median": 404.115,
+        "p95": 497.295,
+        "p99": 542.097,
+        "min": 362.161,
+        "max": 542.097
+      },
+      "rawGitCalls": {
+        "n": 20,
+        "median": 19,
+        "p95": 19,
+        "p99": 19,
+        "min": 19,
+        "max": 19
+      },
+      "stageMs": {
+        "repository inspection outside guards": {
+          "n": 20,
+          "median": 68.964,
+          "p95": 86.804,
+          "p99": 118.07,
+          "min": 57.191,
+          "max": 118.07
+        },
+        "editor flush": {
+          "n": 20,
+          "median": 0.091,
+          "p95": 0.103,
+          "p99": 0.109,
+          "min": 0.08,
+          "max": 0.109
+        },
+        "checkout safeguards": {
+          "n": 20,
+          "median": 132.11,
+          "p95": 152.761,
+          "p99": 173.872,
+          "min": 108.105,
+          "max": 173.872
+        },
+        "durable state writes": {
+          "n": 20,
+          "median": 41.192,
+          "p95": 64.301,
+          "p99": 71.16,
+          "min": 35.648,
+          "max": 71.16
+        },
+        "editor unload": {
+          "n": 20,
+          "median": 6.447,
+          "p95": 7.228,
+          "p99": 7.232,
+          "min": 5.791,
+          "max": 7.232
+        },
+        "native Git checkout": {
+          "n": 20,
+          "median": 28.492,
+          "p95": 37.004,
+          "p99": 37.922,
+          "min": 23.906,
+          "max": 37.922
+        },
+        "vault readiness": {
+          "n": 20,
+          "median": 32.727,
+          "p95": 51.528,
+          "p99": 52.68,
+          "min": 10.321,
+          "max": 52.68
+        },
+        "native layout restore": {
+          "n": 20,
+          "median": 70.103,
+          "p95": 79.61,
+          "p99": 180.423,
+          "min": 58.179,
+          "max": 180.423
+        },
+        "Git presentation outside other stages": {
+          "n": 20,
+          "median": 4.69,
+          "p95": 12.101,
+          "p99": 12.122,
+          "min": 3.015,
+          "max": 12.122
+        },
+        "other controller work and queue wait": {
+          "n": 20,
+          "median": 9.849,
+          "p95": 13.498,
+          "p99": 14.751,
+          "min": 9.139,
+          "max": 14.751
+        }
+      }
+    },
+    "same-branch": {
+      "selectionToCompleteMs": {
+        "n": 6,
+        "median": 165.103,
+        "p95": 253.752,
+        "p99": 253.752,
+        "min": 159.849,
+        "max": 253.752
+      },
+      "selectionToNextFrameMs": {
+        "n": 6,
+        "median": 173.635,
+        "p95": 260.216,
+        "p99": 260.216,
+        "min": 165.962,
+        "max": 260.216
+      },
+      "modalOpened": 0,
+      "endpointValidated": 6,
+      "endpointCaptureMs": {
+        "n": 6,
+        "median": 0.98,
+        "p95": 1.04,
+        "p99": 1.04,
+        "min": 0.851,
+        "max": 1.04
+      },
+      "selectionToInputReleaseMs": {
+        "n": 6,
+        "median": 163.689,
+        "p95": 252.305,
+        "p99": 252.305,
+        "min": 158.411,
+        "max": 252.305
+      },
+      "rawGitCalls": {
+        "n": 6,
+        "median": 3,
+        "p95": 3,
+        "p99": 3,
+        "min": 3,
+        "max": 3
+      },
+      "stageMs": {
+        "repository inspection outside guards": {
+          "n": 6,
+          "median": 51.221,
+          "p95": 54.725,
+          "p99": 54.725,
+          "min": 48.679,
+          "max": 54.725
+        },
+        "editor flush": {
+          "n": 6,
+          "median": 0.09,
+          "p95": 0.104,
+          "p99": 0.104,
+          "min": 0.077,
+          "max": 0.104
+        },
+        "durable state writes": {
+          "n": 6,
+          "median": 38.067,
+          "p95": 43.865,
+          "p99": 43.865,
+          "min": 34.745,
+          "max": 43.865
+        },
+        "vault readiness": {
+          "n": 6,
+          "median": 2.04,
+          "p95": 4.222,
+          "p99": 4.222,
+          "min": 1.821,
+          "max": 4.222
+        },
+        "native layout restore": {
+          "n": 6,
+          "median": 58.244,
+          "p95": 150.182,
+          "p99": 150.182,
+          "min": 56.623,
+          "max": 150.182
+        },
+        "other controller work and queue wait": {
+          "n": 6,
+          "median": 11.617,
+          "p95": 13.928,
+          "p99": 13.928,
+          "min": 10.333,
+          "max": 13.928
+        }
+      }
+    },
+    "unbound": {
+      "selectionToCompleteMs": {
+        "n": 6,
+        "median": 119.924,
+        "p95": 141.214,
+        "p99": 141.214,
+        "min": 114.748,
+        "max": 141.214
+      },
+      "selectionToNextFrameMs": {
+        "n": 6,
+        "median": 123.074,
+        "p95": 144.704,
+        "p99": 144.704,
+        "min": 116.765,
+        "max": 144.704
+      },
+      "modalOpened": 0,
+      "endpointValidated": 6,
+      "endpointCaptureMs": {
+        "n": 6,
+        "median": 1.122,
+        "p95": 1.313,
+        "p99": 1.313,
+        "min": 1.087,
+        "max": 1.313
+      },
+      "selectionToInputReleaseMs": {
+        "n": 6,
+        "median": 117.966,
+        "p95": 139.283,
+        "p99": 139.283,
+        "min": 112.786,
+        "max": 139.283
+      },
+      "rawGitCalls": {
+        "n": 6,
+        "median": 0,
+        "p95": 0,
+        "p99": 0,
+        "min": 0,
+        "max": 0
+      },
+      "stageMs": {
+        "editor flush": {
+          "n": 6,
+          "median": 0.092,
+          "p95": 0.097,
+          "p99": 0.097,
+          "min": 0.077,
+          "max": 0.097
+        },
+        "durable state writes": {
+          "n": 6,
+          "median": 43.313,
+          "p95": 52.991,
+          "p99": 52.991,
+          "min": 42.286,
+          "max": 52.991
+        },
+        "vault readiness": {
+          "n": 6,
+          "median": 2.994,
+          "p95": 4.957,
+          "p99": 4.957,
+          "min": 1.725,
+          "max": 4.957
+        },
+        "native layout restore": {
+          "n": 6,
+          "median": 58.146,
+          "p95": 72.947,
+          "p99": 72.947,
+          "min": 53.296,
+          "max": 72.947
+        },
+        "other controller work and queue wait": {
+          "n": 6,
+          "median": 13.694,
+          "p95": 14.94,
+          "p99": 14.94,
+          "min": 12.516,
+          "max": 14.94
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,1601 @@
+{
+  "purpose": "Descriptive summary of actual Darwin reports; the closure gate decides acceptance.",
+  "reports": [
+    {
+      "file": "reports/small-s1-baseline.json.gz",
+      "profile": "small",
+      "session": 1,
+      "role": "baseline",
+      "order": 1,
+      "status": "passed",
+      "rawSHA256": "38a514e28153015ea6bec78e074c92a00dfcf565f1f8a2e602d19b577defe376",
+      "gzipSHA256": "0c7946cc5bbdf61b95f41da04b06b61c06ea051c2633dbe8cace10735fdb4201",
+      "productBundleSHA256": "9dee2cbb8b25f768f81d3b94ec1a7c57ddae55267ae29de459ad00a8d94d3400",
+      "probeSHA256": "375711885e013bd1a0bc8acb48fe4e77c3d75ff87d03c821556d2d6cfe516792",
+      "nativeSession": {
+        "id": "d9a3aae9-64cd-4a31-acbd-d98bea0ad066",
+        "processId": 17330,
+        "observedAt": "2026-11-16T08:45:20.109Z"
+      },
+      "samples": 150,
+      "allSampleModalOpenings": 0,
+      "allSampleEndpointPasses": 150,
+      "maxCompletionMsAllSamples": 517.707,
+      "maxNextFrameMsAllSamples": 524.915,
+      "firstSwitch": {
+        "completeMs": 460.842,
+        "nextFrameMs": 470.803,
+        "modal": false
+      },
+      "branchRssMiB": {
+        "first": 247,
+        "last": 746
+      },
+      "recorder": {
+        "complete": true,
+        "journalSHA256": "6f885fa86da665cdfcccc16cd7045b475f46743cf7d8aff310012aa0cb06bbf0",
+        "samplesSHA256": "d2d65e47f40998b927c15f5551b875159cab8fe973be9472589d41c4a7ced644"
+      },
+      "groups": {
+        "branch": {
+          "selectionToCompleteMs": {
+            "n": 100,
+            "median": 405.924,
+            "p95": 484.882,
+            "p99": 498.059,
+            "min": 351.577,
+            "max": 517.707
+          },
+          "selectionToNextFrameMs": {
+            "n": 100,
+            "median": 414.018,
+            "p95": 494.176,
+            "p99": 510.594,
+            "min": 355.363,
+            "max": 524.915
+          },
+          "modalOpenings": 0,
+          "endpointPasses": 100,
+          "rawGitCalls": {
+            "20": 100
+          }
+        },
+        "same-branch": {
+          "selectionToCompleteMs": {
+            "n": 20,
+            "median": 176.978,
+            "p95": 200.46,
+            "p99": 274.551,
+            "min": 160.848,
+            "max": 274.551
+          },
+          "selectionToNextFrameMs": {
+            "n": 20,
+            "median": 183.698,
+            "p95": 211.879,
+            "p99": 276.84,
+            "min": 171.869,
+            "max": 276.84
+          },
+          "modalOpenings": 0,
+          "endpointPasses": 20,
+          "rawGitCalls": {
+            "3": 20
+          }
+        },
+        "unbound": {
+          "selectionToCompleteMs": {
+            "n": 20,
+            "median": 127.719,
+            "p95": 142.359,
+            "p99": 144.63,
+            "min": 121.291,
+            "max": 144.63
+          },
+          "selectionToNextFrameMs": {
+            "n": 20,
+            "median": 130.791,
+            "p95": 147.149,
+            "p99": 149.563,
+            "min": 123.355,
+            "max": 149.563
+          },
+          "modalOpenings": 0,
+          "endpointPasses": 20,
+          "rawGitCalls": {
+            "0": 19,
+            "2": 1
+          }
+        }
+      }
+    },
+    {
+      "file": "reports/small-s1-candidate.json.gz",
+      "profile": "small",
+      "session": 1,
+      "role": "candidate",
+      "order": 2,
+      "status": "passed",
+      "rawSHA256": "2f2e49b9583d32c2412dc3e078f7aa286e6a97ffb9fa6c14ffcda252abf3a6f8",
+      "gzipSHA256": "6943563a1da5fde19b1c7a410e36932d9b06f52dc44663973cc508d42316363c",
+      "productBundleSHA256": "f4a862e7fd3c90786e4474a1e7c4a0041cc9d73d8595cda448cf64b10d530020",
+      "probeSHA256": "375711885e013bd1a0bc8acb48fe4e77c3d75ff87d03c821556d2d6cfe516792",
+      "nativeSession": {
+        "id": "d9a3aae9-64cd-4a31-acbd-d98bea0ad066",
+        "processId": 17330,
+        "observedAt": "2026-11-16T08:45:20.109Z"
+      },
+      "samples": 150,
+      "allSampleModalOpenings": 2,
+      "allSampleEndpointPasses": 150,
+      "maxCompletionMsAllSamples": 573.186,
+      "maxNextFrameMsAllSamples": 575.617,
+      "firstSwitch": {
+        "completeMs": 430.399,
+        "nextFrameMs": 440.545,
+        "modal": false
+      },
+      "branchRssMiB": {
+        "first": 615,
+        "last": 929
+      },
+      "recorder": {
+        "complete": true,
+        "journalSHA256": "7bd1cc84da2fe43ee2b7660e129796cbc694fe765c70b24b6421cb1b938f76f1",
+        "samplesSHA256": "2eec50fd50cfec44c8cd0595f24d8fb5d329c7e7c04ff287e1a835019a543831"
+      },
+      "groups": {
+        "branch": {
+          "selectionToCompleteMs": {
+            "n": 100,
+            "median": 416.743,
+            "p95": 516.982,
+            "p99": 544.761,
+            "min": 331.122,
+            "max": 573.186
+          },
+          "selectionToNextFrameMs": {
+            "n": 100,
+            "median": 425.074,
+            "p95": 528.682,
+            "p99": 547.092,
+            "min": 334.822,
+            "max": 575.617
+          },
+          "modalOpenings": 2,
+          "endpointPasses": 100,
+          "rawGitCalls": {
+            "19": 99,
+            "21": 1
+          }
+        },
+        "same-branch": {
+          "selectionToCompleteMs": {
+            "n": 20,
+            "median": 176.078,
+            "p95": 190.298,
+            "p99": 191.105,
+            "min": 160.893,
+            "max": 191.105
+          },
+          "selectionToNextFrameMs": {
+            "n": 20,
+            "median": 185.247,
+            "p95": 195.378,
+            "p99": 195.902,
+            "min": 166.36,
+            "max": 195.902
+          },
+          "modalOpenings": 0,
+          "endpointPasses": 20,
+          "rawGitCalls": {
+            "3": 20
+          }
+        },
+        "unbound": {
+          "selectionToCompleteMs": {
+            "n": 20,
+            "median": 140.244,
+            "p95": 240.082,
+            "p99": 282.449,
+            "min": 130.76,
+            "max": 282.449
+          },
+          "selectionToNextFrameMs": {
+            "n": 20,
+            "median": 147.364,
+            "p95": 242.728,
+            "p99": 285.081,
+            "min": 133.233,
+            "max": 285.081
+          },
+          "modalOpenings": 0,
+          "endpointPasses": 20,
+          "rawGitCalls": {
+            "0": 19,
+            "2": 1
+          }
+        }
+      }
+    },
+    {
+      "file": "reports/small-s2-candidate.json.gz",
+      "profile": "small",
+      "session": 2,
+      "role": "candidate",
+      "order": 1,
+      "status": "passed",
+      "rawSHA256": "c1289cbd454de73c01db80f68af6e1f117ef48def53cf1cba42c54403a4e1079",
+      "gzipSHA256": "b3f39d421f4c361ff36759d1feb166672dfe802975d4be4ac125e437b1a2f699",
+      "productBundleSHA256": "f4a862e7fd3c90786e4474a1e7c4a0041cc9d73d8595cda448cf64b10d530020",
+      "probeSHA256": "375711885e013bd1a0bc8acb48fe4e77c3d75ff87d03c821556d2d6cfe516792",
+      "nativeSession": {
+        "id": "9bc53c01-9097-4683-99f8-d0f440072a49",
+        "processId": 83937,
+        "observedAt": "2026-11-16T08:48:11.289Z"
+      },
+      "samples": 150,
+      "allSampleModalOpenings": 8,
+      "allSampleEndpointPasses": 150,
+      "maxCompletionMsAllSamples": 633.005,
+      "maxNextFrameMsAllSamples": 637.938,
+      "firstSwitch": {
+        "completeMs": 498.665,
+        "nextFrameMs": 509.686,
+        "modal": false
+      },
+      "branchRssMiB": {
+        "first": 249,
+        "last": 762
+      },
+      "recorder": {
+        "complete": true,
+        "journalSHA256": "88746a3d263e36c4189377cb5855264dd68ad5f031c99db40e6095d16b1c1d54",
+        "samplesSHA256": "3531c7a40ed0d96fa6875216646f68c331e5a6566ca36b9cec9a44502e906b36"
+      },
+      "groups": {
+        "branch": {
+          "selectionToCompleteMs": {
+            "n": 100,
+            "median": 437.472,
+            "p95": 554.302,
+            "p99": 586.958,
+            "min": 352.185,
+            "max": 633.005
+          },
+          "selectionToNextFrameMs": {
+            "n": 100,
+            "median": 443.619,
+            "p95": 561.352,
+            "p99": 589.498,
+            "min": 357.302,
+            "max": 637.938
+          },
+          "modalOpenings": 8,
+          "endpointPasses": 100,
+          "rawGitCalls": {
+            "19": 99,
+            "21": 1
+          }
+        },
+        "same-branch": {
+          "selectionToCompleteMs": {
+            "n": 20,
+            "median": 179.358,
+            "p95": 194.277,
+            "p99": 200.513,
+            "min": 160.768,
+            "max": 200.513
+          },
+          "selectionToNextFrameMs": {
+            "n": 20,
+            "median": 184.896,
+            "p95": 205.157,
+            "p99": 212.682,
+            "min": 170.968,
+            "max": 212.682
+          },
+          "modalOpenings": 0,
+          "endpointPasses": 20,
+          "rawGitCalls": {
+            "3": 20
+          }
+        },
+        "unbound": {
+          "selectionToCompleteMs": {
+            "n": 20,
+            "median": 137.322,
+            "p95": 151.575,
+            "p99": 242.894,
+            "min": 130.098,
+            "max": 242.894
+          },
+          "selectionToNextFrameMs": {
+            "n": 20,
+            "median": 141.802,
+            "p95": 156.873,
+            "p99": 252.253,
+            "min": 132.845,
+            "max": 252.253
+          },
+          "modalOpenings": 0,
+          "endpointPasses": 20,
+          "rawGitCalls": {
+            "0": 19,
+            "2": 1
+          }
+        }
+      }
+    },
+    {
+      "file": "reports/small-s2-baseline.json.gz",
+      "profile": "small",
+      "session": 2,
+      "role": "baseline",
+      "order": 2,
+      "status": "passed",
+      "rawSHA256": "c5e6f3087b1463c872088385ef4e3a6129d97389947ba760e56791986bbd2bb0",
+      "gzipSHA256": "ee20e01e717456b9014534df13bdfad6cb24cbf15a00fcd178233c76683cc2e7",
+      "productBundleSHA256": "9dee2cbb8b25f768f81d3b94ec1a7c57ddae55267ae29de459ad00a8d94d3400",
+      "probeSHA256": "375711885e013bd1a0bc8acb48fe4e77c3d75ff87d03c821556d2d6cfe516792",
+      "nativeSession": {
+        "id": "9bc53c01-9097-4683-99f8-d0f440072a49",
+        "processId": 83937,
+        "observedAt": "2026-11-16T08:48:11.289Z"
+      },
+      "samples": 150,
+      "allSampleModalOpenings": 3,
+      "allSampleEndpointPasses": 150,
+      "maxCompletionMsAllSamples": 567.136,
+      "maxNextFrameMsAllSamples": 574.97,
+      "firstSwitch": {
+        "completeMs": 470.794,
+        "nextFrameMs": 474.713,
+        "modal": false
+      },
+      "branchRssMiB": {
+        "first": 701,
+        "last": 1019
+      },
+      "recorder": {
+        "complete": true,
+        "journalSHA256": "115d7539d9ecfd066b067ab9f07c4d0c3fda2357b6e74aaa4be3239bec2f11ee",
+        "samplesSHA256": "a6893d6516f96add882fee4d9361b65e356f042c05b8f41f598fc6de790953c0"
+      },
+      "groups": {
+        "branch": {
+          "selectionToCompleteMs": {
+            "n": 100,
+            "median": 437.901,
+            "p95": 504.798,
+            "p99": 555.991,
+            "min": 351.179,
+            "max": 567.136
+          },
+          "selectionToNextFrameMs": {
+            "n": 100,
+            "median": 444.385,
+            "p95": 513.78,
+            "p99": 558.413,
+            "min": 356.498,
+            "max": 574.97
+          },
+          "modalOpenings": 3,
+          "endpointPasses": 100,
+          "rawGitCalls": {
+            "20": 99,
+            "22": 1
+          }
+        },
+        "same-branch": {
+          "selectionToCompleteMs": {
+            "n": 20,
+            "median": 182.721,
+            "p95": 196.472,
+            "p99": 197.605,
+            "min": 162.926,
+            "max": 197.605
+          },
+          "selectionToNextFrameMs": {
+            "n": 20,
+            "median": 188.472,
+            "p95": 204.355,
+            "p99": 205.769,
+            "min": 168.462,
+            "max": 205.769
+          },
+          "modalOpenings": 0,
+          "endpointPasses": 20,
+          "rawGitCalls": {
+            "3": 20
+          }
+        },
+        "unbound": {
+          "selectionToCompleteMs": {
+            "n": 20,
+            "median": 138.726,
+            "p95": 193.14,
+            "p99": 282.605,
+            "min": 128.234,
+            "max": 282.605
+          },
+          "selectionToNextFrameMs": {
+            "n": 20,
+            "median": 145.636,
+            "p95": 195.667,
+            "p99": 285.153,
+            "min": 130.697,
+            "max": 285.153
+          },
+          "modalOpenings": 0,
+          "endpointPasses": 20,
+          "rawGitCalls": {
+            "0": 19,
+            "2": 1
+          }
+        }
+      }
+    },
+    {
+      "file": "reports/small-s3-baseline.json.gz",
+      "profile": "small",
+      "session": 3,
+      "role": "baseline",
+      "order": 1,
+      "status": "passed",
+      "rawSHA256": "2ba4f54ad30587c00a570c85263c8644cbf56e86e4a77e86d410cb4b30828358",
+      "gzipSHA256": "6614f1c0912787fedf5771e206de258c9413eddf7c214540576422efa1967eed",
+      "productBundleSHA256": "9dee2cbb8b25f768f81d3b94ec1a7c57ddae55267ae29de459ad00a8d94d3400",
+      "probeSHA256": "375711885e013bd1a0bc8acb48fe4e77c3d75ff87d03c821556d2d6cfe516792",
+      "nativeSession": {
+        "id": "1feb65ac-e157-44eb-9e69-97817fd900a6",
+        "processId": 51283,
+        "observedAt": "2026-11-16T08:51:15.550Z"
+      },
+      "samples": 150,
+      "allSampleModalOpenings": 10,
+      "allSampleEndpointPasses": 150,
+      "maxCompletionMsAllSamples": 583.79,
+      "maxNextFrameMsAllSamples": 586.128,
+      "firstSwitch": {
+        "completeMs": 509.165,
+        "nextFrameMs": 513.852,
+        "modal": false
+      },
+      "branchRssMiB": {
+        "first": 243,
+        "last": 644
+      },
+      "recorder": {
+        "complete": true,
+        "journalSHA256": "1822184383a8977f0f14aa97d59c781d739b098f625e188e77508cc805d9ebb7",
+        "samplesSHA256": "1c8d6faaf95ed37481d2fdcdb0b2c63e2923600ea86c976bd909060c5358ca37"
+      },
+      "groups": {
+        "branch": {
+          "selectionToCompleteMs": {
+            "n": 100,
+            "median": 454.022,
+            "p95": 555.6,
+            "p99": 576.589,
+            "min": 387.716,
+            "max": 583.79
+          },
+          "selectionToNextFrameMs": {
+            "n": 100,
+            "median": 459.661,
+            "p95": 557.479,
+            "p99": 581.74,
+            "min": 389.745,
+            "max": 586.128
+          },
+          "modalOpenings": 10,
+          "endpointPasses": 100,
+          "rawGitCalls": {
+            "20": 99,
+            "22": 1
+          }
+        },
+        "same-branch": {
+          "selectionToCompleteMs": {
+            "n": 20,
+            "median": 181.315,
+            "p95": 194.08,
+            "p99": 195.126,
+            "min": 167.406,
+            "max": 195.126
+          },
+          "selectionToNextFrameMs": {
+            "n": 20,
+            "median": 188.275,
+            "p95": 199.573,
+            "p99": 201.951,
+            "min": 169.305,
+            "max": 201.951
+          },
+          "modalOpenings": 0,
+          "endpointPasses": 20,
+          "rawGitCalls": {
+            "3": 20
+          }
+        },
+        "unbound": {
+          "selectionToCompleteMs": {
+            "n": 20,
+            "median": 136.892,
+            "p95": 151.424,
+            "p99": 158.606,
+            "min": 126.295,
+            "max": 158.606
+          },
+          "selectionToNextFrameMs": {
+            "n": 20,
+            "median": 142.163,
+            "p95": 153.831,
+            "p99": 167.141,
+            "min": 128.731,
+            "max": 167.141
+          },
+          "modalOpenings": 0,
+          "endpointPasses": 20,
+          "rawGitCalls": {
+            "0": 19,
+            "2": 1
+          }
+        }
+      }
+    },
+    {
+      "file": "reports/small-s3-candidate.json.gz",
+      "profile": "small",
+      "session": 3,
+      "role": "candidate",
+      "order": 2,
+      "status": "passed",
+      "rawSHA256": "4287b2d796d1a59a4d5ecfc1dc31c0b67c0070d3617fbb9d93bd794ef5cbc447",
+      "gzipSHA256": "b7eb35bc30a6dfcb1ac1b6154371d94161b05da986330e5ea479ae62312c8b7c",
+      "productBundleSHA256": "f4a862e7fd3c90786e4474a1e7c4a0041cc9d73d8595cda448cf64b10d530020",
+      "probeSHA256": "375711885e013bd1a0bc8acb48fe4e77c3d75ff87d03c821556d2d6cfe516792",
+      "nativeSession": {
+        "id": "1feb65ac-e157-44eb-9e69-97817fd900a6",
+        "processId": 51283,
+        "observedAt": "2026-11-16T08:51:15.550Z"
+      },
+      "samples": 150,
+      "allSampleModalOpenings": 4,
+      "allSampleEndpointPasses": 150,
+      "maxCompletionMsAllSamples": 562.154,
+      "maxNextFrameMsAllSamples": 572.727,
+      "firstSwitch": {
+        "completeMs": 369.994,
+        "nextFrameMs": 372.093,
+        "modal": false
+      },
+      "branchRssMiB": {
+        "first": 767,
+        "last": 1098
+      },
+      "recorder": {
+        "complete": true,
+        "journalSHA256": "e3324f9e9cbf0240ee72bda24768fb4afd8400e91ab4df82a32c72321fbb0d48",
+        "samplesSHA256": "f226bcef31b2943c681b53615146f804fa52de4be440e6ded9d1e8f6ec1782c2"
+      },
+      "groups": {
+        "branch": {
+          "selectionToCompleteMs": {
+            "n": 100,
+            "median": 402.076,
+            "p95": 521.356,
+            "p99": 548.712,
+            "min": 343.573,
+            "max": 562.154
+          },
+          "selectionToNextFrameMs": {
+            "n": 100,
+            "median": 409.079,
+            "p95": 533.841,
+            "p99": 552.72,
+            "min": 352.435,
+            "max": 572.727
+          },
+          "modalOpenings": 3,
+          "endpointPasses": 100,
+          "rawGitCalls": {
+            "19": 99,
+            "21": 1
+          }
+        },
+        "same-branch": {
+          "selectionToCompleteMs": {
+            "n": 20,
+            "median": 186.261,
+            "p95": 201.262,
+            "p99": 203.785,
+            "min": 166.405,
+            "max": 203.785
+          },
+          "selectionToNextFrameMs": {
+            "n": 20,
+            "median": 196.111,
+            "p95": 212.26,
+            "p99": 212.992,
+            "min": 170.523,
+            "max": 212.992
+          },
+          "modalOpenings": 0,
+          "endpointPasses": 20,
+          "rawGitCalls": {
+            "3": 20
+          }
+        },
+        "unbound": {
+          "selectionToCompleteMs": {
+            "n": 20,
+            "median": 133.285,
+            "p95": 142.874,
+            "p99": 143.446,
+            "min": 124.317,
+            "max": 143.446
+          },
+          "selectionToNextFrameMs": {
+            "n": 20,
+            "median": 136.945,
+            "p95": 148.158,
+            "p99": 149.455,
+            "min": 126.317,
+            "max": 149.455
+          },
+          "modalOpenings": 0,
+          "endpointPasses": 20,
+          "rawGitCalls": {
+            "0": 19,
+            "1": 1
+          }
+        }
+      }
+    },
+    {
+      "file": "reports/representative-s1-baseline.json.gz",
+      "profile": "representative",
+      "session": 1,
+      "role": "baseline",
+      "order": 1,
+      "status": "passed",
+      "rawSHA256": "90da05623e9519e41fbc03fc9a0c7ecac5f25b8cc2fd016adbe091e934f5fa3c",
+      "gzipSHA256": "8945ff8b040299150a7610913c8d4021e532359b0635a7191272f4e2129000dd",
+      "productBundleSHA256": "9dee2cbb8b25f768f81d3b94ec1a7c57ddae55267ae29de459ad00a8d94d3400",
+      "probeSHA256": "375711885e013bd1a0bc8acb48fe4e77c3d75ff87d03c821556d2d6cfe516792",
+      "nativeSession": {
+        "id": "1ff2d4f9-9ea2-41e1-9548-97b927380dd4",
+        "processId": 28385,
+        "observedAt": "2026-11-16T08:55:01.606Z"
+      },
+      "samples": 150,
+      "allSampleModalOpenings": 23,
+      "allSampleEndpointPasses": 150,
+      "maxCompletionMsAllSamples": 682.099,
+      "maxNextFrameMsAllSamples": 693.071,
+      "firstSwitch": {
+        "completeMs": 545.302,
+        "nextFrameMs": 550.113,
+        "modal": true
+      },
+      "branchRssMiB": {
+        "first": 285,
+        "last": 775
+      },
+      "recorder": {
+        "complete": true,
+        "journalSHA256": "ed603fafbda8ae1f94445c2a94728d8182034800a9efdf0dfba080c989f82195",
+        "samplesSHA256": "869f892462b05adacd1a1dd2316c93e166ee036c90be3a42bb40b4ac70061e92"
+      },
+      "groups": {
+        "branch": {
+          "selectionToCompleteMs": {
+            "n": 100,
+            "median": 503.271,
+            "p95": 571.939,
+            "p99": 609.654,
+            "min": 429.202,
+            "max": 682.099
+          },
+          "selectionToNextFrameMs": {
+            "n": 100,
+            "median": 505.978,
+            "p95": 574.42,
+            "p99": 620.619,
+            "min": 431.731,
+            "max": 693.071
+          },
+          "modalOpenings": 21,
+          "endpointPasses": 100,
+          "rawGitCalls": {
+            "20": 99,
+            "22": 1
+          }
+        },
+        "same-branch": {
+          "selectionToCompleteMs": {
+            "n": 20,
+            "median": 169.374,
+            "p95": 250.748,
+            "p99": 261.892,
+            "min": 156.834,
+            "max": 261.892
+          },
+          "selectionToNextFrameMs": {
+            "n": 20,
+            "median": 172.312,
+            "p95": 256.259,
+            "p99": 269.283,
+            "min": 158.886,
+            "max": 269.283
+          },
+          "modalOpenings": 0,
+          "endpointPasses": 20,
+          "rawGitCalls": {
+            "3": 20
+          }
+        },
+        "unbound": {
+          "selectionToCompleteMs": {
+            "n": 20,
+            "median": 132.415,
+            "p95": 140.218,
+            "p99": 146.055,
+            "min": 126.526,
+            "max": 146.055
+          },
+          "selectionToNextFrameMs": {
+            "n": 20,
+            "median": 135.76,
+            "p95": 148.499,
+            "p99": 149.569,
+            "min": 129.212,
+            "max": 149.569
+          },
+          "modalOpenings": 0,
+          "endpointPasses": 20,
+          "rawGitCalls": {
+            "0": 19,
+            "1": 1
+          }
+        }
+      }
+    },
+    {
+      "file": "reports/representative-s1-candidate.json.gz",
+      "profile": "representative",
+      "session": 1,
+      "role": "candidate",
+      "order": 2,
+      "status": "passed",
+      "rawSHA256": "c83dc87555bdbe6c7e2257a5452f2742d43cc892ebf48e41669a8c91a1609d41",
+      "gzipSHA256": "855b5f1982fa829612148d779cd9369273dd68e6f83e9793e931f3d95a521769",
+      "productBundleSHA256": "f4a862e7fd3c90786e4474a1e7c4a0041cc9d73d8595cda448cf64b10d530020",
+      "probeSHA256": "375711885e013bd1a0bc8acb48fe4e77c3d75ff87d03c821556d2d6cfe516792",
+      "nativeSession": {
+        "id": "1ff2d4f9-9ea2-41e1-9548-97b927380dd4",
+        "processId": 28385,
+        "observedAt": "2026-11-16T08:55:01.606Z"
+      },
+      "samples": 150,
+      "allSampleModalOpenings": 65,
+      "allSampleEndpointPasses": 150,
+      "maxCompletionMsAllSamples": 867.491,
+      "maxNextFrameMsAllSamples": 869.912,
+      "firstSwitch": {
+        "completeMs": 426.991,
+        "nextFrameMs": 433.74,
+        "modal": false
+      },
+      "branchRssMiB": {
+        "first": 772,
+        "last": 1267
+      },
+      "recorder": {
+        "complete": true,
+        "journalSHA256": "922d5e2320dfdfe77ec97efd5c17cd5bc2e0e90ef81c79ed75e8688617ea3865",
+        "samplesSHA256": "8e234fe0402bdd068a71a553772f325f8d1ac45f129ba564822a1f12f2aee994"
+      },
+      "groups": {
+        "branch": {
+          "selectionToCompleteMs": {
+            "n": 100,
+            "median": 557.284,
+            "p95": 647.885,
+            "p99": 675.454,
+            "min": 445.827,
+            "max": 867.491
+          },
+          "selectionToNextFrameMs": {
+            "n": 100,
+            "median": 561.032,
+            "p95": 658.74,
+            "p99": 677.842,
+            "min": 447.769,
+            "max": 869.912
+          },
+          "modalOpenings": 64,
+          "endpointPasses": 100,
+          "rawGitCalls": {
+            "19": 99,
+            "21": 1
+          }
+        },
+        "same-branch": {
+          "selectionToCompleteMs": {
+            "n": 20,
+            "median": 179.039,
+            "p95": 205.307,
+            "p99": 212.881,
+            "min": 166.928,
+            "max": 212.881
+          },
+          "selectionToNextFrameMs": {
+            "n": 20,
+            "median": 187.674,
+            "p95": 214.98,
+            "p99": 215.471,
+            "min": 169.901,
+            "max": 215.471
+          },
+          "modalOpenings": 0,
+          "endpointPasses": 20,
+          "rawGitCalls": {
+            "3": 20
+          }
+        },
+        "unbound": {
+          "selectionToCompleteMs": {
+            "n": 20,
+            "median": 138.241,
+            "p95": 151.282,
+            "p99": 403.933,
+            "min": 126.968,
+            "max": 403.933
+          },
+          "selectionToNextFrameMs": {
+            "n": 20,
+            "median": 141.637,
+            "p95": 160.971,
+            "p99": 406.81,
+            "min": 129.481,
+            "max": 406.81
+          },
+          "modalOpenings": 0,
+          "endpointPasses": 20,
+          "rawGitCalls": {
+            "0": 19,
+            "2": 1
+          }
+        }
+      }
+    },
+    {
+      "file": "reports/representative-s2-candidate.json.gz",
+      "profile": "representative",
+      "session": 2,
+      "role": "candidate",
+      "order": 1,
+      "status": "passed",
+      "rawSHA256": "99bf04724ca063154b77da378f6ae5eac1b63b6283ff3f52e33b05fac854e5af",
+      "gzipSHA256": "d4b90fd93b774a55e1b72e68c9899b633cc261707f9e05813d718a29efaf6848",
+      "productBundleSHA256": "f4a862e7fd3c90786e4474a1e7c4a0041cc9d73d8595cda448cf64b10d530020",
+      "probeSHA256": "375711885e013bd1a0bc8acb48fe4e77c3d75ff87d03c821556d2d6cfe516792",
+      "nativeSession": {
+        "id": "5b09d86f-4417-4fe9-84fc-588d9f90a877",
+        "processId": 97477,
+        "observedAt": "2026-11-16T08:58:09.840Z"
+      },
+      "samples": 150,
+      "allSampleModalOpenings": 71,
+      "allSampleEndpointPasses": 150,
+      "maxCompletionMsAllSamples": 730.703,
+      "maxNextFrameMsAllSamples": 740.418,
+      "firstSwitch": {
+        "completeMs": 568.6,
+        "nextFrameMs": 580.409,
+        "modal": true
+      },
+      "branchRssMiB": {
+        "first": 264,
+        "last": 758
+      },
+      "recorder": {
+        "complete": true,
+        "journalSHA256": "cb5d38404f1deab5407f0f43c0befb51092adeb0d18606ee6f36af43e4052630",
+        "samplesSHA256": "71f1f312ab4f2bbf9cfbd8f75197475ddec9d705373c353791f31c075c41224f"
+      },
+      "groups": {
+        "branch": {
+          "selectionToCompleteMs": {
+            "n": 100,
+            "median": 559.69,
+            "p95": 639.124,
+            "p99": 725.283,
+            "min": 464.22,
+            "max": 730.703
+          },
+          "selectionToNextFrameMs": {
+            "n": 100,
+            "median": 564.671,
+            "p95": 642.584,
+            "p99": 727.532,
+            "min": 467.054,
+            "max": 740.418
+          },
+          "modalOpenings": 67,
+          "endpointPasses": 100,
+          "rawGitCalls": {
+            "19": 99,
+            "21": 1
+          }
+        },
+        "same-branch": {
+          "selectionToCompleteMs": {
+            "n": 20,
+            "median": 174.156,
+            "p95": 182.929,
+            "p99": 292.055,
+            "min": 157.782,
+            "max": 292.055
+          },
+          "selectionToNextFrameMs": {
+            "n": 20,
+            "median": 179.878,
+            "p95": 187.299,
+            "p99": 301.108,
+            "min": 168.937,
+            "max": 301.108
+          },
+          "modalOpenings": 0,
+          "endpointPasses": 20,
+          "rawGitCalls": {
+            "3": 20
+          }
+        },
+        "unbound": {
+          "selectionToCompleteMs": {
+            "n": 20,
+            "median": 127.715,
+            "p95": 131.733,
+            "p99": 134.128,
+            "min": 116.005,
+            "max": 134.128
+          },
+          "selectionToNextFrameMs": {
+            "n": 20,
+            "median": 133.013,
+            "p95": 136.628,
+            "p99": 138.934,
+            "min": 125.184,
+            "max": 138.934
+          },
+          "modalOpenings": 0,
+          "endpointPasses": 20,
+          "rawGitCalls": {
+            "0": 19,
+            "1": 1
+          }
+        }
+      }
+    },
+    {
+      "file": "reports/representative-s2-baseline.json.gz",
+      "profile": "representative",
+      "session": 2,
+      "role": "baseline",
+      "order": 2,
+      "status": "passed",
+      "rawSHA256": "75f2c037e26dd3b4efe41bca4d76ac7508de46f7885df6461e157a8471cf6879",
+      "gzipSHA256": "058e3938632457ab331263715ed9f43d60155cc5a43984e0f3dd631e645045b1",
+      "productBundleSHA256": "9dee2cbb8b25f768f81d3b94ec1a7c57ddae55267ae29de459ad00a8d94d3400",
+      "probeSHA256": "375711885e013bd1a0bc8acb48fe4e77c3d75ff87d03c821556d2d6cfe516792",
+      "nativeSession": {
+        "id": "5b09d86f-4417-4fe9-84fc-588d9f90a877",
+        "processId": 97477,
+        "observedAt": "2026-11-16T08:58:09.840Z"
+      },
+      "samples": 150,
+      "allSampleModalOpenings": 71,
+      "allSampleEndpointPasses": 150,
+      "maxCompletionMsAllSamples": 767.465,
+      "maxNextFrameMsAllSamples": 769.298,
+      "firstSwitch": {
+        "completeMs": 491.038,
+        "nextFrameMs": 501.264,
+        "modal": false
+      },
+      "branchRssMiB": {
+        "first": 788,
+        "last": 1188
+      },
+      "recorder": {
+        "complete": true,
+        "journalSHA256": "67d63bcde9a60c0f9c48e4a205b55b1fb81037f7499e660a00678564354ab64f",
+        "samplesSHA256": "6907fbe4226934830ed5fd414dcefa63a5c4102504c39d496ee85a6286a8b548"
+      },
+      "groups": {
+        "branch": {
+          "selectionToCompleteMs": {
+            "n": 100,
+            "median": 556.743,
+            "p95": 624.301,
+            "p99": 666.818,
+            "min": 464.966,
+            "max": 767.465
+          },
+          "selectionToNextFrameMs": {
+            "n": 100,
+            "median": 559.286,
+            "p95": 626.72,
+            "p99": 674.46,
+            "min": 466.939,
+            "max": 769.298
+          },
+          "modalOpenings": 69,
+          "endpointPasses": 100,
+          "rawGitCalls": {
+            "20": 99,
+            "22": 1
+          }
+        },
+        "same-branch": {
+          "selectionToCompleteMs": {
+            "n": 20,
+            "median": 181.884,
+            "p95": 194.671,
+            "p99": 201.43,
+            "min": 174.331,
+            "max": 201.43
+          },
+          "selectionToNextFrameMs": {
+            "n": 20,
+            "median": 188.07,
+            "p95": 204.009,
+            "p99": 204.926,
+            "min": 176.621,
+            "max": 204.926
+          },
+          "modalOpenings": 0,
+          "endpointPasses": 20,
+          "rawGitCalls": {
+            "3": 20
+          }
+        },
+        "unbound": {
+          "selectionToCompleteMs": {
+            "n": 20,
+            "median": 139.604,
+            "p95": 178.723,
+            "p99": 276.26,
+            "min": 124.236,
+            "max": 276.26
+          },
+          "selectionToNextFrameMs": {
+            "n": 20,
+            "median": 143.478,
+            "p95": 181.129,
+            "p99": 279.162,
+            "min": 126.692,
+            "max": 279.162
+          },
+          "modalOpenings": 0,
+          "endpointPasses": 20,
+          "rawGitCalls": {
+            "0": 18,
+            "2": 2
+          }
+        }
+      }
+    },
+    {
+      "file": "reports/representative-s3-baseline.json.gz",
+      "profile": "representative",
+      "session": 3,
+      "role": "baseline",
+      "order": 1,
+      "status": "passed",
+      "rawSHA256": "4ca93f65abc42ce68e3e1947747056ace616eabbabb5a93f96c1adecad7edae3",
+      "gzipSHA256": "57e96c50f3f1431b1775296e662842cd64a9a284749db0ec6b6af9f0b82fccbb",
+      "productBundleSHA256": "9dee2cbb8b25f768f81d3b94ec1a7c57ddae55267ae29de459ad00a8d94d3400",
+      "probeSHA256": "375711885e013bd1a0bc8acb48fe4e77c3d75ff87d03c821556d2d6cfe516792",
+      "nativeSession": {
+        "id": "44155640-88cf-42c9-981a-d9371bede5fd",
+        "processId": 66342,
+        "observedAt": "2026-11-16T09:01:37.086Z"
+      },
+      "samples": 150,
+      "allSampleModalOpenings": 60,
+      "allSampleEndpointPasses": 150,
+      "maxCompletionMsAllSamples": 708.535,
+      "maxNextFrameMsAllSamples": 713.201,
+      "firstSwitch": {
+        "completeMs": 565.166,
+        "nextFrameMs": 568.184,
+        "modal": true
+      },
+      "branchRssMiB": {
+        "first": 280,
+        "last": 663
+      },
+      "recorder": {
+        "complete": true,
+        "journalSHA256": "4b4c05c06254801c0248a49b9a69ce6ca082d081ac4b691959610adbbc534c4b",
+        "samplesSHA256": "e62fad280942d82d9472268845afc24c1c8d0e37993b1f582e3841b9a4d4035e"
+      },
+      "groups": {
+        "branch": {
+          "selectionToCompleteMs": {
+            "n": 100,
+            "median": 537.808,
+            "p95": 647.014,
+            "p99": 690.899,
+            "min": 468.176,
+            "max": 708.535
+          },
+          "selectionToNextFrameMs": {
+            "n": 100,
+            "median": 542.299,
+            "p95": 653.867,
+            "p99": 693.04,
+            "min": 474.92,
+            "max": 713.201
+          },
+          "modalOpenings": 56,
+          "endpointPasses": 100,
+          "rawGitCalls": {
+            "20": 99,
+            "22": 1
+          }
+        },
+        "same-branch": {
+          "selectionToCompleteMs": {
+            "n": 20,
+            "median": 177.919,
+            "p95": 195.6,
+            "p99": 201.353,
+            "min": 162.658,
+            "max": 201.353
+          },
+          "selectionToNextFrameMs": {
+            "n": 20,
+            "median": 183.755,
+            "p95": 199.935,
+            "p99": 210.7,
+            "min": 164.52,
+            "max": 210.7
+          },
+          "modalOpenings": 0,
+          "endpointPasses": 20,
+          "rawGitCalls": {
+            "3": 20
+          }
+        },
+        "unbound": {
+          "selectionToCompleteMs": {
+            "n": 20,
+            "median": 135.526,
+            "p95": 142.494,
+            "p99": 143.552,
+            "min": 129.393,
+            "max": 143.552
+          },
+          "selectionToNextFrameMs": {
+            "n": 20,
+            "median": 138.876,
+            "p95": 146.734,
+            "p99": 150.283,
+            "min": 131.56,
+            "max": 150.283
+          },
+          "modalOpenings": 0,
+          "endpointPasses": 20,
+          "rawGitCalls": {
+            "0": 19,
+            "1": 1
+          }
+        }
+      }
+    },
+    {
+      "file": "reports/representative-s3-candidate.json.gz",
+      "profile": "representative",
+      "session": 3,
+      "role": "candidate",
+      "order": 2,
+      "status": "passed",
+      "rawSHA256": "071e95c750cf79a5eca724877f21f74f5e8e431c588e336dc2f35799f2d4306d",
+      "gzipSHA256": "409d7f674ac941b386b1eac1ed52bbba949e0f44c71198bacd901719e03ee355",
+      "productBundleSHA256": "f4a862e7fd3c90786e4474a1e7c4a0041cc9d73d8595cda448cf64b10d530020",
+      "probeSHA256": "375711885e013bd1a0bc8acb48fe4e77c3d75ff87d03c821556d2d6cfe516792",
+      "nativeSession": {
+        "id": "44155640-88cf-42c9-981a-d9371bede5fd",
+        "processId": 66342,
+        "observedAt": "2026-11-16T09:01:37.086Z"
+      },
+      "samples": 150,
+      "allSampleModalOpenings": 90,
+      "allSampleEndpointPasses": 150,
+      "maxCompletionMsAllSamples": 757.435,
+      "maxNextFrameMsAllSamples": 759.851,
+      "firstSwitch": {
+        "completeMs": 606.823,
+        "nextFrameMs": 609.752,
+        "modal": true
+      },
+      "branchRssMiB": {
+        "first": 834,
+        "last": 1256
+      },
+      "recorder": {
+        "complete": true,
+        "journalSHA256": "d4de3dbea8d1bfb7303d9be820eee52d09949a55605ae2eee2f7d9086263599a",
+        "samplesSHA256": "2db9ff0c3ede0b69268bdfa6fa30a6cd5ff7187a823c569e3a1f5aa2c9ecca3d"
+      },
+      "groups": {
+        "branch": {
+          "selectionToCompleteMs": {
+            "n": 100,
+            "median": 587.848,
+            "p95": 667.715,
+            "p99": 700.833,
+            "min": 482.999,
+            "max": 757.435
+          },
+          "selectionToNextFrameMs": {
+            "n": 100,
+            "median": 590.653,
+            "p95": 671.353,
+            "p99": 704.494,
+            "min": 487.978,
+            "max": 759.851
+          },
+          "modalOpenings": 86,
+          "endpointPasses": 100,
+          "rawGitCalls": {
+            "19": 99,
+            "21": 1
+          }
+        },
+        "same-branch": {
+          "selectionToCompleteMs": {
+            "n": 20,
+            "median": 204.306,
+            "p95": 217.621,
+            "p99": 425.726,
+            "min": 188.984,
+            "max": 425.726
+          },
+          "selectionToNextFrameMs": {
+            "n": 20,
+            "median": 211.288,
+            "p95": 219.802,
+            "p99": 428.174,
+            "min": 195.965,
+            "max": 428.174
+          },
+          "modalOpenings": 0,
+          "endpointPasses": 20,
+          "rawGitCalls": {
+            "3": 20
+          }
+        },
+        "unbound": {
+          "selectionToCompleteMs": {
+            "n": 20,
+            "median": 141.873,
+            "p95": 152.42,
+            "p99": 154.686,
+            "min": 133.976,
+            "max": 154.686
+          },
+          "selectionToNextFrameMs": {
+            "n": 20,
+            "median": 147.774,
+            "p95": 154.895,
+            "p99": 157.57,
+            "min": 136.436,
+            "max": 157.57
+          },
+          "modalOpenings": 0,
+          "endpointPasses": 20,
+          "rawGitCalls": {
+            "0": 19,
+            "1": 1
+          }
+        }
+      }
+    }
+  ],
+  "pooled": {
+    "small/baseline/branch": {
+      "selectionToCompleteMs": {
+        "n": 300,
+        "median": 430.064,
+        "p95": 531.596,
+        "p99": 567.136,
+        "min": 351.179,
+        "max": 583.79
+      },
+      "selectionToNextFrameMs": {
+        "n": 300,
+        "median": 438.383,
+        "p95": 538.061,
+        "p99": 574.97,
+        "min": 355.363,
+        "max": 586.128
+      },
+      "modalOpenings": 13,
+      "endpointPasses": 300,
+      "rawGitCalls": {
+        "20": 298,
+        "22": 2
+      }
+    },
+    "small/baseline/same-branch": {
+      "selectionToCompleteMs": {
+        "n": 60,
+        "median": 180.219,
+        "p95": 196.472,
+        "p99": 274.551,
+        "min": 160.848,
+        "max": 274.551
+      },
+      "selectionToNextFrameMs": {
+        "n": 60,
+        "median": 187.742,
+        "p95": 204.355,
+        "p99": 276.84,
+        "min": 168.462,
+        "max": 276.84
+      },
+      "modalOpenings": 0,
+      "endpointPasses": 60,
+      "rawGitCalls": {
+        "3": 60
+      }
+    },
+    "small/baseline/unbound": {
+      "selectionToCompleteMs": {
+        "n": 60,
+        "median": 135.17,
+        "p95": 158.606,
+        "p99": 282.605,
+        "min": 121.291,
+        "max": 282.605
+      },
+      "selectionToNextFrameMs": {
+        "n": 60,
+        "median": 138.031,
+        "p95": 165.684,
+        "p99": 285.153,
+        "min": 123.355,
+        "max": 285.153
+      },
+      "modalOpenings": 0,
+      "endpointPasses": 60,
+      "rawGitCalls": {
+        "0": 57,
+        "2": 3
+      }
+    },
+    "small/candidate/branch": {
+      "selectionToCompleteMs": {
+        "n": 300,
+        "median": 415.251,
+        "p95": 527.727,
+        "p99": 573.186,
+        "min": 331.122,
+        "max": 633.005
+      },
+      "selectionToNextFrameMs": {
+        "n": 300,
+        "median": 421.903,
+        "p95": 536.095,
+        "p99": 575.617,
+        "min": 334.822,
+        "max": 637.938
+      },
+      "modalOpenings": 13,
+      "endpointPasses": 300,
+      "rawGitCalls": {
+        "19": 297,
+        "21": 3
+      }
+    },
+    "small/candidate/same-branch": {
+      "selectionToCompleteMs": {
+        "n": 60,
+        "median": 178.715,
+        "p95": 200.513,
+        "p99": 203.785,
+        "min": 160.768,
+        "max": 203.785
+      },
+      "selectionToNextFrameMs": {
+        "n": 60,
+        "median": 187.332,
+        "p95": 211.793,
+        "p99": 212.992,
+        "min": 166.36,
+        "max": 212.992
+      },
+      "modalOpenings": 0,
+      "endpointPasses": 60,
+      "rawGitCalls": {
+        "3": 60
+      }
+    },
+    "small/candidate/unbound": {
+      "selectionToCompleteMs": {
+        "n": 60,
+        "median": 136.947,
+        "p95": 158.123,
+        "p99": 282.449,
+        "min": 124.317,
+        "max": 282.449
+      },
+      "selectionToNextFrameMs": {
+        "n": 60,
+        "median": 140.435,
+        "p95": 160.458,
+        "p99": 285.081,
+        "min": 126.317,
+        "max": 285.081
+      },
+      "modalOpenings": 0,
+      "endpointPasses": 60,
+      "rawGitCalls": {
+        "0": 57,
+        "1": 1,
+        "2": 2
+      }
+    },
+    "representative/baseline/branch": {
+      "selectionToCompleteMs": {
+        "n": 300,
+        "median": 529.723,
+        "p95": 627.458,
+        "p99": 682.099,
+        "min": 429.202,
+        "max": 767.465
+      },
+      "selectionToNextFrameMs": {
+        "n": 300,
+        "median": 537.269,
+        "p95": 636.471,
+        "p99": 693.04,
+        "min": 431.731,
+        "max": 769.298
+      },
+      "modalOpenings": 146,
+      "endpointPasses": 300,
+      "rawGitCalls": {
+        "20": 297,
+        "22": 3
+      }
+    },
+    "representative/baseline/same-branch": {
+      "selectionToCompleteMs": {
+        "n": 60,
+        "median": 177.18,
+        "p95": 201.353,
+        "p99": 261.892,
+        "min": 156.834,
+        "max": 261.892
+      },
+      "selectionToNextFrameMs": {
+        "n": 60,
+        "median": 183.755,
+        "p95": 204.926,
+        "p99": 269.283,
+        "min": 158.886,
+        "max": 269.283
+      },
+      "modalOpenings": 0,
+      "endpointPasses": 60,
+      "rawGitCalls": {
+        "3": 60
+      }
+    },
+    "representative/baseline/unbound": {
+      "selectionToCompleteMs": {
+        "n": 60,
+        "median": 135.228,
+        "p95": 155.225,
+        "p99": 276.26,
+        "min": 124.236,
+        "max": 276.26
+      },
+      "selectionToNextFrameMs": {
+        "n": 60,
+        "median": 138.113,
+        "p95": 158.017,
+        "p99": 279.162,
+        "min": 126.692,
+        "max": 279.162
+      },
+      "modalOpenings": 0,
+      "endpointPasses": 60,
+      "rawGitCalls": {
+        "0": 56,
+        "1": 2,
+        "2": 2
+      }
+    },
+    "representative/candidate/branch": {
+      "selectionToCompleteMs": {
+        "n": 300,
+        "median": 568.884,
+        "p95": 654.649,
+        "p99": 725.283,
+        "min": 445.827,
+        "max": 867.491
+      },
+      "selectionToNextFrameMs": {
+        "n": 300,
+        "median": 573.835,
+        "p95": 658.74,
+        "p99": 727.532,
+        "min": 447.769,
+        "max": 869.912
+      },
+      "modalOpenings": 217,
+      "endpointPasses": 300,
+      "rawGitCalls": {
+        "19": 297,
+        "21": 3
+      }
+    },
+    "representative/candidate/same-branch": {
+      "selectionToCompleteMs": {
+        "n": 60,
+        "median": 181.02,
+        "p95": 212.881,
+        "p99": 425.726,
+        "min": 157.782,
+        "max": 425.726
+      },
+      "selectionToNextFrameMs": {
+        "n": 60,
+        "median": 187.908,
+        "p95": 217.977,
+        "p99": 428.174,
+        "min": 168.937,
+        "max": 428.174
+      },
+      "modalOpenings": 0,
+      "endpointPasses": 60,
+      "rawGitCalls": {
+        "3": 60
+      }
+    },
+    "representative/candidate/unbound": {
+      "selectionToCompleteMs": {
+        "n": 60,
+        "median": 136.389,
+        "p95": 151.282,
+        "p99": 403.933,
+        "min": 116.005,
+        "max": 403.933
+      },
+      "selectionToNextFrameMs": {
+        "n": 60,
+        "median": 140.76,
+        "p95": 154.895,
+        "p99": 406.81,
+        "min": 125.184,
+        "max": 406.81
+      },
+      "modalOpenings": 0,
+      "endpointPasses": 60,
+      "rawGitCalls": {
+        "0": 57,
+        "1": 2,
+        "2": 1
+      }
+    }
+  }
+}

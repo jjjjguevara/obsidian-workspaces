@@ -1,0 +1,8 @@
+{
+  "vault": "/Users/josueguevara/Workspaces-performance/vault-representative",
+  "pluginId": "workspaces-quick-switcher-probe",
+  "phase": "fixed",
+  "resultFile": "/Users/josueguevara/Workspaces-performance/reports/quick-switcher-fixed.json",
+  "next": "Enable Quick Switcher++ and this probe in the disposable native app. If already enabled, disable/re-enable the probe to load its new phase. The installed Workspaces bundle is unchanged.",
+  "probeSHA256": "312307db21297eb859580186123c1f6f03ad02a280f7c449adf4f0f89cfaf652"
+}

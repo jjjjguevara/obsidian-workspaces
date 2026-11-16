@@ -1,0 +1,21 @@
+# Command-palette roundtrip, small, input injected through Electron sendInputEvent/insertText (no human keyboard)
+start {"at":"2026-11-16T08:54:08.444Z","pid":51283,"workspace":"Alpha","journal":null,"activeFile":"alpha-exclusive.md","statusBar":["0 backlinks","0 properties","2 words
+18 characters","alpha","Alpha"],"modals":0,"leaves":[{"file":"alpha-exclusive.md","type":"markdown","pinned":true,"region":"main","deferred":false,"text":"# Alpha exclusive
+"},{"file":"shared.md","type":"markdown","pinned":false,"region":"main","deferred":false,"text":"ALPHA
+"},{"file":"sidebar-alpha.md","type":"markdown","pinned":true,"region":"left","deferred":false,"text":"# Alpha sidebar
+"},{"file":"sidebar-alpha.md","type":"markdown","pinned":true,"region":"right","deferred":false,"text":"# Alpha sidebar
+"},{"file":"alpha-exclusive.md","type":"backlink","pinned":false,"region":"right","deferred":false,"text":null},{"file":"alpha-exclusive.md","type":"outgoing-link","pinned":false,"region":"right","deferred":false,"text":null},{"file":"alpha-exclusive.md","type":"outline","pinned":false,"region":"right","deferred":false,"text":null}]} git=alpha
+operator ["focus true/true modals 0","palette true","selected Quick Switcher++Open in Workspaces Mode","enter","qpp prompt true focus true","qpp selected Native validation / Beta Branch: beta · Disposable native fixture ⌥ 1","qpp enter"]
+beta {"at":"2026-11-16T08:54:21.593Z","pid":51283,"workspace":"Beta","journal":null,"activeFile":"beta-exclusive.md","statusBar":["0 backlinks","0 properties","2 words
+17 characters","beta","Beta"],"modals":0,"leaves":[{"file":"beta-exclusive.md","type":"markdown","pinned":true,"region":"main","deferred":false,"text":"# Beta exclusive
+"},{"file":"shared.md","type":"markdown","pinned":false,"region":"main","deferred":false,"text":"BRAVO
+"},{"file":"sidebar-beta.md","type":"markdown","pinned":true,"region":"left","deferred":false,"text":"# Beta sidebar
+"},{"file":"sidebar-beta.md","type":"markdown","pinned":true,"region":"right","deferred":false,"text":"# Beta sidebar
+"}]} git=beta status=[]
+operator ["focus true/true modals 0","palette true","selected Quick Switcher++Open in Workspaces Mode","enter","qpp prompt true focus true","qpp selected Native validation / Alpha Branch: alpha · Disposable native fixture ⌥ 1","qpp enter"]
+alpha {"at":"2026-11-16T08:54:35.779Z","pid":51283,"workspace":"Alpha","journal":null,"activeFile":"alpha-exclusive.md","statusBar":["0 backlinks","0 properties","2 words
+18 characters","alpha","Alpha"],"modals":0,"leaves":[{"file":"alpha-exclusive.md","type":"markdown","pinned":true,"region":"main","deferred":false,"text":"# Alpha exclusive
+"},{"file":"shared.md","type":"markdown","pinned":false,"region":"main","deferred":false,"text":"ALPHA
+"},{"file":"sidebar-alpha.md","type":"markdown","pinned":true,"region":"left","deferred":false,"text":"# Alpha sidebar
+"},{"file":"sidebar-alpha.md","type":"markdown","pinned":true,"region":"right","deferred":false,"text":"# Alpha sidebar
+"},{"file":"alpha-exclusive.md","type":"backlink","pinned":false,"region":"right","deferred":false,"text":null},{"file":"alpha-exclusive.md","type":"outgoing-link","pinned":false,"region":"right","deferred":false,"text":null},{"file":"alpha-exclusive.md","type":"outline","pinned":false,"region":"right","deferred":false,"text":null}]} git=alpha status=[]

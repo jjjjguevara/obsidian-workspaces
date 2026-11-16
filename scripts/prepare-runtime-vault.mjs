@@ -23,6 +23,7 @@ import { createHash, randomUUID } from 'node:crypto';
 import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { homedir } from 'node:os';
 import { fileURLToPath } from 'node:url';
+import { build } from 'esbuild';
 import { generateWorkload, parseWorkload } from './runtime-workload.mjs';
 import {
   archiveEvidenceOutput,
@@ -217,10 +218,19 @@ await writeFile(
   ),
 );
 await mkdir(probeDirectory, { recursive: true });
-await copyFile(
-  join(repo, 'tests', 'obsidian', 'runtime-probe.cjs'),
-  join(probeDirectory, 'main.js'),
-);
+// The probe imports its atomic report writer. Obsidian resolves a plugin's
+// require() calls from the renderer, not from the plugin directory, so an
+// unbundled copy cannot load its sibling module.
+await build({
+  entryPoints: [join(repo, 'tests', 'obsidian', 'runtime-probe.cjs')],
+  outfile: join(probeDirectory, 'main.js'),
+  bundle: true,
+  platform: 'node',
+  target: 'es2022',
+  format: 'cjs',
+  external: ['obsidian'],
+  logLevel: 'warning',
+});
 await writeFile(
   join(probeDirectory, 'manifest.json'),
   JSON.stringify(
