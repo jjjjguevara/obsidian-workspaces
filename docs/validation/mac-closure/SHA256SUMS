@@ -68,7 +68,7 @@ d46c9c37abf2f7ff0f5a0469ba92a2122ef9ef66fc7e367e0dcb55ca3f6e4ca7  ./operator/sma
 b64cc48e45bcf651006eba8e4aaacad3458980909ea98a0b28166da35e00ff08  ./operator/small-s3-candidate.prepare.json
 3af1215bddded2fddb1c002307ca5919b79b9567428ba8a6f865e0c67798711a  ./operator/small-safety.prepare.json
 f62667c067050d3cc0d0c4bd41ad51209cd93fbe5303b849dba2a8e699d292f0  ./operator/working-vault-counts.md
-9feb2a760cc0db3cfff017dffc4fa92d125027bab4a13993a5dc0baf24844bd4  ./README.md
+717df8925fa23f603a0e5be059b510d397468197585f7e2d13f97d44f8a8a71a  ./README.md
 bd558832cb31b48fb53531ad7a1d07ce86200320f9cfc5cae25bb3d8316dd976  ./reports/representative-quick-switcher-fixed.json.gz
 b0e80f4c2bb6b41413c3c6f4a3f5e991ae5aa79b4b1aaf669d0baa611ea90279  ./reports/representative-runtime.json.gz
 8945ff8b040299150a7610913c8d4021e532359b0635a7191272f4e2129000dd  ./reports/representative-s1-baseline.json.gz

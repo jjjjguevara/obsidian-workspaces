@@ -4,6 +4,8 @@
 
 ## Decision
 
+> **Issue status.** The repository owner closed issue #4 on 2026-11-16 as not planned, with this run as the record. The gate did not pass and the budget remains unmet. A later attempt needs one of the product decisions in [Where the time goes](#where-the-time-goes), new paired Mac evidence and a new gate run.
+
 **The closure gate is blocked. The performance budget is not met on this Mac.** The gate ran twice on the complete evidence set and exited with code 1 both times. The first run, with the workload declared suitable, stopped each session at its first failed candidate sample: progress opened, or a switch did not reach a frame opportunity within 500 ms. It reported seven failures and did not evaluate the journals, pairing, budgets or safety reports ([pre-review result](operator/pre-review-closure-result.json)). The independent review rejected the suitability declaration. The final manifest therefore sets `suitabilityConfirmed` to false, and the gate stops at that condition before it reads a session. That unedited output is [closure-result.json](closure-result.json). The [independent review](review.md) made those conditions non-fatal in a scratch copy of the gate: all other checks passed, and 50 of 72 budget checks failed.
 
 | Scope                  | Candidate branch switch, pooled (300 samples) |             Budget |
