@@ -60,7 +60,7 @@ Only one transition may own workspace activation at a time. A slow valid operati
 
 During activation, background capture, history snapshots, and competing layout changes must not save a partially updated view. The controller records the source and target context, performs the checkout when necessary, observes the resulting vault files after a checkout, applies the target layout, and then persists the active workspace identity. UI indicators follow committed state.
 
-Short transitions do not open a progress modal. Input protection begins immediately; “Switching workspace” appears only if the protected operation remains active after 500 ms. File observation runs only after a checkout. It reacts to vault events and still verifies every readiness condition before loading the target.
+A transition never opens a modal or a backdrop. Input protection begins immediately. The Workspaces status bar item shows the transition message, for example “Opening Beta…”, with Obsidian's small progress bar from the moment the transition owns the workspace until it releases it. The status bar is not visible on mobile or when the user hides it; the transition then shows no progress. File observation runs only after a checkout. It reacts to vault events and still verifies every readiness condition before loading the target.
 
 A note that no longer exists never fails a switch. A saved layout can refer to a note that was deleted, renamed, or left on another branch. Readiness does not wait for a path that is absent from disk and from the vault index. Restoration verification ignores that note. Each note that exists must still be restored with its region, view type, and pin. After the switch, one notice gives the number of missing notes and at most three names.
 

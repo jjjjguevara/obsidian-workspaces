@@ -87,18 +87,24 @@ const Host = (async () => {
   return module.exports.ObsidianWorkspaceHost as typeof ObsidianWorkspaceHost;
 })();
 
-async function host(leaves: Leaf[], document = new EventTarget()): Promise<ObsidianWorkspaceHost> {
+async function host(
+  leaves: Leaf[],
+  document = new EventTarget(),
+  showProgress?: (message: string) => () => void,
+): Promise<ObsidianWorkspaceHost> {
   const Constructor = await Host;
   return new Constructor(
     {
-      testDocument: document,
       workspace: {
+        containerEl: { ownerDocument: document },
         iterateAllLeaves: (visit: (leaf: Leaf) => void) => leaves.forEach(visit),
         on: () => ({}),
         offref: () => {},
       },
     } as unknown as App,
     async () => true,
+    undefined,
+    showProgress,
   );
 }
 
@@ -389,16 +395,25 @@ test('a core-looking type does not exempt an unknown file-backed non-FileView', 
   assert.equal(closed, false);
 });
 
-test('fast transitions block input in every window immediately without flashing progress', async (t) => {
+test('a transition blocks input in every window at once and shows its message in the status bar', async () => {
   const main = new EventTarget();
   const floating = new EventTarget();
+  const shown: string[] = [];
+  let hidden = 0;
   const workspace = await host(
     [leaf('markdown', { containerEl: { ownerDocument: floating } }, async () => {})],
     main,
+    (message) => {
+      shown.push(message);
+      return () => {
+        hidden += 1;
+      };
+    },
   );
-  t.mock.timers.enable({ apis: ['setTimeout'] });
   const release = workspace.block('Opening Beta…');
-  const modal = Modal.instances.at(-1)!;
+  // No delay and no modal: the message is up as soon as the transition owns input.
+  assert.deepEqual(shown, ['Opening Beta…']);
+  assert.equal(hidden, 0);
   const guardedEvents = [
     'keydown',
     'beforeinput',
@@ -415,18 +430,15 @@ test('fast transitions block input in every window immediately without flashing 
       assert.equal(document.dispatchEvent(new Event(type, { cancelable: true })), false);
     }
   }
-  assert.equal(modal.opens, 0);
-  t.mock.timers.tick(499);
-  assert.equal(modal.opens, 0);
   release();
+  release();
+  assert.equal(hidden, 1, 'The message is cleared exactly once');
   for (const document of [main, floating]) {
     for (const type of guardedEvents) {
       assert.equal(document.dispatchEvent(new Event(type, { cancelable: true })), true);
     }
   }
-  t.mock.timers.tick(1000);
-  assert.equal(modal.opens, 0, 'A completed transition must cancel the pending progress modal');
-  assert.equal(modal.closes, 0, 'An unopened modal must not disturb the active native modal stack');
+  assert.equal(Modal.instances.length, 0, 'A transition never creates a modal');
 });
 
 test('activation handlers in existing and newly opened windows stay blocked until release', async (t) => {
@@ -441,8 +453,8 @@ test('activation handlers in existing and newly opened windows stay blocked unti
   let releases = 0;
   const workspace = new Constructor(
     {
-      testDocument: main,
       workspace: {
+        containerEl: { ownerDocument: main },
         iterateAllLeaves: (visit: (leaf: object) => void) => {
           visit({ view: { containerEl: { ownerDocument: floating } } });
         },
@@ -487,7 +499,6 @@ test('activation handlers in existing and newly opened windows stay blocked unti
     }
   }
   assert.deepEqual(activations, []);
-  assert.equal(Modal.instances.at(-1)!.opens, 0);
   release();
   release();
   assert.equal(releases, 1, 'Remove the new-window subscription exactly once');
@@ -498,28 +509,43 @@ test('activation handlers in existing and newly opened windows stay blocked unti
     }
   }
   assert.equal(activations.length, documents.length * eventTypes.length);
-  t.mock.timers.tick(1000);
-  assert.equal(Modal.instances.at(-1)!.opens, 0, 'A fast release still cancels progress');
+  assert.equal(Modal.instances.length, 0);
 });
 
-test('a slow transition shows progress without releasing input or allowing dismissal', async (t) => {
+test('a slow transition keeps its message and its input block until release', async (t) => {
   const document = new EventTarget();
-  const workspace = await host([], document);
+  let visible = false;
+  const workspace = await host([], document, () => {
+    visible = true;
+    return () => {
+      visible = false;
+    };
+  });
   t.mock.timers.enable({ apis: ['setTimeout'] });
   const release = workspace.block('Opening Beta…');
-  const modal = Modal.instances.at(-1)!;
-  t.mock.timers.tick(500);
-  assert.equal(modal.opened, true);
+  t.mock.timers.tick(60_000);
+  assert.equal(visible, true, 'No timer hides the message while the transition runs');
   assert.equal(document.dispatchEvent(new Event('beforeinput', { cancelable: true })), false);
-  modal.close();
-  assert.equal(modal.opened, true);
-  assert.equal(modal.closes, 0);
   release();
-  assert.equal(modal.opened, false);
-  assert.equal(modal.closes, 1);
+  assert.equal(visible, false);
   assert.equal(document.dispatchEvent(new Event('beforeinput', { cancelable: true })), true);
-  t.mock.timers.tick(1000);
-  assert.equal(modal.opens, 1);
+});
+
+test('a failing progress presenter cannot weaken or leak the input block', async () => {
+  const document = new EventTarget();
+  const failsToShow = await host([], document, () => {
+    throw new Error('status bar unavailable');
+  });
+  const first = failsToShow.block('Opening Beta…');
+  assert.equal(document.dispatchEvent(new Event('keydown', { cancelable: true })), false);
+  first();
+  assert.equal(document.dispatchEvent(new Event('keydown', { cancelable: true })), true);
+  const failsToHide = await host([], document, () => () => {
+    throw new Error('status bar unavailable');
+  });
+  const second = failsToHide.block('Opening Beta…');
+  assert.doesNotThrow(second);
+  assert.equal(document.dispatchEvent(new Event('keydown', { cancelable: true })), true);
 });
 
 test('restoration after a checkout hydrates every leaf after native layout creation and waits for completion', async () => {

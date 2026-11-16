@@ -10,9 +10,6 @@
 .workspaces-context-icon {
   display: flex;
 }
-.workspaces-progress .modal-close-button {
-  display: none;
-}
 .workspaces-status {
   cursor: pointer;
 }

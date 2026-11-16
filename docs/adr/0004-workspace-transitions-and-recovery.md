@@ -24,7 +24,7 @@ Suspend incidental layout captures and competing activation while the operation 
 
 A successful activation uses two durable state writes: the complete prepared journal before unloading views, and the completed target identity with the journal cleared after restoration and final branch verification. Checkout/restoration phases update in memory without advancing the persisted revision. After an interruption, the durable phase is a record of pending intent, not proof of which side effects completed; recovery always inspects Git and uses the saved source/target contexts. Errors may persist an additional recovery record. This avoids redundant full-catalog writes without weakening the crash boundary or conflict detection.
 
-Block input as soon as the transition owns the native views. Delay the visible progress modal by 500 ms and cancel it when the operation finishes sooner. A slow operation retains the same ownership and progress indicator. Vault create, delete, rename, and modify events wake readiness checks; the checks still compare indexed files, metadata, and cached bytes with disk, with bounded polling when no event arrives.
+Block input as soon as the transition owns the native views. Delay the visible progress modal by 500 ms and cancel it when the operation finishes sooner. A slow operation retains the same ownership and progress indicator. (Superseded on 2026-11-16 by the status bar amendment below: there is no modal.) Vault create, delete, rename, and modify events wake readiness checks; the checks still compare indexed files, metadata, and cached bytes with disk, with bounded polling when no event arrives.
 
 Input protection covers keyboard editing and mouse activation events in the main window, existing popouts, and windows opened during restoration. Preventing pointer-down alone is insufficient for native click handlers. Release removes every document listener and the temporary window-open subscription, including when progress never opened.
 
@@ -77,3 +77,25 @@ These items did not change: the two durable writes, the input block, the journal
 - A missing note stays in the saved snapshot until the workspace is saved again.
 - Recovery does no checkout when the repository is already on the original branch. It then does not wait and does not hydrate.
 - The native probes under `tests/obsidian/` were changed for this rule. They were not run in native Obsidian after the change. See [Validation](../validation.md).
+
+## Amendment 2026-11-16: progress in the status bar
+
+### Context
+
+A slow transition opened a "Switching workspace" modal with a backdrop after 500 ms. The owner asked for no modal and no backdrop, with progress in the status bar in the way Obsidian shows its own start-up progress.
+
+Obsidian 1.15.1 has no public API for that indicator. Its status bar object has one method, `registerStatusBarItem()`, which `Plugin.addStatusBarItem()` exposes. At start-up the app itself creates a status bar item with the class `mod-loading`, a text span, and a `progress-bar-indicator` element with three bars. Core CSS styles that markup.
+
+### Decision
+
+Remove the transition modal. Keep the immediate input protection unchanged: it is the capture-phase listeners in every window, not the modal.
+
+Show the transition message in the Workspaces status bar item from the moment the transition owns the workspace until it releases it. There is no delay. The item uses the same `mod-loading` class and `progress-bar-indicator` markup as the app's start-up indicator. The host receives a presenter callback from the plugin entry point and never touches the status bar itself. A presenter that throws cannot weaken or leak the input block.
+
+### Consequences
+
+A transition takes no focus and adds no backdrop. Input is still ignored while a transition runs; on a slow switch the status bar is the only sign of that. There is no progress on mobile or when the status bar is hidden.
+
+The indicator depends on undocumented core class names. Without them the message still shows as plain text.
+
+The performance probes still record modal openings; they now always record none. The 500 ms completion ceiling in [ADR 0005](0005-performance-measurement-and-closure.md) carries the requirement that the delayed modal used to make visible.

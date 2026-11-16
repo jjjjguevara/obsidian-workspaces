@@ -125,3 +125,17 @@ After the baseline run passes, install the additional core-sidebar probe with `n
 Native validation here covers Linux and the versions above. macOS, Windows, physical mobile devices, and Obsidian 1.13/1.14 were not exercised. Binary/media restoration and floating-window layouts have automated coverage of the relevant state/readiness contracts, but no complete native acceptance run here. Arbitrary community-plugin editors do not have a universal save contract; unsupported views must be closed before changing branches.
 
 Recovery failures and restarts were injected in automated tests; the native application was not killed at every journal boundary. Power-loss behavior was not tested. An unrelated Git process is outside Obsidian Git's queue, so the controller rechecks observed state at operation boundaries instead of claiming an external-process lock.
+
+## Transition progress in the status bar — 2026-11-16
+
+This change follows the [ADR 0004 amendment](adr/0004-workspace-transitions-and-recovery.md#amendment-2026-11-16-progress-in-the-status-bar). `npm run check` passed **489 tests**, type checking and the build. The host tests cover these cases: the message shows at once and clears exactly once, no modal is created, the input block covers every window until release, and a presenter that throws cannot weaken or leak the block.
+
+The status bar item was inspected in native Obsidian 1.15.1 on macOS (arm64), build `940b7e18…`, in a vault with core styles and 36 community plugins. An agent called the plugin's presenter through the Obsidian CLI and read the live DOM; no workspace was switched.
+
+| State         | Observed                                                                                                                                                                                                                          |
+| ------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Normal        | Classes `status-bar-item plugin-obsidian-workspaces workspaces-status`; text is the workspace name.                                                                                                                               |
+| Progress      | Class `mod-loading` added; text "Opening Demo…"; a `progress-bar-indicator` with the three core bars, computed size 48 px by 4 px, hidden overflow, core animation `increase`; item gap 8 px. No modal container in the document. |
+| After release | The normal state again.                                                                                                                                                                                                           |
+
+The computed size and animation show that the core styles for the start-up indicator apply to the item. Not observed natively: the indicator during a real switch, and a visual comparison with the start-up indicator.

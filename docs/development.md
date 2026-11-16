@@ -60,19 +60,19 @@ Confirm that a corrupt primary JSON is rejected without silent overwrite and tha
 
 Unit tests use a fake core instance. They do not prove the behavior of the native core dialogs. Run these scenarios in a disposable vault with core Workspaces enabled, and keep `workspaces.json` untracked. No native probe exists for the bridge yet. The Quick Switcher++ probe seeds and wraps the core catalog directly; review it against the bridge before the next run.
 
-| Scenario                                                 | Observe                                                                                                 |
-| -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
-| First start with existing core layouts                   | Each core layout is a workspace; the core list is unchanged; one notice gives the counts.               |
-| Core **Manage workspace layouts** → Load on a bound one  | Actual branch, visible notes, pins, and the product status agree. A dirty tree blocks it with a notice. |
-| Core dialog → Save under a new name                      | The entry appears at once; the product lists the new active workspace.                                  |
-| Core dialog → Save over another bound workspace          | Core shows its own message, then the product error; the list returns to the catalog's content.          |
-| Core dialog → Delete, including the active layout        | The product record is gone; the replacement opens first for the active one; the list updates in place.  |
-| Create, rename, duplicate, delete in the product         | The open or reopened core list shows the same names; equal names carry suffixes.                        |
-| Switch workspaces repeatedly                             | `workspaces.json` changes only its active name and saved times; no progress modal regression appears.   |
-| Disable Workspaces, change the core list, enable it      | Deletions, new layouts, and later saves arrive in one step with no layout change or checkout.           |
-| Disable core Workspaces, delete a record, enable core    | The deleted record does not return.                                                                     |
-| Disable and enable core Workspaces while Workspaces runs | Core methods are restored on disable and routed again on enable.                                        |
-| Interrupted switch at start                              | Core requests are refused with the recovery message until recovery completes.                           |
+| Scenario                                                 | Observe                                                                                                                             |
+| -------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| First start with existing core layouts                   | Each core layout is a workspace; the core list is unchanged; one notice gives the counts.                                           |
+| Core **Manage workspace layouts** → Load on a bound one  | Actual branch, visible notes, pins, and the product status agree. A dirty tree blocks it with a notice.                             |
+| Core dialog → Save under a new name                      | The entry appears at once; the product lists the new active workspace.                                                              |
+| Core dialog → Save over another bound workspace          | Core shows its own message, then the product error; the list returns to the catalog's content.                                      |
+| Core dialog → Delete, including the active layout        | The product record is gone; the replacement opens first for the active one; the list updates in place.                              |
+| Create, rename, duplicate, delete in the product         | The open or reopened core list shows the same names; equal names carry suffixes.                                                    |
+| Switch workspaces repeatedly                             | `workspaces.json` changes only its active name and saved times; no modal appears; the status bar item shows the transition message. |
+| Disable Workspaces, change the core list, enable it      | Deletions, new layouts, and later saves arrive in one step with no layout change or checkout.                                       |
+| Disable core Workspaces, delete a record, enable core    | The deleted record does not return.                                                                                                 |
+| Disable and enable core Workspaces while Workspaces runs | Core methods are restored on disable and routed again on enable.                                                                    |
+| Interrupted switch at start                              | Core requests are refused with the recovery message until recovery completes.                                                       |
 
 The bridge writes the core file in a timer task after the controller promise settles. Measure switch latency again with core Workspaces enabled before a performance claim; earlier measurements did not include that write.
 
