@@ -10,6 +10,17 @@ export interface FileLeaf {
 const object = (value: unknown): value is Record<string, unknown> =>
   !!value && typeof value === 'object' && !Array.isArray(value);
 
+// These core panes follow the active file. Obsidian saves them with or without
+// a file, depending on focus, and resolves the file again after restore. Their
+// saved path is not a note that the workspace owns.
+const FOLLOW_ACTIVE_FILE_VIEWS = new Set([
+  'backlink',
+  'outgoing-link',
+  'outline',
+  'localgraph',
+  'file-properties',
+]);
+
 /** Read only the leaf contract; retain all unknown native state in the original snapshot. */
 export function fileLeaves(layout: Layout): FileLeaf[] {
   const result: FileLeaf[] = [];
@@ -42,12 +53,20 @@ export function fileLeaves(layout: Layout): FileLeaf[] {
   return result;
 }
 
+/** File leaves that a workspace owns: every file leaf except the follower panes. */
+function ownedFileLeaves(layout: Layout): FileLeaf[] {
+  return fileLeaves(layout).filter((leaf) => !FOLLOW_ACTIVE_FILE_VIEWS.has(leaf.type));
+}
+
 export function assertRestoredFiles(expected: Layout, actual: Layout): void {
+  // A follower pane can hold a different file, or none, after restore. Native
+  // layout restoration owns it like any other panel. Compare owned notes only.
   const key = (leaf: FileLeaf): string =>
     JSON.stringify([leaf.region, leaf.path, leaf.type, leaf.pinned]);
   const counts = new Map<string, number>();
-  for (const leaf of fileLeaves(actual)) counts.set(key(leaf), (counts.get(key(leaf)) ?? 0) + 1);
-  for (const leaf of fileLeaves(expected)) {
+  for (const leaf of ownedFileLeaves(actual))
+    counts.set(key(leaf), (counts.get(key(leaf)) ?? 0) + 1);
+  for (const leaf of ownedFileLeaves(expected)) {
     const remaining = counts.get(key(leaf)) ?? 0;
     if (!remaining)
       throw new Error(
@@ -78,7 +97,9 @@ export async function waitForVaultFiles(
   vault: VaultReadinessPort,
   options: { timeoutMs?: number; pollMs?: number } = {},
 ): Promise<void> {
-  const targetLeaves = fileLeaves(target);
+  // A follower pane re-resolves to the restored active file. Its saved path may
+  // only exist on the outgoing branch, so it is not a readiness requirement.
+  const targetLeaves = ownedFileLeaves(target);
   const targetPaths = new Set(targetLeaves.map((leaf) => leaf.path));
   const textPaths = new Set(
     targetLeaves

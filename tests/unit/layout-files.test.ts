@@ -351,6 +351,29 @@ test('a source-only deleted note must disappear from the Vault index before read
   assert.equal(ready, true);
 });
 
+test('a file-following pane saved on another branch does not block readiness', async () => {
+  const target = {
+    main: { type: 'split', children: [leaf('note.md')] },
+    right: {
+      type: 'tabs',
+      children: [
+        {
+          id: 'outline-pane',
+          type: 'leaf',
+          state: { type: 'outline', state: { file: 'gone.md' } },
+        },
+      ],
+    },
+  };
+  const previous = {
+    main: { type: 'split', children: [leaf('note.md')] },
+  };
+  await waitForVaultFiles(target, previous, port({ exists: async (path) => path !== 'gone.md' }), {
+    timeoutMs: 100,
+    pollMs: 1,
+  });
+});
+
 test(
   'a missing target fails within the configured readiness budget',
   { timeout: 1_000 },
@@ -374,7 +397,6 @@ test(
     assert.ok(probes >= 2);
   },
 );
-
 test('binary readiness waits on matching file metadata without using text reads', async () => {
   let metadataMatches = false;
   const checked = deferred();
@@ -451,6 +473,54 @@ test('extra stale file leaves are rejected in main, sidebars and floating window
       assert.throws(() => assertRestoredFiles(expected, actual), /retained a file leaf outside/);
     });
   }
+});
+
+test('file-following panes are not compared as saved notes', () => {
+  const follower = (type: string, file?: string) => ({
+    id: `${type}-pane`,
+    type: 'leaf',
+    state: { type, state: file ? { file } : { linksCollapsed: false } },
+  });
+  const followers = ['backlink', 'outgoing-link', 'outline', 'localgraph', 'file-properties'];
+  const expected = {
+    main: { type: 'split', children: [leaf('note.md')] },
+    left: { type: 'tabs', children: [follower('localgraph', 'old.md')] },
+    right: {
+      type: 'tabs',
+      children: followers.slice(0, 3).map((type) => follower(type, 'old.md')),
+    },
+  };
+  // After restore a follower can hold the new active file, or no file at all.
+  const actual = {
+    main: { type: 'split', children: [leaf('note.md')] },
+    left: { type: 'tabs', children: [follower('localgraph')] },
+    right: {
+      type: 'tabs',
+      children: [
+        follower('backlink', 'note.md'),
+        follower('outgoing-link'),
+        follower('outline', 'note.md'),
+        follower('file-properties', 'note.md'),
+      ],
+    },
+  };
+  assert.doesNotThrow(() => assertRestoredFiles(expected, actual));
+  assert.doesNotThrow(() => assertRestoredFiles(actual, expected));
+  // A real note in a sidebar is still an owned leaf.
+  const missingNote = structuredClone(expected);
+  (missingNote.right.children as unknown[]).push({
+    id: 'side-note',
+    type: 'leaf',
+    state: { type: 'markdown', state: { file: 'side.md' } },
+  });
+  assert.throws(
+    () => assertRestoredFiles(missingNote, actual),
+    /did not restore the note “side.md” in right/,
+  );
+  assert.throws(
+    () => assertRestoredFiles(actual, missingNote),
+    /retained a file leaf outside the requested workspace/,
+  );
 });
 
 test('restoration preserves file region and duplicate-leaf multiplicity', () => {
