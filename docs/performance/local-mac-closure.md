@@ -18,6 +18,8 @@ The gate evaluates evidence and writes a result. It never changes an issue, merg
 | Independent verification | Actual Git branch, disk contents and live native state checked after each endpoint. A fresh ten-scenario Quick Switcher++ safety run for each profile, on the candidate build, must include the dirty-editor checkout rejection and finish clean.                                                    |
 | Publication              | Attach raw reports, their hashes, the manifest, gate output, final measured performance and scope, and independent review to the issue **before** closing it.                                                                                                                                        |
 
+The first actual Mac run is recorded in [docs/validation/mac-closure](../validation/mac-closure/README.md). Its gate result is **blocked**.
+
 Three 100-switch sessions provide 300 measured branch samples per profile. Report every session as well as pooled statistics; do not combine different product or probe builds. The first switch is **probe-cold**, not an OS-cache-cold measurement: fixture initialization hydrates starting views and reads expected contents before timing. A `requestAnimationFrame` timestamp is a rendering opportunity, not proof of physical display scanout.
 
 ## Measurement boundary
@@ -86,7 +88,7 @@ node scripts/prepare-runtime-vault.mjs "$PERF_ROOT/vault-small" \
   --results "$PERF_REPORTS/small-runtime.json"
 ```
 
-Open this **disposable** vault in native Obsidian, enable community plugins, and allow its runtime probe to finish. Continue only when the external runtime JSON says `status: "passed"`, the actual branch is `alpha`, `runtime-alpha` is active and Git is clean. The native plugin stores its control data under the Mac application-data directory, outside this test repository.
+Open this **disposable** vault in native Obsidian, enable community plugins, and allow its runtime probe to finish. A new vault opens in Restricted Mode with a trust prompt; no fixture plugin loads until you choose **Trust author and enable plugins**. Close the Settings window if Obsidian opens it afterwards. Continue only when the external runtime JSON says `status: "passed"`, the actual branch is `alpha`, `runtime-alpha` is active and Git is clean. The native plugin stores its control data under the Mac application-data directory, outside this test repository.
 
 Choose the representative size from the user's normal workload. Counts can be collected without reading or copying note contents. Record the source of the file-count, branch-change-volume, note-size and editor-count estimates in the closure manifest. The following values are an example, not an assertion about the user's vault:
 
@@ -167,6 +169,8 @@ node scripts/check-switch-performance.mjs "$PERF_REPORTS/closure-manifest.json" 
 Paths in the manifest resolve relative to the manifest file; journal references must be relative portable paths. Hash the exact bytes supplied: for `.json.gz` or `.ndjson.gz`, record the compressed file's SHA-256 in the manifest. The gate separately verifies the decompressed journal SHA-256 and byte count against the report's recorder metadata. Copying or gzipping an artifact does not justify editing its internal contents or recorded identities.
 
 The evaluator reads every journal and requires its header, one pre-timing metadata checkpoint, ordered start/sample/observation triples, and final complete seal. It compares artifact identities, every raw sample and observation, counts and sealed final metadata against the JSON report; missing, truncated, reused, reordered, mismatched or unsealed journals block closure. It also recomputes medians/percentiles and reruns endpoint validation independently rather than trusting a summary's `passed` label. Choose a new closure output filename for each attempt: exclusive creation prevents overwriting manifests, reports or journals through ordinary paths, symlink aliases or hardlinks.
+
+The evaluator stops a session at its first failed condition. A run that fails the progress or 500 ms conditions therefore reports those failures and leaves `sessions` and `pooled` empty; use a descriptive summary of the raw reports for the measured distributions.
 
 Exit code **0** means the supplied local performance evidence meets this contract. Exit code **1** means closure is blocked. Missing Mac reports, old schemas/recorders, incomplete or reordered attempts, wrong hashes, missing controls, reused renderer processes, failed transitions, stale endpoint content, progress openings and exceeded budgets all block closure. A faster median with an unacceptable tail still fails. The gate is an evidence evaluator, not cryptographic attestation that a local operator actually followed the procedure.
 

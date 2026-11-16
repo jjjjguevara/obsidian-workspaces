@@ -1,0 +1,169 @@
+{
+  "schema": "obsidian-workspaces-performance-closure-v1",
+  "platform": "darwin",
+  "baseline": {
+    "commit": "6b3ae45589132a7c37da14e94a20a4668b2f28b9",
+    "bundleSHA256": "9dee2cbb8b25f768f81d3b94ec1a7c57ddae55267ae29de459ad00a8d94d3400"
+  },
+  "candidate": {
+    "commit": "a2d738afaefa38f3e3847963ab768ca83fdeca2f",
+    "bundleSHA256": "f4a862e7fd3c90786e4474a1e7c4a0041cc9d73d8595cda448cf64b10d530020"
+  },
+  "probeSHA256": "375711885e013bd1a0bc8acb48fe4e77c3d75ff87d03c821556d2d6cfe516792",
+  "safetyProbeSHA256": "312307db21297eb859580186123c1f6f03ad02a280f7c449adf4f0f89cfaf652",
+  "versions": {
+    "obsidian": "1.15.1",
+    "git": "2.43.0",
+    "quickSwitcher": "6.3.0"
+  },
+  "scope": {
+    "small": {
+      "description": "Fixed Alpha/Beta fixture with four Markdown editors, three required pin regions, and shared-path content changes.",
+      "minimumTrackedFiles": 4,
+      "minimumChangedPaths": 5,
+      "minimumMarkdownLeaves": 4
+    },
+    "representative": {
+      "description": "Generated fixture with 194 tracked files per branch, 85 changed paths between Alpha and Beta, 26 KiB generated notes, and four Markdown editors (pinned main note, shared background note, both pinned sidebar notes).",
+      "basis": "Counts taken on 2026-11-15 from the tyo-bit vault without reading note contents: 108 to 136 tracked files per branch across six branches, 0 to 69 changed paths between branch pairs, 98 tracked Markdown notes with 13 KiB median and 25.6 KiB mean size, and one or two main-area views per saved workspace with no pinned sidebar notes. The fixture meets or exceeds each count. Suitability is not confirmed: the tyo-bit layouts hold Canvas and Excalidraw views and the vault runs 14 community plugins, which the Markdown-only fixture with its test plugins does not reproduce; other vaults on this Mac were not assessed.",
+      "suitabilityConfirmed": false,
+      "minimumTrackedFiles": 194,
+      "minimumChangedPaths": 85,
+      "minimumMarkdownLeaves": 4
+    }
+  },
+  "sessions": [
+    {
+      "label": "small-1",
+      "profile": "small",
+      "baseline": {
+        "path": "reports/small-s1-baseline.json.gz",
+        "sha256": "0c7946cc5bbdf61b95f41da04b06b61c06ea051c2633dbe8cace10735fdb4201",
+        "journal": {
+          "path": "journals/small-s1-baseline.json.6800e40a-0281-4afd-9a42-cb2289b21607.samples.ndjson.gz",
+          "sha256": "ec91037f7d994902ffd104445df9f24ee8c01af8e5be6b88e50968b632748562"
+        }
+      },
+      "candidate": {
+        "path": "reports/small-s1-candidate.json.gz",
+        "sha256": "6943563a1da5fde19b1c7a410e36932d9b06f52dc44663973cc508d42316363c",
+        "journal": {
+          "path": "journals/small-s1-candidate.json.44a7e665-2a64-43d7-a1ed-06831f87b13a.samples.ndjson.gz",
+          "sha256": "ea55c1d2d5185e15b77fcf9b3601e3c54ce5c5296a31cef04246cd050223a066"
+        }
+      }
+    },
+    {
+      "label": "small-2",
+      "profile": "small",
+      "baseline": {
+        "path": "reports/small-s2-baseline.json.gz",
+        "sha256": "ee20e01e717456b9014534df13bdfad6cb24cbf15a00fcd178233c76683cc2e7",
+        "journal": {
+          "path": "journals/small-s2-baseline.json.c01bc5c6-8613-4f01-8e3b-db13215c3989.samples.ndjson.gz",
+          "sha256": "edd1d0d284e1265f0f2fe7c7c16b961299cda333ef74341a6a9fa8048c9df582"
+        }
+      },
+      "candidate": {
+        "path": "reports/small-s2-candidate.json.gz",
+        "sha256": "b3f39d421f4c361ff36759d1feb166672dfe802975d4be4ac125e437b1a2f699",
+        "journal": {
+          "path": "journals/small-s2-candidate.json.1beb77f7-6c55-4572-b685-cd9b77b38dee.samples.ndjson.gz",
+          "sha256": "2ed1486e75de2e03713e8e0befe1a80b29b417cb6aa54f2d3ac2f5d5b22841f9"
+        }
+      }
+    },
+    {
+      "label": "small-3",
+      "profile": "small",
+      "baseline": {
+        "path": "reports/small-s3-baseline.json.gz",
+        "sha256": "6614f1c0912787fedf5771e206de258c9413eddf7c214540576422efa1967eed",
+        "journal": {
+          "path": "journals/small-s3-baseline.json.77d6eb58-f940-4969-be33-0dffafc31fa7.samples.ndjson.gz",
+          "sha256": "bb563010551854c054245baa5f8e147acb9407fa18337af40f6d4e5b3421a63f"
+        }
+      },
+      "candidate": {
+        "path": "reports/small-s3-candidate.json.gz",
+        "sha256": "b7eb35bc30a6dfcb1ac1b6154371d94161b05da986330e5ea479ae62312c8b7c",
+        "journal": {
+          "path": "journals/small-s3-candidate.json.5d0fd80e-d9b2-442a-807e-4e24091f0fad.samples.ndjson.gz",
+          "sha256": "051f0624102e774969a112a19718e1e9719e96f7f54a9b81809a06b0956924ab"
+        }
+      }
+    },
+    {
+      "label": "representative-1",
+      "profile": "representative",
+      "baseline": {
+        "path": "reports/representative-s1-baseline.json.gz",
+        "sha256": "8945ff8b040299150a7610913c8d4021e532359b0635a7191272f4e2129000dd",
+        "journal": {
+          "path": "journals/representative-s1-baseline.json.2a6f6238-580f-4310-ab91-9fc8efe1561a.samples.ndjson.gz",
+          "sha256": "aa48464ad1036b4d50f9206d64bc0e60f50c70be3bd8132d719ac28f0c1c76e3"
+        }
+      },
+      "candidate": {
+        "path": "reports/representative-s1-candidate.json.gz",
+        "sha256": "855b5f1982fa829612148d779cd9369273dd68e6f83e9793e931f3d95a521769",
+        "journal": {
+          "path": "journals/representative-s1-candidate.json.5d5bf7c3-8204-4846-932a-990b9fdf1059.samples.ndjson.gz",
+          "sha256": "a4dc3c229744d443fa58f2517a419884defa4cfa8f799035df25a7b8ad68d432"
+        }
+      }
+    },
+    {
+      "label": "representative-2",
+      "profile": "representative",
+      "baseline": {
+        "path": "reports/representative-s2-baseline.json.gz",
+        "sha256": "058e3938632457ab331263715ed9f43d60155cc5a43984e0f3dd631e645045b1",
+        "journal": {
+          "path": "journals/representative-s2-baseline.json.1b9bcc4d-874c-4563-b981-0305811176f3.samples.ndjson.gz",
+          "sha256": "dd31790a402ee71ce816335f1f6d30ebb0c3c743f363d84edeae8c400e82c5c0"
+        }
+      },
+      "candidate": {
+        "path": "reports/representative-s2-candidate.json.gz",
+        "sha256": "d4b90fd93b774a55e1b72e68c9899b633cc261707f9e05813d718a29efaf6848",
+        "journal": {
+          "path": "journals/representative-s2-candidate.json.6225aac2-455e-49db-ac29-335c975c1ec3.samples.ndjson.gz",
+          "sha256": "4a831af7fe21abe266dcdd6c9246248606119ecef40287b8bd8f888e6387f48b"
+        }
+      }
+    },
+    {
+      "label": "representative-3",
+      "profile": "representative",
+      "baseline": {
+        "path": "reports/representative-s3-baseline.json.gz",
+        "sha256": "57e96c50f3f1431b1775296e662842cd64a9a284749db0ec6b6af9f0b82fccbb",
+        "journal": {
+          "path": "journals/representative-s3-baseline.json.a7c334d2-9034-4d35-8977-e505ebeb51ab.samples.ndjson.gz",
+          "sha256": "183c0b66101ed1a0838a19332e2170d525b24e67410a83cdaeb93f640803a069"
+        }
+      },
+      "candidate": {
+        "path": "reports/representative-s3-candidate.json.gz",
+        "sha256": "409d7f674ac941b386b1eac1ed52bbba949e0f44c71198bacd901719e03ee355",
+        "journal": {
+          "path": "journals/representative-s3-candidate.json.f6a28f9f-c363-45ef-884b-9f0310845609.samples.ndjson.gz",
+          "sha256": "d8ac4c136b86e5158c5000a172d69cc2ee1b37b12390056065aeef0043abc35c"
+        }
+      }
+    }
+  ],
+  "safetyReports": [
+    {
+      "profile": "small",
+      "path": "reports/small-quick-switcher-fixed.json.gz",
+      "sha256": "b58426589f19ead0270e4409e0ee91cd7d73baa4a2c9a761048e54d00255c56e"
+    },
+    {
+      "profile": "representative",
+      "path": "reports/representative-quick-switcher-fixed.json.gz",
+      "sha256": "bd558832cb31b48fb53531ad7a1d07ce86200320f9cfc5cae25bb3d8316dd976"
+    }
+  ]
+}

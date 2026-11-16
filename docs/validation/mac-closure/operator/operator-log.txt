@@ -1,0 +1,68 @@
+2026-11-16T08:44:48Z closure run start candidate=a2d738afaefa38f3e3847963ab768ca83fdeca2f repo=a2d738afaefa38f3e3847963ab768ca83fdeca2f clean=0 baseline=9dee2cbb8b25f768f81d3b94ec1a7c57ddae55267ae29de459ad00a8d94d3400 candidateBundle=f4a862e7fd3c90786e4474a1e7c4a0041cc9d73d8595cda448cf64b10d530020
+2026-11-16T08:44:48Z session small-1: reopen vault-small (baseline then candidate)
+2026-11-16T08:45:01Z session small-1 renderer: {"pid":17330,"ready":true,"git":true,"ws":true,"active":{"name":"Alpha","journal":null,"busy":null}}
+2026-11-16T08:45:09Z installed baseline 9dee2cbb8b25f768f81d3b94ec1a7c57ddae55267ae29de459ad00a8d94d3400 in vault-small; {"pid":17330,"ready":true,"git":true,"ws":true,"active":{"name":"Alpha","journal":null,"busy":null}}
+2026-11-16T08:45:10Z prepared small-s1-baseline probe=375711885e013bd1a0bc8acb48fe4e77c3d75ff87d03c821556d2d6cfe516792 product=9dee2cbb8b25f768f81d3b94ec1a7c57ddae55267ae29de459ad00a8d94d3400
+2026-11-16T08:45:23Z start small-s1-baseline: ["focus true/true modals 0","palette true","selected Workspaces Switch Latency BenchmarkRun switch benchmark","enter"]
+2026-11-16T08:46:19Z finished small-s1-baseline: passed
+2026-11-16T08:46:26Z installed candidate f4a862e7fd3c90786e4474a1e7c4a0041cc9d73d8595cda448cf64b10d530020 in vault-small; {"pid":17330,"ready":true,"git":true,"ws":true,"active":{"name":"Alpha","journal":null,"busy":null}}
+2026-11-16T08:46:28Z prepared small-s1-candidate probe=375711885e013bd1a0bc8acb48fe4e77c3d75ff87d03c821556d2d6cfe516792 product=f4a862e7fd3c90786e4474a1e7c4a0041cc9d73d8595cda448cf64b10d530020
+2026-11-16T08:46:43Z start small-s1-candidate: ["focus true/true modals 0","palette true","selected Workspaces Switch Latency BenchmarkRun switch benchmark","enter"]
+2026-11-16T08:47:40Z finished small-s1-candidate: passed
+2026-11-16T08:47:40Z session small-2: reopen vault-small (candidate then baseline)
+2026-11-16T08:47:53Z session small-2 renderer: {"pid":83937,"ready":true,"git":true,"ws":true,"active":{"name":"Alpha","journal":null,"busy":null}}
+2026-11-16T08:48:00Z installed candidate f4a862e7fd3c90786e4474a1e7c4a0041cc9d73d8595cda448cf64b10d530020 in vault-small; {"pid":83937,"ready":true,"git":true,"ws":true,"active":{"name":"Alpha","journal":null,"busy":null}}
+2026-11-16T08:48:01Z prepared small-s2-candidate probe=375711885e013bd1a0bc8acb48fe4e77c3d75ff87d03c821556d2d6cfe516792 product=f4a862e7fd3c90786e4474a1e7c4a0041cc9d73d8595cda448cf64b10d530020
+2026-11-16T08:48:19Z start small-s2-candidate: ["focus true/true modals 0","palette true","selected Workspaces Switch Latency BenchmarkRun switch benchmark","enter"]
+2026-11-16T08:49:14Z finished small-s2-candidate: passed
+2026-11-16T08:49:22Z installed baseline 9dee2cbb8b25f768f81d3b94ec1a7c57ddae55267ae29de459ad00a8d94d3400 in vault-small; {"pid":83937,"ready":true,"git":true,"ws":true,"active":{"name":"Alpha","journal":null,"busy":null}}
+2026-11-16T08:49:24Z prepared small-s2-baseline probe=375711885e013bd1a0bc8acb48fe4e77c3d75ff87d03c821556d2d6cfe516792 product=9dee2cbb8b25f768f81d3b94ec1a7c57ddae55267ae29de459ad00a8d94d3400
+2026-11-16T08:49:38Z start small-s2-baseline: ["focus true/true modals 0","palette true","selected Workspaces Switch Latency BenchmarkRun switch benchmark","enter"]
+2026-11-16T08:50:37Z finished small-s2-baseline: passed
+2026-11-16T08:50:37Z session small-3: reopen vault-small (baseline then candidate)
+2026-11-16T08:50:53Z session small-3 renderer: {"pid":51283,"ready":true,"git":true,"ws":true,"active":{"name":"Alpha","journal":null,"busy":null}}
+2026-11-16T08:51:02Z installed baseline 9dee2cbb8b25f768f81d3b94ec1a7c57ddae55267ae29de459ad00a8d94d3400 in vault-small; {"pid":51283,"ready":true,"git":true,"ws":true,"active":{"name":"Alpha","journal":null,"busy":null}}
+2026-11-16T08:51:05Z prepared small-s3-baseline probe=375711885e013bd1a0bc8acb48fe4e77c3d75ff87d03c821556d2d6cfe516792 product=9dee2cbb8b25f768f81d3b94ec1a7c57ddae55267ae29de459ad00a8d94d3400
+2026-11-16T08:51:22Z start small-s3-baseline: ["focus true/true modals 0","palette true","selected Workspaces Switch Latency BenchmarkRun switch benchmark","enter"]
+2026-11-16T08:52:19Z finished small-s3-baseline: passed
+2026-11-16T08:52:29Z installed candidate f4a862e7fd3c90786e4474a1e7c4a0041cc9d73d8595cda448cf64b10d530020 in vault-small; {"pid":51283,"ready":true,"git":true,"ws":true,"active":{"name":"Alpha","journal":null,"busy":null}}
+2026-11-16T08:52:31Z prepared small-s3-candidate probe=375711885e013bd1a0bc8acb48fe4e77c3d75ff87d03c821556d2d6cfe516792 product=f4a862e7fd3c90786e4474a1e7c4a0041cc9d73d8595cda448cf64b10d530020
+2026-11-16T08:52:47Z start small-s3-candidate: ["focus true/true modals 0","palette true","selected Workspaces Switch Latency BenchmarkRun switch benchmark","enter"]
+2026-11-16T08:53:41Z finished small-s3-candidate: passed
+2026-11-16T08:53:48Z installed candidate f4a862e7fd3c90786e4474a1e7c4a0041cc9d73d8595cda448cf64b10d530020 in vault-small; {"pid":51283,"ready":true,"git":true,"ws":true,"active":{"name":"Alpha","journal":null,"busy":null}}
+2026-11-16T08:54:07Z safety small: passed probe=312307db21297eb859580186123c1f6f03ad02a280f7c449adf4f0f89cfaf652 state={"pid":51283,"ready":true,"git":true,"ws":true,"active":{"name":"Alpha","journal":null,"busy":null}}
+2026-11-16T08:54:36Z roundtrip small recorded: 21 lines
+2026-11-16T08:54:36Z session representative-1: reopen vault-representative (baseline then candidate)
+2026-11-16T08:54:48Z session representative-1 renderer: {"pid":28385,"ready":true,"git":true,"ws":true,"active":{"name":"Alpha","journal":null,"busy":null}}
+2026-11-16T08:54:52Z installed baseline 9dee2cbb8b25f768f81d3b94ec1a7c57ddae55267ae29de459ad00a8d94d3400 in vault-representative; {"pid":28385,"ready":true,"git":true,"ws":true,"active":{"name":"Alpha","journal":null,"busy":null}}
+2026-11-16T08:54:53Z prepared representative-s1-baseline probe=375711885e013bd1a0bc8acb48fe4e77c3d75ff87d03c821556d2d6cfe516792 product=9dee2cbb8b25f768f81d3b94ec1a7c57ddae55267ae29de459ad00a8d94d3400
+2026-11-16T08:55:05Z start representative-s1-baseline: ["focus true/true modals 0","palette true","selected Workspaces Switch Latency BenchmarkRun switch benchmark","enter"]
+2026-11-16T08:56:11Z finished representative-s1-baseline: passed
+2026-11-16T08:56:17Z installed candidate f4a862e7fd3c90786e4474a1e7c4a0041cc9d73d8595cda448cf64b10d530020 in vault-representative; {"pid":28385,"ready":true,"git":true,"ws":true,"active":{"name":"Alpha","journal":null,"busy":null}}
+2026-11-16T08:56:18Z prepared representative-s1-candidate probe=375711885e013bd1a0bc8acb48fe4e77c3d75ff87d03c821556d2d6cfe516792 product=f4a862e7fd3c90786e4474a1e7c4a0041cc9d73d8595cda448cf64b10d530020
+2026-11-16T08:56:32Z start representative-s1-candidate: ["focus true/true modals 0","palette true","selected Workspaces Switch Latency BenchmarkRun switch benchmark","enter"]
+2026-11-16T08:57:40Z finished representative-s1-candidate: passed
+2026-11-16T08:57:40Z session representative-2: reopen vault-representative (candidate then baseline)
+2026-11-16T08:57:53Z session representative-2 renderer: {"pid":97477,"ready":true,"git":true,"ws":true,"active":{"name":"Alpha","journal":null,"busy":null}}
+2026-11-16T08:58:00Z installed candidate f4a862e7fd3c90786e4474a1e7c4a0041cc9d73d8595cda448cf64b10d530020 in vault-representative; {"pid":97477,"ready":true,"git":true,"ws":true,"active":{"name":"Alpha","journal":null,"busy":null}}
+2026-11-16T08:58:00Z prepared representative-s2-candidate probe=375711885e013bd1a0bc8acb48fe4e77c3d75ff87d03c821556d2d6cfe516792 product=f4a862e7fd3c90786e4474a1e7c4a0041cc9d73d8595cda448cf64b10d530020
+2026-11-16T08:58:13Z start representative-s2-candidate: ["focus true/true modals 0","palette true","selected Workspaces Switch Latency BenchmarkRun switch benchmark","enter"]
+2026-11-16T08:59:25Z finished representative-s2-candidate: passed
+2026-11-16T08:59:30Z installed baseline 9dee2cbb8b25f768f81d3b94ec1a7c57ddae55267ae29de459ad00a8d94d3400 in vault-representative; {"pid":97477,"ready":true,"git":true,"ws":true,"active":{"name":"Alpha","journal":null,"busy":null}}
+2026-11-16T08:59:31Z prepared representative-s2-baseline probe=375711885e013bd1a0bc8acb48fe4e77c3d75ff87d03c821556d2d6cfe516792 product=9dee2cbb8b25f768f81d3b94ec1a7c57ddae55267ae29de459ad00a8d94d3400
+2026-11-16T08:59:44Z start representative-s2-baseline: ["focus true/true modals 0","palette true","selected Workspaces Switch Latency BenchmarkRun switch benchmark","enter"]
+2026-11-16T09:00:56Z finished representative-s2-baseline: passed
+2026-11-16T09:00:56Z session representative-3: reopen vault-representative (baseline then candidate)
+2026-11-16T09:01:16Z session representative-3 renderer: {"pid":66342,"ready":true,"git":true,"ws":true,"active":{"name":"Alpha","journal":null,"busy":null}}
+2026-11-16T09:01:26Z installed baseline 9dee2cbb8b25f768f81d3b94ec1a7c57ddae55267ae29de459ad00a8d94d3400 in vault-representative; {"pid":66342,"ready":true,"git":true,"ws":true,"active":{"name":"Alpha","journal":null,"busy":null}}
+2026-11-16T09:01:27Z prepared representative-s3-baseline probe=375711885e013bd1a0bc8acb48fe4e77c3d75ff87d03c821556d2d6cfe516792 product=9dee2cbb8b25f768f81d3b94ec1a7c57ddae55267ae29de459ad00a8d94d3400
+2026-11-16T09:01:41Z start representative-s3-baseline: ["focus true/true modals 0","palette true","selected Workspaces Switch Latency BenchmarkRun switch benchmark","enter"]
+2026-11-16T09:02:50Z finished representative-s3-baseline: passed
+2026-11-16T09:03:01Z installed candidate f4a862e7fd3c90786e4474a1e7c4a0041cc9d73d8595cda448cf64b10d530020 in vault-representative; {"pid":66342,"ready":true,"git":true,"ws":true,"active":{"name":"Alpha","journal":null,"busy":null}}
+2026-11-16T09:03:03Z prepared representative-s3-candidate probe=375711885e013bd1a0bc8acb48fe4e77c3d75ff87d03c821556d2d6cfe516792 product=f4a862e7fd3c90786e4474a1e7c4a0041cc9d73d8595cda448cf64b10d530020
+2026-11-16T09:03:23Z start representative-s3-candidate: ["focus true/true modals 0","palette true","selected Workspaces Switch Latency BenchmarkRun switch benchmark","enter"]
+2026-11-16T09:04:37Z finished representative-s3-candidate: passed
+2026-11-16T09:04:51Z installed candidate f4a862e7fd3c90786e4474a1e7c4a0041cc9d73d8595cda448cf64b10d530020 in vault-representative; {"pid":66342,"ready":true,"git":true,"ws":true,"active":{"name":"Alpha","journal":null,"busy":null}}
+2026-11-16T09:05:17Z safety representative: passed probe=312307db21297eb859580186123c1f6f03ad02a280f7c449adf4f0f89cfaf652 state={"pid":66342,"ready":true,"git":true,"ws":true,"active":{"name":"Alpha","journal":null,"busy":null}}
+2026-11-16T09:05:56Z roundtrip representative recorded: 21 lines
+2026-11-16T09:05:56Z closure run end
