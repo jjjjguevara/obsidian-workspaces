@@ -2,7 +2,7 @@
   "schema": "obsidian-workspaces-local-closure-status-v1",
   "status": "blocked",
   "issue": "https://github.com/jjjjguevara/obsidian-workspaces/issues/4",
-  "issueMustRemainOpen": true,
+  "issueMustRemainOpen": false,
   "targetPlatform": "darwin",
   "actualMacReports": 12,
   "macGateExecuted": true,
@@ -37,7 +37,7 @@
     "The budget is not met on the local Mac: candidate branch medians are 415.3 ms (small) and 568.9 ms (representative), and progress opened in every candidate report.",
     "A switch with no Git process has a 136 ms pooled median. Native layout restore and the two durable state writes exceed 100 ms together. Meeting the budget needs a product decision on the budget, the durable-write boundary, Git read transport or layout restore.",
     "After any product change, collect new paired Darwin evidence with the final bundle and run the gate again.",
-    "Keep the issue open until a gate run passes and an independent review accepts it, or until the owner changes the acceptance contract."
+    "The owner closed the issue on 2026-11-16 without a passing gate. Reopen it or open a new issue before a later closure attempt."
   ],
   "macClosure": {
     "executedAt": "2026-11-16",
@@ -77,5 +77,12 @@
     "acceptanceClaim": false,
     "representativeSuitabilityConfirmed": false,
     "independentReview": "../mac-closure/review.md"
+  },
+  "issueClosure": {
+    "closedOn": "2026-11-16",
+    "closedBy": "repository owner",
+    "reason": "not planned",
+    "gatePassed": false,
+    "note": "Closed at the owner's direction with the blocked Mac run as the record. The performance budget is not met."
   }
 }
