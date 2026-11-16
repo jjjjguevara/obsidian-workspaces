@@ -1,4 +1,4 @@
-import { App, FileView, Modal, Notice, TextFileView, TFile, type WorkspaceLeaf } from 'obsidian';
+import { App, FileView, Notice, TextFileView, TFile, type WorkspaceLeaf } from 'obsidian';
 import type { WorkspaceHost } from '../workspaces/controller';
 import type { Layout } from '../workspaces/model';
 import { cloneJson } from './clone-json';
@@ -23,32 +23,6 @@ const READ_ONLY_CORE_FILE_VIEWS = new Set([
   'outline',
 ]);
 
-// Short switches keep native focus and avoid a modal flash. Input ownership
-// starts immediately; this delay affects only the visible progress indicator.
-const PROGRESS_DELAY_MS = 500;
-
-class TransitionModal extends Modal {
-  private released = false;
-  constructor(
-    app: App,
-    private readonly message: string,
-  ) {
-    super(app);
-  }
-  onOpen(): void {
-    this.modalEl.addClass('workspaces-progress');
-    this.setTitle('Switching workspace');
-    this.contentEl.createEl('p', { text: this.message });
-  }
-  close(): void {
-    if (this.released) super.close();
-  }
-  release(): void {
-    this.released = true;
-    super.close();
-  }
-}
-
 /** Name at most three notes; a long list would hide the count. */
 function missingNotesMessage(paths: string[]): string {
   const named = paths
@@ -66,6 +40,8 @@ export class ObsidianWorkspaceHost implements WorkspaceHost {
     private readonly notify: (message: string) => void = (message) => {
       new Notice(message, 8000);
     },
+    /** Shows the transition message outside the workspace; returns its hide callback. */
+    private readonly showProgress: (message: string) => () => void = () => () => {},
   ) {}
   private leaves(): WorkspaceLeaf[] {
     const leaves: WorkspaceLeaf[] = [];
@@ -220,13 +196,15 @@ export class ObsidianWorkspaceHost implements WorkspaceHost {
     if (missing.size) this.notify(missingNotesMessage([...missing]));
   }
   block(message: string): () => void {
-    const modal = new TransitionModal(this.app, message);
-    let opened = false;
+    // Progress is a status bar message, not a modal: it starts at once, takes
+    // no focus and adds no backdrop. Input ownership is the listeners below.
+    let hideProgress: () => void = () => {};
+    try {
+      hideProgress = this.showProgress(message);
+    } catch (error) {
+      console.warn('Workspaces could not show transition progress.', error);
+    }
     let released = false;
-    const timer = setTimeout(() => {
-      opened = true;
-      modal.open();
-    }, PROGRESS_DELAY_MS);
     const documents = new Set<Document>();
     const block = (event: Event): void => {
       event.preventDefault();
@@ -256,15 +234,20 @@ export class ObsidianWorkspaceHost implements WorkspaceHost {
       protect(window.document);
     });
     for (const leaf of this.leaves()) protect(leaf.view.containerEl.ownerDocument);
-    protect(modal.containerEl.ownerDocument);
+    // The main window owns input even when no leaf reports its document.
+    const mainDocument = this.app.workspace.containerEl?.ownerDocument;
+    if (mainDocument) protect(mainDocument);
     return () => {
       if (released) return;
       released = true;
-      clearTimeout(timer);
       this.app.workspace.offref(openedWindow);
       for (const document of documents)
         for (const event of events) document.removeEventListener(event, block, capture);
-      if (opened) modal.release();
+      try {
+        hideProgress();
+      } catch (error) {
+        console.warn('Workspaces could not clear transition progress.', error);
+      }
     };
   }
   confirmDiscard(name: string): Promise<boolean> {

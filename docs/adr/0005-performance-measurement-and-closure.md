@@ -51,3 +51,7 @@ The [ADR 0004 amendment](0004-workspace-transitions-and-recovery.md#amendment-20
 - The latency budgets and the two durable state boundaries did not change.
 
 The changed probes and the changed evaluator have unit tests. They were not run in native Obsidian after the change.
+
+## Amendment 2026-11-16: no progress modal exists
+
+The product no longer has a transition modal ([ADR 0004](0004-workspace-transitions-and-recovery.md#amendment-2026-11-16-progress-in-the-status-bar)). "Zero progress openings" is therefore always true and is not evidence of speed. The requirement that every normal switch completes and reaches its next frame opportunity within 500 ms stays, and now carries that part of the budget alone. The probes keep their modal observation so that a regression that opens any transition modal is still recorded.

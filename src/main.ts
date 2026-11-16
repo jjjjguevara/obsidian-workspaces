@@ -27,6 +27,8 @@ export default class WorkspacesPlugin extends Plugin {
   private unloaded = false;
   private quickSwitcher?: QuickSwitcherIntegration;
   private nativeCatalog?: NativeCatalogBridge;
+  /** The message of the transition that owns the workspace now, if any. */
+  private progress: { message: string } | null = null;
 
   async onload(): Promise<void> {
     const device = Platform.isMobile ? 'mobile' : 'desktop';
@@ -47,7 +49,12 @@ export default class WorkspacesPlugin extends Plugin {
       );
       throw error;
     }
-    const host = new ObsidianWorkspaceHost(this.app, (name) => confirmDiscard(this.app, name));
+    const host = new ObsidianWorkspaceHost(
+      this.app,
+      (name) => confirmDiscard(this.app, name),
+      undefined,
+      (message) => this.showProgress(message),
+    );
     const controller = new WorkspaceController(
       state,
       store,
@@ -159,8 +166,37 @@ export default class WorkspacesPlugin extends Plugin {
     command('recover', 'Recover interrupted switch', actions.recover);
   }
 
+  /** A transition shows its message in the status bar item until it releases the workspace. */
+  private showProgress(message: string): () => void {
+    const progress = { message };
+    this.progress = progress;
+    this.renderStatus();
+    return () => {
+      if (this.progress !== progress) return;
+      this.progress = null;
+      this.renderStatus();
+    };
+  }
+
   private renderStatus(): void {
     if (!this.status || !this.controller) return;
+    this.status.toggleClass('mod-loading', !!this.progress);
+    if (this.progress) {
+      // Obsidian 1.15 shows its own start-up progress with this status bar markup.
+      // There is no public API for it; the classes use the app's core styles. If a
+      // later version drops them, the message still shows as plain text.
+      const { message } = this.progress;
+      this.status.empty();
+      this.status.createSpan({ text: message });
+      this.status.createDiv('progress-bar-indicator', (bar) => {
+        bar.createDiv('progress-bar-line');
+        bar.createDiv('progress-bar-subline mod-increase');
+        bar.createDiv('progress-bar-subline mod-decrease');
+      });
+      this.status.setAttribute('aria-label', message);
+      this.status.setAttribute('title', message);
+      return;
+    }
     const controller = this.controller;
     const state = controller.state;
     const workspace = state.activeId ? state.workspaces[state.activeId] : null;
