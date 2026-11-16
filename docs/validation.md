@@ -4,7 +4,19 @@ Validated on 2026-11-13. This document distinguishes native application observat
 
 ## Switches with no checkout, and missing notes — 2026-11-16
 
-This change follows the [ADR 0004 amendment](adr/0004-workspace-transitions-and-recovery.md#amendment-2026-11-16-switches-with-no-checkout-and-missing-notes). `npm run check` passed **488 tests**, type checking and the build. The checks are automated only. This change was not run in native Obsidian.
+This change follows the [ADR 0004 amendment](adr/0004-workspace-transitions-and-recovery.md#amendment-2026-11-16-switches-with-no-checkout-and-missing-notes). `npm run check` passed **488 tests**, type checking and the build. The product change also ran in native Obsidian; see the comparison below. The probe changes under `tests/obsidian/` were not run natively.
+
+### Native comparison of the previous and the new build
+
+Obsidian 1.15.1 on macOS (arm64), a disposable vault with no Git plugin, unbound workspaces, core Workspaces enabled. An agent drove both builds in one renderer through the Obsidian CLI. The window was hidden during the timed switches, so the absolute times are higher than in a visible window; the comparison between the builds is the result. Previous build `ae5b531e…` (source `41e810f`), new build `eb3d7b57…` (source `3493ed1`).
+
+| Scenario                                                                   | Previous build                                                                                                         | New build                                                                   |
+| -------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
+| Eight switches between two layouts of 16 leaves (eight Markdown tabs each) | 413 to 796 ms; all 16 views loaded after each switch                                                                   | 176 to 297 ms; 14 of 16 views left deferred, as core Workspaces leaves them |
+| Switch to a layout that holds a note deleted from the vault                | 15,194 ms, then `Workspace files did not become ready: “gone.md” is not available in the vault` and a recovery journal | 302 ms, no error, no journal; one notice named the missing note             |
+| A deferred tab is shown, edited, and the workspace is switched             | Not run                                                                                                                | The tab loaded its note; the edit was on disk after the switch              |
+
+The second row reproduces the failure seen in the owner's vault. Not observed natively: a branch-bound switch with a checkout after this change, a same-branch bound switch, and the switch time in the owner's vault with its 36 plugins.
 
 The new tests use fake hosts and a fake Obsidian module. They cover these cases:
 
