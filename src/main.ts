@@ -1,6 +1,7 @@
 import { FileSystemAdapter, Notice, Platform, Plugin, setIcon } from 'obsidian';
 import { ObsidianGitBackend } from './git/obsidian-git';
 import { ObsidianWorkspaceHost } from './obsidian/layout';
+import { NativeCatalogBridge } from './obsidian/native-catalog';
 import { installedPlugin } from './obsidian/plugins';
 import { QuickSwitcherIntegration } from './obsidian/quick-switcher';
 import { desktopStore, PluginStateStore } from './storage/store';
@@ -25,6 +26,7 @@ export default class WorkspacesPlugin extends Plugin {
   private ready = false;
   private unloaded = false;
   private quickSwitcher?: QuickSwitcherIntegration;
+  private nativeCatalog?: NativeCatalogBridge;
 
   async onload(): Promise<void> {
     const device = Platform.isMobile ? 'mobile' : 'desktop';
@@ -45,10 +47,11 @@ export default class WorkspacesPlugin extends Plugin {
       );
       throw error;
     }
+    const host = new ObsidianWorkspaceHost(this.app, (name) => confirmDiscard(this.app, name));
     const controller = new WorkspaceController(
       state,
       store,
-      new ObsidianWorkspaceHost(this.app, (name) => confirmDiscard(this.app, name)),
+      host,
       new ObsidianGitBackend({
         resolvePlugin: () => installedPlugin(this.app, 'obsidian-git'),
         isDesktop: () => !Platform.isMobile,
@@ -67,7 +70,7 @@ export default class WorkspacesPlugin extends Plugin {
     this.app.workspace.onLayoutReady(() => {
       if (this.unloaded) return;
       this.ready = true;
-      this.registerInterface(controller);
+      this.registerInterface(controller, host);
       if (controller.state.journal)
         new Notice(
           'Workspaces found an interrupted switch. Use “Recover interrupted switch” to restore the previous context.',
@@ -77,13 +80,33 @@ export default class WorkspacesPlugin extends Plugin {
   }
 
   /** No mutating UI surface exists until Obsidian has finished startup restoration. */
-  private registerInterface(controller: WorkspaceController): void {
+  private registerInterface(controller: WorkspaceController, host: ObsidianWorkspaceHost): void {
     this.quickSwitcher = new QuickSwitcherIntegration(this.app, controller);
     this.quickSwitcher.start();
     this.register(() => this.quickSwitcher?.dispose());
-    this.addSettingTab(new WorkspacesSettingTab(this.app, this, controller));
+    // While core Workspaces is enabled, its list is a projection of this catalog and
+    // its operations go to the controller (ADR 0006).
+    const nativeCatalog = new NativeCatalogBridge(this.app, controller, {
+      capture: () => host.capture(),
+      notify: (message) => {
+        new Notice(message, 8000);
+      },
+    });
+    this.nativeCatalog = nativeCatalog;
+    nativeCatalog.start();
+    this.register(() => nativeCatalog.dispose());
+    this.addSettingTab(
+      new WorkspacesSettingTab(this.app, this, controller, () => nativeCatalog.active),
+    );
+    const openMenu = (event: MouseEvent): void => {
+      nativeCatalog.refresh();
+      openWorkspaceMenu(controller, event, actions);
+    };
     const actions = {
-      manage: () => new WorkspaceManagerModal(this.app, controller).open(),
+      manage: () => {
+        nativeCatalog.refresh();
+        new WorkspaceManagerModal(this.app, controller).open();
+      },
       create: () => {
         if (this.ready) void createWorkspace(this.app, controller);
       },
@@ -92,14 +115,10 @@ export default class WorkspacesPlugin extends Plugin {
       },
       recover: () => new RecoveryModal(this.app, controller).open(),
     };
-    this.addRibbonIcon('panels-top-left', 'Workspaces', (event) =>
-      openWorkspaceMenu(controller, event, actions),
-    );
+    this.addRibbonIcon('panels-top-left', 'Workspaces', openMenu);
     this.status = this.addStatusBarItem();
     this.status.addClass('workspaces-status');
-    this.registerDomEvent(this.status, 'click', (event) =>
-      openWorkspaceMenu(controller, event, actions),
-    );
+    this.registerDomEvent(this.status, 'click', openMenu);
     this.registerDomEvent(this.status, 'contextmenu', (event) => {
       event.preventDefault();
       actions.manage();
@@ -159,6 +178,7 @@ export default class WorkspacesPlugin extends Plugin {
     this.unloaded = true;
     this.ready = false;
     this.quickSwitcher?.dispose();
+    this.nativeCatalog?.dispose();
     this.controller?.dispose();
   }
 }

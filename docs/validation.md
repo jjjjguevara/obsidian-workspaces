@@ -2,6 +2,12 @@
 
 Validated on 2026-11-13. This document distinguishes native application observations from automated simulations.
 
+## Core Workspaces bridge — 2026-11-16
+
+The [core catalog bridge](adr/0006-native-core-catalog-bridge.md) has automated evidence only. `npm run check` passed **458 tests**, type checking and the build. The 59 bridge tests use a fake core instance with the real controller. They cover each routed method, the optimistic save entry, projection content and timing, every reconciliation rule, the baseline, lifecycle, an unsupported core shape and state migration.
+
+The bridge has **not** run in the native application. The method names, the synchronous save sequence of the core dialog and the `change` event of `app.internalPlugins` were read from the Obsidian 1.15.1 application code, not observed in a session. The [native scenarios](development.md#core-workspaces-bridge) are pending on a desktop. The Quick Switcher++ probe and the switch benchmark were not run again; switch latency with core Workspaces enabled is not measured.
+
 ## Completion benchmark and performance closure — 2026-11-15
 
 The [native completion benchmark report](validation/native-completion-budget/README.md) records six matched Linux runs with the real Obsidian Git and Quick Switcher++ plugins: 900 successful exact completion observations, including 600 measured branch switches. The product removes one redundant Git identity query while retaining its safeguards. The final product/protocol source passed **396 tests**, type checking and build; independent review includes native safety, separate-Settings rejection, complete raw reports and journals.

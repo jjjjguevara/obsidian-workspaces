@@ -31,6 +31,13 @@ export interface Journal {
   phase: 'prepared' | 'checkout' | 'restoring' | 'recovery';
   error?: string;
 }
+/** Device-local record of what the core Workspaces list last received from this catalog. */
+export interface NativeCatalogBaseline {
+  /** Record ID to the name it had in the last confirmed projection. */
+  projected: Record<string, string>;
+  /** Projected name to removal time, for records removed before a projection confirmed it. */
+  retired?: Record<string, number>;
+}
 export interface WorkspaceState {
   version: 1;
   revision: number;
@@ -39,6 +46,8 @@ export interface WorkspaceState {
   workspaces: Record<string, WorkspaceRecord>;
   autoSave: boolean;
   journal: Journal | null;
+  /** Reconciliation baseline for the core Workspaces bridge. Never imported or exported. */
+  nativeCatalog?: NativeCatalogBaseline;
 }
 export function emptyState(): WorkspaceState {
   return {

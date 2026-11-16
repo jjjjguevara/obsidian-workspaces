@@ -16,7 +16,8 @@ The first version uses Obsidian's native controls. A workspace switcher, command
 | Imports          | Bring in core Workspaces layouts, Workspaces Plus presentation metadata, or Workspace++ session JSON.      |
 | Transfer         | Export and import workspace snapshots explicitly.                                                          |
 | Mobile           | Use unbound workspaces and a separate mobile layout. Git-bound activation is desktop only.                 |
-| Quick Switcher++ | Select this catalog through Workspaces Mode, including its explicit save-and-switch shortcut.             |
+| Quick Switcher++ | Select this catalog through Workspaces Mode, including its explicit save-and-switch shortcut.              |
+| Core Workspaces  | While the core plugin is enabled, its list and commands show and change this same catalog.                 |
 
 This is an initial development build targeting **Obsidian 1.13.0+**. Native validation passed on **Obsidian 1.15.1 with Obsidian Git 2.43.0 on Linux**, including branch-exclusive pinned notes in the main area and both sidebars. The Git adapter accepts **Obsidian Git 2.43.x** and targets the inspected **2.43.0** integration surface. See [Validation](docs/validation.md) for tested behavior and platform limits.
 
@@ -32,11 +33,13 @@ Changing the branch outside Workspaces can leave the displayed context and saved
 
 Before changing branches, Workspaces awaits saves for text-backed note views and unloads outgoing file views. Native media views and the built-in Backlinks, Outgoing links, and Outline panes are supported. Other editable view types with no supported save lifecycle must be closed first; the plugin reports the view that needs attention.
 
-Exclude Obsidian's live layout files, `.obsidian/workspace.json` and `.obsidian/workspace-mobile.json`, from Git tracking in both branches. The checkout preflight enforces this because those files change as the interface changes. Keep `community-plugins.json` and the Workspaces/Obsidian Git plugin files identical across branches, or untracked, so checkout cannot reload the integration. Use the actual configuration directory if different. The named core catalog, `workspaces.json`, is a different file used for import.
+Exclude Obsidian's live layout files, `.obsidian/workspace.json` and `.obsidian/workspace-mobile.json`, from Git tracking in both branches. The checkout preflight enforces this because those files change as the interface changes. Keep `community-plugins.json` and the Workspaces/Obsidian Git plugin files identical across branches, or untracked, so checkout cannot reload the integration. Use the actual configuration directory if different.
+
+Keep the named core catalog, `.obsidian/workspaces.json`, untracked or ignored as well when core Workspaces is enabled. Workspaces writes that file after a switch. A tracked copy makes the working tree dirty and blocks the next branch change.
 
 ## Importing existing workspaces
 
-Imports add records without replacing the current workspace or checking out Git. Workspaces Plus icons, colors, descriptions, and saved tracked-file references are converted from core Workspaces JSON. Workspace++ desktop/mobile layouts and included history are retained; multiple group memberships become one group label joined with `·`. Branch bindings are retained only when importing this product's own export.
+Imports add records without replacing the current workspace or checking out Git. The settings action **Import this vault's core workspaces** is for a vault where core Workspaces is disabled; with it enabled, the lists are already the same. Workspaces Plus icons, colors, descriptions, and saved tracked-file references are converted from core Workspaces JSON. Workspace++ desktop/mobile layouts and included history are retained; multiple group memberships become one group label joined with `·`. Branch bindings are retained only when importing this product's own export.
 
 Modes, workspace-specific Obsidian configuration overrides, automatic sidebar propagation, and upstream synchronization settings are outside this version's scope. See the [import contract](docs/specification.md#persistence-and-transfer) for conversion details.
 
@@ -63,7 +66,20 @@ Copy `dist/main.js`, `dist/manifest.json`, and `dist/styles.css` into:
 
 Use the vault's actual configuration directory if it differs from `.obsidian`, then enable **Workspaces** under Community plugins. Branch-bound workspaces additionally require Obsidian Git to be enabled and initialized for that vault.
 
-The plugin maintains its own catalog. Core Workspaces is an import source; it is not a second catalog that must remain enabled or synchronized.
+The plugin maintains its own catalog. Core Workspaces does not have to be enabled. When it is enabled, it is a second view of this catalog, not a second catalog.
+
+## Core Workspaces
+
+With the core Workspaces plugin enabled (inspected on Obsidian 1.15.1), **Manage workspace layouts**, the core load and save commands, and this plugin's menus work on one catalog:
+
+- Loading a layout in core activates that workspace here, with branch checkout and pin restoration.
+- Deleting a layout in core deletes the workspace. Core asks for no confirmation.
+- Saving in core saves the active workspace, creates a new one, or stores the current layout in another unbound workspace. Saving over a workspace is rejected when a branch binding is involved; activate that workspace, then save it.
+- Workspaces created, renamed, saved, or deleted here appear in the core list. Equal names appear as `Name`, `Name (2)`.
+
+Changes made in core while this plugin is disabled are taken in at the next start: deleted layouts delete their workspaces, new layouts become unbound workspaces, and a layout that core saved later replaces the stored one. On the first start, every core layout that has no workspace with the same name is imported. Branch bindings, history, groups, icons, and descriptions exist only in this plugin.
+
+`mode:` entries from Workspaces Plus stay in the core file and are not imported. If Obsidian changes the core plugin's internal interface, Workspaces shows one notice and leaves the core list alone. Do not sync `workspaces.json` between two devices that both run this plugin; each device projects its own catalog. See [ADR 0006](docs/adr/0006-native-core-catalog-bridge.md) for the rules and limits. This bridge has automated tests only; it has not yet been validated in the native application.
 
 ## Quick Switcher++ integration
 
@@ -85,7 +101,7 @@ The current work concentrates on dependable workspace restoration, native presen
 - [Validation](docs/validation.md): automated checks, native application results, and remaining platform coverage.
 - [Native performance measurements](docs/validation/native-completion-budget/README.md): matched Linux sessions, measured limitations and the current acceptance decision.
 - [Local Mac performance gate](docs/performance/local-mac-closure.md): reproduce native benchmarks, compare identified builds and document the result required before performance issue closure.
-- [Architecture decisions](docs/adr/0001-workspace-authority-and-persistence.md): state, native integration, Git, transitions and [performance acceptance](docs/adr/0005-performance-measurement-and-closure.md).
+- [Architecture decisions](docs/adr/0001-workspace-authority-and-persistence.md): state, native integration, Git, transitions, [performance acceptance](docs/adr/0005-performance-measurement-and-closure.md) and the [core Workspaces bridge](docs/adr/0006-native-core-catalog-bridge.md).
 
 ## Attribution and license
 

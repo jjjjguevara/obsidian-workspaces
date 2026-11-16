@@ -1,5 +1,6 @@
 import {
   emptyState,
+  type NativeCatalogBaseline,
   type WorkspaceState,
   type Snapshot,
   type WorkspaceRecord,
@@ -56,6 +57,27 @@ function validateSnapshot(value: unknown): asserts value is Snapshot {
       !value.binding.branch)
   )
     throw new Error('Invalid Git binding.');
+}
+/** The baseline is derived data: an entry for a record that no longer exists is dropped. */
+function migrateNativeCatalog(
+  value: unknown,
+  workspaces: Record<string, unknown>,
+): NativeCatalogBaseline {
+  if (!object(value) || !object(value.projected))
+    throw new Error('Invalid core Workspaces baseline.');
+  const baseline: NativeCatalogBaseline = { projected: {} };
+  for (const [id, name] of Object.entries(value.projected)) {
+    if (typeof name !== 'string' || !name) throw new Error('Invalid core Workspaces baseline.');
+    if (validWorkspaceId(id) && Object.hasOwn(workspaces, id)) baseline.projected[id] = name;
+  }
+  if (value.retired !== undefined) {
+    if (!object(value.retired)) throw new Error('Invalid core Workspaces baseline.');
+    const retired = Object.entries(value.retired);
+    if (retired.some(([, time]) => typeof time !== 'number' || !Number.isFinite(time)))
+      throw new Error('Invalid core Workspaces baseline.');
+    if (retired.length) baseline.retired = Object.fromEntries(retired) as Record<string, number>;
+  }
+  return baseline;
 }
 export function migrateState(value: unknown): WorkspaceState {
   if (value === null || value === undefined) return emptyState();
@@ -140,7 +162,10 @@ export function migrateState(value: unknown): WorkspaceState {
     )
       throw new Error('Invalid recovery branch.');
   }
-  return structuredClone(value) as unknown as WorkspaceState;
+  const state = structuredClone(value) as unknown as WorkspaceState;
+  if (value.nativeCatalog === undefined) delete state.nativeCatalog;
+  else state.nativeCatalog = migrateNativeCatalog(value.nativeCatalog, value.workspaces);
+  return state;
 }
 export function importRecords(value: unknown): WorkspaceRecord[] {
   if (!object(value)) throw new Error('Import must be a JSON object.');
