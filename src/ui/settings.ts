@@ -78,6 +78,8 @@ export class WorkspacesSettingTab extends PluginSettingTab {
     app: App,
     plugin: Plugin,
     private readonly controller: WorkspaceController,
+    /** True while the core Workspaces list is a projection of this catalog. */
+    private readonly coreLinked: () => boolean = () => false,
   ) {
     super(app, plugin);
     plugin.register(controller.subscribe(() => this.update()));
@@ -185,8 +187,10 @@ export class WorkspacesSettingTab extends PluginSettingTab {
           },
           {
             name: 'Import this vault’s core workspaces',
-            desc: 'Read the existing core Workspaces data without changing it or activating a branch.',
-            disabled: () => locked(this.controller),
+            desc: this.coreLinked()
+              ? 'Core Workspaces is enabled, so its list already matches this catalog. Use this action when core Workspaces is disabled.'
+              : 'Read the existing core Workspaces data without changing it or activating a branch.',
+            disabled: () => locked(this.controller) || this.coreLinked(),
             action: () => {
               void importCoreWorkspaces(this.app, this.controller);
             },

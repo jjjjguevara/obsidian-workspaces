@@ -6,6 +6,8 @@
 
 **Updated:** 2026-11-14 — Quick Switcher++ activation and status ownership.
 
+**Updated:** 2026-11-16 — [ADR 0006](0006-native-core-catalog-bridge.md) supersedes the sentences about the core Workspaces catalog. They stay below as history.
+
 ## Context
 
 Workspaces should behave like part of Obsidian while providing a catalog and lifecycle that can coordinate Git. Native presentation, native layout restoration, and live interoperability with the core Workspaces catalog are different integration choices. A second independent writer could load a branch-bound layout before its files exist.
@@ -18,7 +20,9 @@ Capture and restore native Obsidian layout state, preserving pin flags and leaf 
 
 Own the workspace catalog described in [ADR 0001](0001-workspace-authority-and-persistence.md). Support explicit import of core Workspaces and Workspace++ data. Do not monkey-patch the core Workspaces catalog or maintain two writable catalogs. The core plugin is not required for normal operation.
 
-Integrate Quick Switcher++ through its workspace handler in a separate compatibility adapter. Its Workspaces Mode presents this catalog using stable IDs and routes selection and creation through the controller. Its synchronous save-then-load shortcut maps to one serialized save-and-activate operation: a failed save must not proceed to activation, and a queued request must not save a different source workspace. Do not populate or intercept the core Workspaces catalog to achieve this integration.
+Superseded in part by [ADR 0006](0006-native-core-catalog-bridge.md) on 2026-11-16: a separate adapter now wraps the core plugin's four catalog methods. There is still one writable catalog. The core list is a projection of it. The core plugin is still not required.
+
+Integrate Quick Switcher++ through its workspace handler in a separate compatibility adapter. Its Workspaces Mode presents this catalog using stable IDs and routes selection and creation through the controller. Its synchronous save-then-load shortcut maps to one serialized save-and-activate operation: a failed save must not proceed to activation, and a queued request must not save a different source workspace. Do not populate or intercept the core Workspaces catalog to achieve this integration. (This still holds for the Quick Switcher++ adapter. The core catalog bridge of [ADR 0006](0006-native-core-catalog-bridge.md) is a different adapter.)
 
 Quick Switcher++ exposes no public workspace-provider registration API at the inspected version. Target its 6.3.x handler capabilities, tested against 6.3.0, and narrowly wrap community-plugin load/unload methods to handle either load order and provider reload. Subscribe to the native plugin manager's `changed` event as well: an enable already in progress before those wrappers were installed must be reconciled when initialization completes. An instance without its command definitions is still loading, not yet an incompatible provider. Close existing workspace suggestions when the provider changes, reject stale suggestions, and restore method descriptors and event subscriptions on teardown without overwriting later wrappers. Other Quick Switcher++ modes remain under its own implementation.
 
@@ -30,6 +34,6 @@ Restore branch-owned note leaves with their workspace, including sidebar pins. A
 
 ## Consequences
 
-The product gets native interaction patterns without inheriting a second lifecycle. Native core workspace commands remain separate from this product's commands; Quick Switcher++ Workspaces Mode uses the explicit adapter above. Live core-catalog interoperability would require a new decision and an adapter that routes activation before layout restoration. Quick Switcher++ compatibility requires version/capability checks and native regression evidence when its internal contract changes.
+The product gets native interaction patterns without inheriting a second lifecycle. Native core workspace commands remain separate from this product's commands; Quick Switcher++ Workspaces Mode uses the explicit adapter above. Live core-catalog interoperability would require a new decision and an adapter that routes activation before layout restoration. [ADR 0006](0006-native-core-catalog-bridge.md) is that decision: while core Workspaces is enabled, its commands and dialogs use this product's controller. Quick Switcher++ compatibility requires version/capability checks and native regression evidence when its internal contract changes.
 
 UI changes cannot bypass Git validation or recovery by calling the underlying layout APIs directly. [ADR 0004](0004-workspace-transitions-and-recovery.md) owns all activation paths.

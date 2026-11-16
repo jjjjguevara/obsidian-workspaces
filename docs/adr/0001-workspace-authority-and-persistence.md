@@ -4,6 +4,8 @@
 
 **Date:** 2026-11-13
 
+**Updated:** 2026-11-16 — the core Workspaces list becomes a projection of this catalog ([ADR 0006](0006-native-core-catalog-bridge.md)).
+
 ## Context
 
 A workspace must retain its identity when renamed and retain references to notes that temporarily disappear during a branch checkout. The catalog that describes both branches cannot depend on the contents of the currently checked-out branch. Presentation fields, layouts, and branch associations also need consistent duplication and recovery behavior.
@@ -23,3 +25,5 @@ Provide explicit export/import. Automatic cross-device merge is outside the init
 Checkout cannot replace desktop control data. A renamed or moved vault needs export/import because its path-derived key changes. Devices do not automatically share workspace state. New fields require defined migration, duplication, history, and transfer behavior.
 
 Core Workspaces and Workspace++ are import formats; the live core catalog is not a second authority. [ADR 0002](0002-obsidian-integration-and-native-interface.md) defines that integration boundary.
+
+Updated 2026-11-16: [ADR 0006](0006-native-core-catalog-bridge.md) keeps this catalog as the only authority. While core Workspaces is enabled, its list is a projection of this catalog and its operations go to the controller. The state gains an optional `nativeCatalog` baseline for that bridge. It is local to the device, absent from exports and never imported.

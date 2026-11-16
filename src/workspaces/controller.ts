@@ -37,6 +37,27 @@ export type WorkspaceMetadata = Pick<
   'name' | 'group' | 'icon' | 'color' | 'description'
 >;
 
+/** Catalog changes that bring in edits made in the core Workspaces list. */
+export interface NativeCatalogChanges {
+  /** Core layouts that replace a record's layout for this device. The binding stays. */
+  adopt: Array<{ id: string; layout: Layout; savedAt: number }>;
+  /** Core entries that become new unbound records. */
+  add: WorkspaceRecord[];
+  /** Records whose core entry was deleted. */
+  remove: string[];
+}
+
+const hasBinding = (record: WorkspaceRecord | undefined): boolean =>
+  !!record && Object.values(record.contexts).some((context) => !!context?.binding);
+
+/** A removed record leaves the baseline. A retired name stops a stale core entry from returning. */
+function forgetProjected(state: WorkspaceState, id: string, retire: boolean): void {
+  const baseline = state.nativeCatalog;
+  if (!baseline || !Object.hasOwn(baseline.projected, id)) return;
+  if (retire) (baseline.retired ??= {})[baseline.projected[id]!] = Date.now();
+  delete baseline.projected[id];
+}
+
 /** All mutation and restoration routes share this queue. No timer can steal ownership. */
 export class WorkspaceController {
   private current: WorkspaceState;
@@ -218,6 +239,29 @@ export class WorkspaceController {
       await this.commit(next);
     });
   }
+  /**
+   * Save the live layout as another record's layout for this device and make that
+   * record active. No checkout or restoration occurs, so both sides must be unbound.
+   */
+  saveCurrentTo(id: string): Promise<void> {
+    return this.enqueue('Saving workspace', async () => {
+      const target = this.record(id);
+      if (id === this.current.activeId) return this.saveCurrent();
+      const active = this.current.activeId ? this.record(this.current.activeId) : undefined;
+      if (hasBinding(target) || hasBinding(active))
+        throw new Error(
+          `The current layout cannot replace “${target.name}” while a branch binding is involved. Activate “${target.name}” first, then save it.`,
+        );
+      await this.host.flush();
+      const next = this.state;
+      const live = this.capture(null);
+      // Identity moves without a transition, so save on switch keeps the outgoing layout.
+      if (next.activeId && next.autoSave) remember(next.workspaces[next.activeId], live);
+      remember(next.workspaces[id], live);
+      next.activeId = id;
+      await this.commit(next);
+    });
+  }
   /** A switcher's explicit save-and-switch must retain one mutation owner. */
   saveAndActivate(
     id: string,
@@ -320,9 +364,76 @@ export class WorkspaceController {
         }
       }
       const next = this.state;
+      forgetProjected(next, id, true);
       delete next.workspaces[id];
       next.order = next.order.filter((candidate) => candidate !== id);
       if (next.activeId === id) next.activeId = null;
+      await this.commit(next);
+    });
+  }
+  /**
+   * Apply edits made in the core Workspaces list in one commit. The plan is computed
+   * inside the queue from current state. There is no activation, layout change, or Git call.
+   */
+  reconcileNativeCatalog<T extends NativeCatalogChanges>(
+    plan: (state: WorkspaceState) => T,
+  ): Promise<T> {
+    return this.enqueue('Matching core workspaces', async () => {
+      const changes = plan(this.state);
+      if (!changes.adopt.length && !changes.add.length && !changes.remove.length) return changes;
+      const next = this.state;
+      for (const id of changes.remove) {
+        this.record(id);
+        forgetProjected(next, id, false);
+        delete next.workspaces[id];
+        next.order = next.order.filter((candidate) => candidate !== id);
+        // The live layout stays as it is. Nothing is restored for a deleted record.
+        if (next.activeId === id) next.activeId = null;
+      }
+      for (const { id, layout, savedAt } of changes.adopt) {
+        this.record(id);
+        const record = next.workspaces[id];
+        if (!record) continue;
+        remember(record, {
+          layout,
+          device: this.device,
+          binding: record.contexts[this.device]?.binding ?? null,
+          savedAt,
+        });
+      }
+      for (const original of changes.add) {
+        const record = structuredClone(original);
+        if (Object.hasOwn(next.workspaces, record.id)) record.id = globalThis.crypto.randomUUID();
+        next.workspaces[record.id] = record;
+        next.order.push(record.id);
+      }
+      await this.commit(next);
+      return changes;
+    });
+  }
+  /**
+   * Record the projection that the core Workspaces list received. A record that was
+   * removed after that write keeps a retired name until the next projection.
+   */
+  confirmNativeProjection(projected: Record<string, string>): Promise<void> {
+    return this.enqueue('Updating core workspace list', async () => {
+      const next = this.state;
+      const previous = next.nativeCatalog;
+      const baseline: NonNullable<WorkspaceState['nativeCatalog']> = { projected: {} };
+      const retired: Record<string, number> = {};
+      for (const [id, name] of Object.entries(projected)) {
+        if (Object.hasOwn(next.workspaces, id)) baseline.projected[id] = name;
+        else retired[name] = previous?.retired?.[name] ?? Date.now();
+      }
+      if (Object.keys(retired).length) baseline.retired = retired;
+      const comparable = (value: Record<string, unknown> = {}): string =>
+        JSON.stringify(Object.entries(value).sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0)));
+      if (
+        comparable(previous?.projected) === comparable(baseline.projected) &&
+        comparable(previous?.retired) === comparable(baseline.retired)
+      )
+        return;
+      next.nativeCatalog = baseline;
       await this.commit(next);
     });
   }
@@ -341,7 +452,9 @@ export class WorkspaceController {
     });
   }
   exportJson(): string {
-    return JSON.stringify(this.current, null, 2);
+    // The core-list baseline describes this device's files. It is not transfer data.
+    const { nativeCatalog: _deviceLocal, ...transferable } = this.current;
+    return JSON.stringify(transferable, null, 2);
   }
   activate(id: string): Promise<void> {
     return this.enqueue('Switching workspace', () => this.transition(id));
