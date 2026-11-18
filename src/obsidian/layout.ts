@@ -10,8 +10,11 @@ import {
 } from './layout-files';
 import { reconcileVaultFiles } from './vault-reconcile';
 
-// These core FileViews have no editable document buffer to flush. In particular,
-// backlinks, outgoing links, and outline follow the active file but are read-only.
+// These core FileViews have no editable document buffer to flush. Backlinks,
+// Outgoing links, Outline, Local graph and File properties follow the active
+// file; the first four are read-only, and File properties writes each change to
+// the note at once. All are unloaded before a checkout, and the checkout
+// safeguard then reads the worktree again, so a late write blocks the switch.
 // Keep this explicit: an arbitrary FileView may own unsaved editor state.
 const READ_ONLY_CORE_FILE_VIEWS = new Set([
   'pdf',
@@ -21,6 +24,8 @@ const READ_ONLY_CORE_FILE_VIEWS = new Set([
   'backlink',
   'outgoing-link',
   'outline',
+  'localgraph',
+  'file-properties',
 ]);
 
 /** Name at most three notes; a long list would hide the count. */
@@ -78,7 +83,7 @@ export class ObsidianWorkspaceHost implements WorkspaceHost {
         !READ_ONLY_CORE_FILE_VIEWS.has(state.type)
       ) {
         throw new Error(
-          `Close the “${state.type}” editor before switching branches. Supported views include text-backed notes, native media, backlinks, outgoing links, and outline.`,
+          `Close the “${state.type}” editor before switching branches. Supported views include text-backed notes, native media, and Obsidian's own panes that follow the active note.`,
         );
       }
       if (typeof state.state?.file === 'string' && !(leaf.view instanceof FileView)) {

@@ -33,7 +33,7 @@ A switch with no checkout, to an unbound workspace or to a workspace on the curr
 
 Changing the branch outside Workspaces can leave the displayed context and saved binding out of alignment. The plugin detects that mismatch before capturing or switching a bound context, so that notes from one branch do not silently replace another branch's saved layout.
 
-Before changing branches, Workspaces awaits saves for text-backed note views and unloads outgoing file views. Native media views and the built-in Backlinks, Outgoing links, and Outline panes are supported. Other editable view types with no supported save lifecycle must be closed first; the plugin reports the view that needs attention.
+Before changing branches, Workspaces awaits saves for text-backed note views and unloads outgoing file views. Native media views and the built-in Backlinks, Outgoing links, Outline, Local graph, and File properties panes are supported. Other editable view types with no supported save lifecycle must be closed first; the plugin reports the view that needs attention.
 
 Exclude Obsidian's live layout files, `.obsidian/workspace.json` and `.obsidian/workspace-mobile.json`, from Git tracking in both branches. The checkout preflight enforces this because those files change as the interface changes. Keep `community-plugins.json` and the Workspaces/Obsidian Git plugin files identical across branches, or untracked, so checkout cannot reload the integration. Use the actual configuration directory if different.
 
