@@ -77,16 +77,39 @@ class ConfirmationModal extends Modal {
   override onOpen(): void {
     this.setTitle(this.options.title);
     this.contentEl.createEl('p', { text: this.options.message });
-    new Setting(this.contentEl)
-      .addButton((button) =>
-        button.setButtonText(this.options.cancel ?? 'Cancel').onClick(() => this.finish(false)),
-      )
-      .addButton((button) => {
+    const setting = new Setting(this.contentEl);
+    let preferred: HTMLElement | undefined;
+    const cancel = (): void => {
+      setting.addButton((button) => {
+        button.setButtonText(this.options.cancel ?? 'Cancel').onClick(() => this.finish(false));
+        if (this.options.destructive) preferred = button.buttonEl;
+      });
+    };
+    const action = (): void => {
+      setting.addButton((button) => {
         button.setButtonText(this.options.action);
         if (this.options.destructive) button.setWarning();
-        else button.setCta();
+        else {
+          button.setCta();
+          preferred = button.buttonEl;
+        }
         button.onClick(() => this.finish(true));
       });
+    };
+    // Obsidian focuses the first button of a dialog, and Enter presses the focused
+    // button. Put the action first so that Enter confirms. A destructive dialog
+    // keeps Cancel first: Enter must not delete or discard by accident.
+    if (this.options.destructive) {
+      cancel();
+      action();
+    } else {
+      action();
+      cancel();
+    }
+    // Also set focus directly, after the host has placed its own.
+    window.setTimeout(() => {
+      if (!this.answered) preferred?.focus();
+    }, 0);
   }
   override onClose(): void {
     if (!this.answered) {
@@ -173,6 +196,8 @@ export function confirmDiscard(app: App, name: string): Promise<boolean> {
     title: 'Unsaved layout changes',
     message: `“${name}” has layout changes that have not been saved to the workspace. Switch without updating its saved layout? Your note contents are handled separately.`,
     action: 'Switch without saving layout',
+    // The unsaved layout is lost, so Enter must not confirm this by default.
+    destructive: true,
     cancel: 'Keep current workspace',
   });
 }

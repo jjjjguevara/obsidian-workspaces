@@ -154,4 +154,13 @@ Native Obsidian 1.15.1 on macOS (arm64), Obsidian Git 2.43.0, driven by an agent
 | Disposable Git vault               | Bind an unbound workspace through the real command and dialog after Obsidian Git checked out another branch                                                                                             | Binding saved and stayed                                                              | Not repeated                                                                                                                                  |
 | Owner's vault                      | Open an unbound workspace, check out `main` with Obsidian Git, bind through the real dialog, then switch to a workspace bound to another branch and back, through the product and through the core list | Not run                                                                               | Binding saved and stayed through four checkouts (620 to 1,075 ms) with a Local graph pane in the layouts.                                     |
 
-The owner reported that a binding to `main` did not persist. The saved history of that vault holds no bound context for the affected workspaces, so no bind had been committed there. The loss was not reproduced in either vault with either build, and its cause is not established.
+The owner reported that a binding to `main` did not persist. The saved history of that vault holds no bound context for the affected workspaces, so no bind had been committed there. A saved binding was not lost in either vault with either build.
+
+One cause of a bind that is never committed was found in the confirmation dialog. Its Cancel button came first, Obsidian focuses the first button, and Enter presses the focused button. A user who confirmed with the keyboard cancelled the bind, with no notice. The dialog now puts the action first and focuses it, except for destructive actions (delete a workspace, switch and lose an unsaved layout), which keep Cancel as the default.
+
+| Scenario, disposable Git vault                    | Previous build                                   | New build `a5e092e7…`                                                          |
+| ------------------------------------------------- | ------------------------------------------------ | ------------------------------------------------------------------------------ |
+| Open the bind dialog from the command             | Focus on Cancel                                  | Buttons in the order Save branch binding, Cancel; focus on Save branch binding |
+| Press Enter (key event injected through Electron) | Not run; Enter presses the focused Cancel button | The dialog closed, the binding was saved, and the success notice showed        |
+
+It is not established that this is what happened in the owner's vault.
