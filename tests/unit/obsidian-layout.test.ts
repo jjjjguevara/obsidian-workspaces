@@ -108,6 +108,9 @@ async function host(
   );
 }
 
+/** Obsidian's own panes that follow the active note; a checkout unloads them. */
+const FOLLOWER_PANES = ['backlink', 'outgoing-link', 'outline', 'localgraph', 'file-properties'];
+
 function leaf(type: string, view: object, close: (state: ViewState) => Promise<void>): Leaf {
   return {
     view,
@@ -235,7 +238,7 @@ test('native file-following sidebar views unload independently and every unload 
   const started = deferred();
   const release = deferred();
   const closed: string[] = [];
-  const leaves = ['backlink', 'outgoing-link', 'outline'].map((type, index) =>
+  const leaves = FOLLOWER_PANES.map((type, index) =>
     leaf(type, new FileView(), async (state) => {
       assert.equal(state.type, 'empty');
       assert.equal(state.pinned, false);
@@ -255,10 +258,10 @@ test('native file-following sidebar views unload independently and every unload 
   });
   await started.promise;
   assert.equal(completed, false);
-  assert.deepEqual(closed, ['backlink', 'outgoing-link', 'outline']);
+  assert.deepEqual(closed, FOLLOWER_PANES);
   release.resolve();
   await pending;
-  assert.deepEqual(closed, ['backlink', 'outgoing-link', 'outline']);
+  assert.deepEqual(closed, FOLLOWER_PANES);
 });
 
 test('a rejected native unload waits for every other started unload before reporting failure', async () => {

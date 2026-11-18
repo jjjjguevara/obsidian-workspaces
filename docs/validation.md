@@ -139,3 +139,28 @@ The status bar item was inspected in native Obsidian 1.15.1 on macOS (arm64), bu
 | After release | The normal state again.                                                                                                                                                                                                           |
 
 The computed size and animation show that the core styles for the start-up indicator apply to the item. Not observed natively: the indicator during a real switch, and a visual comparison with the start-up indicator.
+
+## Follower panes and branch checkout — 2026-11-18
+
+A branch switch failed with `Close the “localgraph” editor before switching branches` when the outgoing layout held a Local graph pane. File properties failed in the same way. Both are core `FileView` panes that follow the active note, and the unload allow-list did not name them. The list now holds all five follower panes: Backlinks, Outgoing links, Outline, Local graph and File properties.
+
+`npm run check` passed **489 tests**, type checking and the build. The host test for independent unloads now covers the five panes.
+
+Native Obsidian 1.15.1 on macOS (arm64), Obsidian Git 2.43.0, driven by an agent through the Obsidian CLI:
+
+| Vault                              | Scenario                                                                                                                                                                                                | Previous build `940b7e18…`                                                            | New build `7b2ddc9a…`                                                                                                                         |
+| ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| Disposable Git vault, two branches | Switch between two bound workspaces with Local graph and File properties open                                                                                                                           | Rejected for `localgraph`; after that pane was closed, rejected for `file-properties` | Four switches completed in 195 to 536 ms. Both panes returned and followed the note of the new branch. Git stayed clean; no journal remained. |
+| Disposable Git vault               | Bind an unbound workspace through the real command and dialog after Obsidian Git checked out another branch                                                                                             | Binding saved and stayed                                                              | Not repeated                                                                                                                                  |
+| Owner's vault                      | Open an unbound workspace, check out `main` with Obsidian Git, bind through the real dialog, then switch to a workspace bound to another branch and back, through the product and through the core list | Not run                                                                               | Binding saved and stayed through four checkouts (620 to 1,075 ms) with a Local graph pane in the layouts.                                     |
+
+The owner reported that a binding to `main` did not persist. The saved history of that vault holds no bound context for the affected workspaces, so no bind had been committed there. A saved binding was not lost in either vault with either build.
+
+One cause of a bind that is never committed was found in the confirmation dialog. Its Cancel button came first, Obsidian focuses the first button, and Enter presses the focused button. A user who confirmed with the keyboard cancelled the bind, with no notice. The dialog now puts the action first and focuses it, except for destructive actions (delete a workspace, switch and lose an unsaved layout), which keep Cancel as the default.
+
+| Scenario, disposable Git vault                    | Previous build                                   | New build `a5e092e7…`                                                          |
+| ------------------------------------------------- | ------------------------------------------------ | ------------------------------------------------------------------------------ |
+| Open the bind dialog from the command             | Focus on Cancel                                  | Buttons in the order Save branch binding, Cancel; focus on Save branch binding |
+| Press Enter (key event injected through Electron) | Not run; Enter presses the focused Cancel button | The dialog closed, the binding was saved, and the success notice showed        |
+
+It is not established that this is what happened in the owner's vault.
